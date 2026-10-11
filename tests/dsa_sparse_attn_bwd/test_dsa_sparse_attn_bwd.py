@@ -173,3 +173,18 @@ def test_custom_op(dsa):
         fake = [mode.from_tensor(a) if isinstance(a, torch.Tensor) else a for a in args]
         fdq, fdkv, fds = torch.ops.prime_kernels.dsa_sparse_attn_bwd(*fake)
     assert fdq.shape == dq.shape and fdkv.shape == dkv.shape and fds.shape == dsinks.shape
+
+
+def test_out_tail_replaces_the_last_channels(dsa):
+    """With `out_tail`, each head's last channels of the output come from it: a caller that rewrote
+    them in place (prime-rl rotates the output's RoPE channels) gets the same gradients bit for bit."""
+    indices, n_rows = make_indices([300, 212], window=32, topk=64)
+    (q, kv, out, grad_out, lse, idx, sinks, scale), _ = make_problem(indices, n_rows)
+    tail = out[..., -64:].clone()
+    overwritten = out.clone()
+    overwritten[..., -64:] = torch.randn_like(tail)
+    expected = dsa.sparse_attn_backward_flat(q, kv, out, grad_out, lse, idx, sinks, scale)
+    actual = dsa.sparse_attn_backward_flat(q, kv, overwritten, grad_out, lse, idx, sinks, scale, tail)
+    torch.testing.assert_close(actual[0], expected[0], rtol=0, atol=0)
+    torch.testing.assert_close(actual[2], expected[2], rtol=0, atol=0)
+    torch.testing.assert_close(actual[1], expected[1], rtol=1e-2, atol=1e-2)  # atomics: summation order varies

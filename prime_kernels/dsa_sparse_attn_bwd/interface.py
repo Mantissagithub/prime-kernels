@@ -16,6 +16,7 @@ _compiled: dict = {}
 @triton.jit
 def _preprocess_kernel(
     out_ptr,
+    out_tail_ptr,
     dout_ptr,
     lse_ptr,
     sink_ptr,
@@ -30,16 +31,24 @@ def _preprocess_kernel(
     BLOCK_D: tl.constexpr,
     K: tl.constexpr,
     BLOCK_K: tl.constexpr,
+    TAIL: tl.constexpr,
 ):
     """Per query: delta = rowsum(dO * O), the sink-aware LSE in log2 units, each head's sink gradient
     -p_sink * delta, and the slot list with its non-empty slots moved to the front (then -1s) plus
-    their count."""
+    their count. With `TAIL` > 0, each head's last `TAIL` channels of O are read from `out_tail`."""
     t = tl.program_id(0).to(tl.int64)
     heads = tl.arange(0, H)
     acc = tl.zeros([H], dtype=tl.float32)
     for d0 in tl.static_range(0, D, BLOCK_D):
-        offs = t * H * D + heads[:, None] * D + d0 + tl.arange(0, BLOCK_D)[None, :]
-        o = tl.load(out_ptr + offs).to(tl.float32)
+        cols = d0 + tl.arange(0, BLOCK_D)[None, :]
+        offs = t * H * D + heads[:, None] * D + cols
+        if TAIL > 0 and d0 + BLOCK_D > D - TAIL:
+            in_tail = cols >= D - TAIL
+            tail_offs = t * H * TAIL + heads[:, None] * TAIL + cols - (D - TAIL)
+            tail = tl.load(out_tail_ptr + tail_offs, mask=in_tail)
+            o = tl.where(in_tail, tail, tl.load(out_ptr + offs, mask=~in_tail)).to(tl.float32)
+        else:
+            o = tl.load(out_ptr + offs).to(tl.float32)
         g = tl.load(dout_ptr + offs).to(tl.float32)
         acc += tl.sum(o * g, axis=1)
     lse = tl.load(lse_ptr + t * H + heads)
@@ -127,8 +136,13 @@ def sparse_attn_backward_flat(
     indices: torch.Tensor,  # (t, k) int32 rows of kv, -1 = empty slot
     sinks: torch.Tensor,  # (h,) f32
     sm_scale: float,
+    out_tail: torch.Tensor | None = None,  # (t, h, tail) bf16, each head's last channels of `out`
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    """dq (t, h, d) bf16, dkv (n, d) bf16, dsinks (h,) f32 of sink-aware sparse attention."""
+    """dq (t, h, d) bf16, dkv (n, d) bf16, dsinks (h,) f32 of sink-aware sparse attention.
+
+    With `out_tail`, the forward output is `out` with each head's last `tail` channels replaced by
+    `out_tail`'s (only the backward's `delta` reads it), so a caller that rewrote those channels in
+    place keeps just them."""
     import cuda.bindings.driver as cuda
 
     t, h, d = q.shape
@@ -154,8 +168,10 @@ def sparse_attn_backward_flat(
     if t == 0:
         return dq, dkv.zero_(), torch.zeros_like(sinks)
 
+    tail = 0 if out_tail is None else out_tail.shape[-1]
     _preprocess_kernel[(t,)](
         out,
+        out if out_tail is None else out_tail.contiguous(),
         grad_out,
         lse,
         sinks,
@@ -170,6 +186,7 @@ def sparse_attn_backward_flat(
         BLOCK_D=128,
         K=k,
         BLOCK_K=triton.next_power_of_2(k),
+        TAIL=tail,
     )
     num_ctas = min(t, torch.cuda.get_device_properties(q.device).multi_processor_count)
     stream = cuda.CUstream(torch.cuda.current_stream(q.device).cuda_stream)
@@ -188,10 +205,12 @@ def dsa_sparse_attn_backward(
     indices: torch.Tensor,
     sinks: torch.Tensor,
     sm_scale: float,
+    out_tail: torch.Tensor | None = None,
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """Drop-in for prime-rl's `dsv41_sparse_attn_backward`: `q`, `out`, `grad_out` (1, t, h, d), `kv`
     (1, n, 1, d), `lse` (1, t, h), `indices` (1, t, 1, k) int32 (-1 = empty), `sinks` (h,) ->
-    dq like q, dkv like kv, dsinks like sinks."""
+    dq like q, dkv like kv, dsinks like sinks. `out_tail` (1, t, h, tail), if given, holds each head's
+    last `tail` channels of the forward output in place of `out`'s (see `sparse_attn_backward_flat`)."""
     _, t, h, d = q.shape
     dq, dkv, dsinks = sparse_attn_backward_flat(
         q.view(t, h, d),
@@ -202,10 +221,11 @@ def dsa_sparse_attn_backward(
         indices.reshape(t, -1),
         sinks,
         sm_scale,
+        None if out_tail is None else out_tail.view(t, h, -1),
     )
     return dq.view_as(q), dkv.view_as(kv).to(kv.dtype), dsinks.to(sinks.dtype)
 
 
 @dsa_sparse_attn_backward.register_fake
-def _dsa_sparse_attn_backward_fake(grad_out, q, kv, out, lse, indices, sinks, sm_scale):
+def _dsa_sparse_attn_backward_fake(grad_out, q, kv, out, lse, indices, sinks, sm_scale, out_tail=None):
     return torch.empty_like(q), torch.empty_like(kv), torch.empty_like(sinks)
