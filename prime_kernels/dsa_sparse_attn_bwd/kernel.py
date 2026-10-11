@@ -16,7 +16,8 @@ refilled as soon as its last reader is done:
 
     WG0: S, dP (lo half then hi half) -> softmax -> P, dS to smem -> dQ[:, :256] += dS K_lo (dS from
          registers) -> gather K_lo of the next tile -> the first `wg0_chunks` dKV chunks
-    WG1: dQ[:, 256:] += dS K_hi -> gather K_hi of the next tile -> the remaining dKV chunks
+    WG1: P^T, dS^T to registers (ldmatrix.trans) -> dQ[:, 256:] += dS K_hi -> gather K_hi of the next
+         tile -> the remaining dKV chunks, their A operands read from registers
          (64 columns each; rotating accumulators, so a chunk's atomics overlap the next MMAs)
 
 The next tile may belong to the next query: its slot list is prefetched into a second buffer
@@ -41,7 +42,6 @@ HALF = 256
 TILE_N = 64
 CHUNK = 64  # dKV is computed and scattered 64 latent columns at a time
 NUM_CHUNKS = DIM // CHUNK
-NUM_ACC = 3  # dKV accumulators in rotation: a chunk's atomics have two MMAs' time to read their registers
 
 # named barriers (0 is __syncthreads)
 BAR_PDS_FULL = 1  # WG0 -> WG1: P / dS of the current tile are in smem
@@ -50,10 +50,16 @@ BAR_QDO_FREE = 3  # WG0 -> WG1: WG0's dKV chunks of a query's last tile are done
 
 
 class SparseAttnBwdSm90:
-    def __init__(self, num_slots: int, wg0_chunks: int = 2):
+    def __init__(self, num_slots: int, wg0_chunks: int = 2, rs: int = 1):
         assert num_slots % TILE_N == 0
         assert 0 <= wg0_chunks <= NUM_CHUNKS // 2
         self.wg0_chunks = wg0_chunks
+        # rs: WG1 reads P^T / dS^T for its dKV MMAs from registers, loaded once per tile, instead of from
+        # shared memory once per chunk (shared memory bandwidth is what the SS MMAs run at)
+        self.rs = rs
+        # dKV accumulators in rotation; 3 give a chunk's atomics two MMAs' time to read their registers,
+        # rs needs the 32 registers of the third for P^T / dS^T (and gains nothing from it)
+        self.num_acc = 2 if rs else 3
         self.num_slots = num_slots
         self.num_threads = 256
 
@@ -98,6 +104,7 @@ class SparseAttnBwdSm90:
         mma_dQ_rs = cu.make_tiled_mma("K", "MN", HALF, a_in_regs=True)
         mma_dQ_ss = cu.make_tiled_mma("K", "MN", HALF)
         mma_dKV = cu.make_tiled_mma("MN", "MN", CHUNK)
+        mma_dKV_rs = cu.make_tiled_mma("K", "MN", CHUNK, a_in_regs=True)
 
         @cute.struct
         class SharedStorage:
@@ -128,6 +135,7 @@ class SparseAttnBwdSm90:
             mma_dQ_rs,
             mma_dQ_ss,
             mma_dKV,
+            mma_dKV_rs,
             sQ_layout,
             sK_layout,
             sPdS_layout,
@@ -160,6 +168,7 @@ class SparseAttnBwdSm90:
         mma_dQ_rs: cute.TiledMma,
         mma_dQ_ss: cute.TiledMma,
         mma_dKV: cute.TiledMma,
+        mma_dKV_rs: cute.TiledMma,
         sQ_layout: cute.ComposedLayout,
         sK_layout: cute.ComposedLayout,
         sPdS_layout: cute.ComposedLayout,
@@ -259,7 +268,7 @@ class SparseAttnBwdSm90:
                 mbar_K,
                 mbar_idx,
                 mma_dQ_ss,
-                mma_dKV,
+                mma_dKV_rs if const_expr(self.rs) else mma_dKV,
                 chunk_layout,
                 bid,
                 grid,
@@ -482,7 +491,7 @@ class SparseAttnBwdSm90:
                             else:
                                 warpgroup.wait_group(0)
                             if const_expr(c > 0):
-                                self.scatter(dkv[3][(c - 1) % NUM_ACC], dkv[5], dkv[6], c - 1, mdKV, wg_tidx % 32)
+                                self.scatter(dkv[3][(c - 1) % self.num_acc], dkv[5], dkv[6], c - 1, mdKV, wg_tidx % 32)
                         if tile + 1 == num_tiles and q_next < num_queries:
                             cute.arch.barrier_arrive(barrier_id=BAR_QDO_FREE, number_of_threads=256)
                     it += 1
@@ -495,12 +504,13 @@ class SparseAttnBwdSm90:
 
     @cute.jit
     def dkv_setup(self, mma_dKV, sP, sdS, wg_tidx):
+        """Per warpgroup dKV state; with an RS `mma_dKV`, the P^T / dS^T fragments are registers."""
         thr_dKV = mma_dKV.get_slice(wg_tidx)
         tKVrPt = thr_dKV.make_fragment_A(thr_dKV.partition_A(cu.transpose_view(sP)))
         tKVrdSt = thr_dKV.make_fragment_A(thr_dKV.partition_A(cu.transpose_view(sdS)))
         tKVcKV = cu.acc_mn_view(thr_dKV.partition_C(cute.make_identity_tensor((TILE_N, CHUNK))))
         acc_shape = mma_dKV.partition_shape_C((TILE_N, CHUNK))
-        accs = tuple(cute.make_rmem_tensor(acc_shape, Float32) for _ in range(NUM_ACC))
+        accs = tuple(cute.make_rmem_tensor(acc_shape, Float32) for _ in range(self.num_acc))
         rows = cute.make_rmem_tensor((2,), Int32)
         addrs = cute.make_rmem_tensor((4,), cutlass.Int64)
         preds = cute.make_rmem_tensor((4,), Int32)
@@ -522,7 +532,7 @@ class SparseAttnBwdSm90:
         sQ_c = cute.make_tensor(sQ[None, None, half].iterator + cc * HEADS * CHUNK, chunk_layout.outer)
         tKVrdOt = thr_dKV.make_fragment_B(thr_dKV.partition_B(cu.transpose_view(sdO_c)))
         tKVrQt = thr_dKV.make_fragment_B(thr_dKV.partition_B(cu.transpose_view(sQ_c)))
-        cu.gemm2(mma_dKV, accs[c % NUM_ACC], tKVrPt, tKVrdOt, tKVrdSt, tKVrQt)
+        cu.gemm2(mma_dKV, accs[c % self.num_acc], tKVrPt, tKVrdOt, tKVrdSt, tKVrQt)
 
     @cute.jit
     def wg1_loop(
@@ -559,6 +569,15 @@ class SparseAttnBwdSm90:
         acc_dQ = cute.make_rmem_tensor(mma_dQ_ss.partition_shape_C((HEADS, HALF)), Float32)
 
         dkv = self.dkv_setup(mma_dKV, sP, sdS, wg_tidx)
+        if const_expr(self.rs):
+            ld_atom = cute.make_copy_atom(
+                cute.nvgpu.warp.LdMatrix8x8x16bOp(transpose=True, num_matrices=4), cutlass.BFloat16
+            )
+            thr_ld = cute.make_tiled_copy_A(ld_atom, mma_dKV).get_slice(wg_tidx)
+            tLsPt = thr_ld.partition_S(cu.transpose_view(sP))
+            tLsdSt = thr_ld.partition_S(cu.transpose_view(sdS))
+            tLrPt = thr_ld.retile(dkv[1])
+            tLrdSt = thr_ld.retile(dkv[2])
         chunks = list(range(self.wg0_chunks, NUM_CHUNKS))
 
         nq = Int32(0)
@@ -577,6 +596,9 @@ class SparseAttnBwdSm90:
                     last = tile + 1 == num_tiles
                     cute.arch.barrier(barrier_id=BAR_PDS_FULL, number_of_threads=256)
                     self.dkv_rows(dkv, sIdx, tile, buf, mdKV, wg_tidx)
+                    if const_expr(self.rs):
+                        cute.copy(thr_ld, tLsPt, tLrPt)
+                        cute.copy(thr_ld, tLsdSt, tLrdSt)
                     cu.gemm(mma_dQ_ss, acc_dQ, tdQrdS, tdQrKt[None, None, None, 1], zero_init=False)
                     reload = last and q_next < num_queries
                     for i in cutlass.range_constexpr(len(chunks) + 1):
@@ -585,6 +607,9 @@ class SparseAttnBwdSm90:
                         if const_expr(i == 0):
                             # dQ_hi (issued first) is done: the high half of the tile is free
                             warpgroup.wait_group(1)
+                            if const_expr(self.rs):
+                                # dQ_hi has read dS and chunk 0 has consumed the ldmatrix results: WG0 may refill
+                                cute.arch.barrier_arrive(barrier_id=BAR_PDS_FREE, number_of_threads=256)
                             self.gather_next(
                                 mKV,
                                 sK,
@@ -605,7 +630,8 @@ class SparseAttnBwdSm90:
                                 warpgroup.wait_group(1)
                             else:
                                 warpgroup.wait_group(0)
-                                cute.arch.barrier_arrive(barrier_id=BAR_PDS_FREE, number_of_threads=256)
+                                if const_expr(not self.rs):
+                                    cute.arch.barrier_arrive(barrier_id=BAR_PDS_FREE, number_of_threads=256)
                         # once the last chunk reading a half of Q / dO is done, load the next query's
                         done = chunks[i - 1] if i > 0 else self.wg0_chunks - 1
                         if const_expr(done == NUM_CHUNKS // 2 - 1 and (i > 0 or self.wg0_chunks == NUM_CHUNKS // 2)):
@@ -619,7 +645,7 @@ class SparseAttnBwdSm90:
                                 self.load_QdO_half(mQ, mdO, sQ, sdO, tma_Q, tma_dO, q_next, 1, mbar_QdO[1])
                         if const_expr(i > 0):
                             self.scatter(
-                                dkv[3][chunks[i - 1] % NUM_ACC], dkv[5], dkv[6], chunks[i - 1], mdKV, wg_tidx % 32
+                                dkv[3][chunks[i - 1] % self.num_acc], dkv[5], dkv[6], chunks[i - 1], mdKV, wg_tidx % 32
                             )
                 self.store_dQ(acc_dQ, thr_dQ, mdQ, q, 1)
                 self.zero_skipped_dQ(acc_dQ, thr_dQ, mdQ, q, q_next, grid, 1)
