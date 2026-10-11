@@ -54,6 +54,12 @@ python-only = true
 requires = ["cutlass", "triton"]
 arch = ["9.0"]
 
+[fp8_dual_cast]
+description = "Per-token and transposed per-token e4m3 casts of a bf16 matrix in one pass (optional DeepSeek-V4 inverse RoPE) on Hopper"
+python-only = true
+requires = ["cutlass"]
+arch = ["9.0"]
+
 # rmsnorm is not built yet: only its sources are committed. Uncomment the table below to
 # put it back into the build (and to make the registry report on it).
 #
