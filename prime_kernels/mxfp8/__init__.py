@@ -8,7 +8,35 @@ BLOCK_SIZE = 32
 
 
 @triton.jit
-def _quantize_kernel(X, Q, S, rows, cols, stride_g, stride_m, stride_k, TILE_M: tl.constexpr):
+def _stochastic_round(x, seed, index):
+    magnitude = tl.minimum(tl.abs(x), 448.0, propagate_nan=tl.PropagateNan.ALL)
+    exponent = ((magnitude.to(tl.int32, bitcast=True) >> 23) & 255) - 127
+    spacing_exponent = tl.maximum(exponent - 3, -9)
+    spacing = ((spacing_exponent + 127) << 23).to(tl.float32, bitcast=True)
+    inverse_spacing = ((127 - spacing_exponent) << 23).to(tl.float32, bitcast=True)
+    units = magnitude * inverse_spacing
+    lower_units = tl.floor(units)
+    rounded = (lower_units + (tl.rand(seed, index.to(tl.uint64)) < units - lower_units).to(tl.float32)) * spacing
+    sign = x.to(tl.int32, bitcast=True) & -2147483648
+    return (rounded.to(tl.int32, bitcast=True) | sign).to(tl.float32, bitcast=True).to(tl.float8e4nv)
+
+
+@triton.jit
+def _quantize_kernel(
+    X,
+    Q,
+    S,
+    SEED,
+    SALT,
+    rounding_offset,
+    rows,
+    cols,
+    stride_g,
+    stride_m,
+    stride_k,
+    STOCHASTIC: tl.constexpr,
+    TILE_M: tl.constexpr,
+):
     group = tl.program_id(2).to(tl.int64)
     m = tl.program_id(0) * TILE_M + tl.arange(0, TILE_M)
     k = tl.program_id(1) * 32 + tl.arange(0, 32)
@@ -29,8 +57,13 @@ def _quantize_kernel(X, Q, S, rows, cols, stride_g, stride_m, stride_k, TILE_M: 
     reciprocal = ((254 - scale.to(tl.int32)) << 23).to(tl.float32, bitcast=True)
     reciprocal = tl.where(scale == 0, 0.0, reciprocal)
     reciprocal = tl.where(scale == 255, float("nan"), reciprocal)
-    q = (x * reciprocal[:, None]).to(tl.float8e4nv)
     offset = (group * rows + m[:, None].to(tl.int64)) * cols + k[None, :]
+    scaled = x * reciprocal[:, None]
+    if STOCHASTIC:
+        seed = tl.load(SEED).to(tl.uint64) ^ tl.load(SALT).to(tl.uint64)
+        q = _stochastic_round(scaled, seed, offset + rounding_offset)
+    else:
+        q = scaled.to(tl.float8e4nv)
     tl.store(Q + offset, q, mask)
     tl.store(S + (group * rows + m.to(tl.int64)) * (cols // 32) + tl.program_id(1), scale, m < rows)
 
@@ -46,10 +79,24 @@ def _dequantize_kernel(Q, S, OUT, size, TILE: tl.constexpr):
     tl.store(OUT + offset, q * decoded, offset < size)
 
 
-def quantize(x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-    """Quantize BF16 2D/3D input along its last dimension; return E4M3 and uint8 scales."""
+def quantize(
+    x: torch.Tensor,
+    *,
+    rounding_seed: torch.Tensor | None = None,
+    rounding_salt: torch.Tensor | None = None,
+    rounding_offset: int = 0,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Return E4M3 and UE8M0 scales, optionally using a Philox stream for weight rounding.
+
+    The stream is keyed by seed XOR salt and the logical row-major element index
+    plus offset. Supplying the same stream reproduces forward rounding in backward.
+    """
     if x.dtype != torch.bfloat16 or x.ndim not in (2, 3) or x.shape[-1] % BLOCK_SIZE:
         raise ValueError("MXFP8 requires 2D/3D BF16 input with its last dimension divisible by 32")
+    if rounding_seed is not None:
+        for key in (rounding_seed, rounding_salt):
+            if key is None or key.dtype != torch.int64 or key.ndim != 0 or key.device != x.device:
+                raise ValueError("Stochastic rounding requires scalar int64 seed and salt on the input device")
     rows, cols = x.shape[-2:]
     groups = x.shape[0] if x.ndim == 3 else 1
     q = torch.empty(x.shape, device=x.device, dtype=torch.float8_e4m3fn)
@@ -59,11 +106,15 @@ def quantize(x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
             x,
             q,
             scales,
+            rounding_seed,
+            rounding_salt,
+            rounding_offset,
             rows,
             cols,
             x.stride(0) if x.ndim == 3 else 0,
             x.stride(-2),
             x.stride(-1),
+            STOCHASTIC=rounding_seed is not None,
             TILE_M=16,
             num_warps=4,
             enable_fp_fusion=False,
