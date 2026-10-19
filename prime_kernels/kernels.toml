@@ -30,6 +30,24 @@ python-only = true
 requires = ["tilelang"]
 arch = ["8.0", "9.0", "10.0", "10.3"]
 
+[lm_head_online_update]
+description = "CuTeDSL online logsumexp state update for the fused LM head"
+python-only = true
+requires = ["cutlass.cute", "cuda.bindings.driver"]
+arch = ["8.9"]
+
+[lm_head_cute_fused_forward_backward]
+description = "CuTeDSL fused BF16 LM-head forward update and backward epilogue"
+python-only = true
+requires = ["cutlass.cute", "cuda.bindings.driver"]
+arch = ["8.9"]
+
+[lm_head_triton_online_update]
+description = "Triton fused online update and backward epilogue for the fused LM head"
+python-only = true
+requires = ["triton"]
+arch = ["8.9"]
+
 # rmsnorm is not built yet: only its sources are committed. Uncomment the table below to
 # put it back into the build (and to make the registry report on it).
 #
