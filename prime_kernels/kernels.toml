@@ -97,3 +97,9 @@ description = "Triton fused SwiGLU activation forward and backward"
 python-only = true
 requires = ["triton"]
 arch = ["8.9"]
+
+[triton_clip_adamw]
+description = "Batched Triton FP32 gradient clipping and AdamW update"
+python-only = true
+requires = ["triton"]
+arch = ["8.9"]

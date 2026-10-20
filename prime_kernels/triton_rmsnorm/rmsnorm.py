@@ -564,8 +564,8 @@ class _RMSNorm(torch.autograd.Function):
                 num_stages=cfg["num_stages"],
             )
         if dw_exact:
-            _dw_torch_order_kernel[(triton.cdiv(n_cols, 128),)](
-                x2d, rstd, grad2d, dw, n_rows, n_cols, BLOCK_H=128, num_warps=4, num_stages=1
+            _dw_torch_order_kernel[(triton.cdiv(n_cols, 32),)](
+                x2d, rstd, grad2d, dw, n_rows, n_cols, BLOCK_H=32, num_warps=4, num_stages=1
             )
         else:
             _reduce_kernel[(triton.cdiv(n_cols, REDUCE_BLOCK_H),)](
@@ -687,8 +687,8 @@ class _ResidualRMSNorm(torch.autograd.Function):
                 num_stages=cfg["num_stages"],
             )
         if dw_exact:
-            _dw_torch_order_kernel[(triton.cdiv(n_cols, 128),)](
-                summed, rstd, grad2d, dw, n_rows, n_cols, BLOCK_H=128, num_warps=4, num_stages=1
+            _dw_torch_order_kernel[(triton.cdiv(n_cols, 32),)](
+                summed, rstd, grad2d, dw, n_rows, n_cols, BLOCK_H=32, num_warps=4, num_stages=1
             )
         else:
             _reduce_kernel[(triton.cdiv(n_cols, REDUCE_BLOCK_H),)](
