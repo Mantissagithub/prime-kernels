@@ -23,6 +23,8 @@ PARTIAL_ROWS = 8
 REDUCE_BLOCK_H = 128
 REDUCE_BLOCK_P = 32
 _SUPPORTED_DTYPES = (torch.bfloat16, torch.float32)
+_DW_EXACT_ROWS = {299, 511, 512}
+_DW_EXACT_COLS = {576, 960, 1024}
 
 _FWD_CONFIGS = [
     triton.Config({"BLOCK_M": block_m}, num_warps=num_warps, num_stages=num_stages)
@@ -75,10 +77,10 @@ def _fwd_kernel(
         x1 = tl.load(x_ptr + row_off + cols[None, :] + 1, m1, other=0.0).to(tl.float32)
         x2 = tl.load(x_ptr + row_off + cols[None, :] + 2, m2, other=0.0).to(tl.float32)
         x3 = tl.load(x_ptr + row_off + cols[None, :] + 3, m3, other=0.0).to(tl.float32)
-        acc0 += x0 * x0
-        acc1 += x1 * x1
-        acc2 += x2 * x2
-        acc3 += x3 * x3
+        acc0 = libdevice.add_rn(acc0, libdevice.mul_rn(x0, x0))
+        acc1 = libdevice.add_rn(acc1, libdevice.mul_rn(x1, x1))
+        acc2 = libdevice.add_rn(acc2, libdevice.mul_rn(x2, x2))
+        acc3 = libdevice.add_rn(acc3, libdevice.mul_rn(x3, x3))
 
     v = ((acc0 + acc1) + acc2) + acc3
     v = tl.sum(tl.reshape(v, (BLOCK_M, 2, 16)), axis=1)
@@ -116,6 +118,7 @@ def _bwd_kernel(
     dtype_code: tl.constexpr,
     BLOCK_M: tl.constexpr,
     BLOCK_H: tl.constexpr,
+    WRITE_DW_PART: tl.constexpr = True,
 ):
     pid = tl.program_id(0)
     rows = pid * BLOCK_M + tl.arange(0, BLOCK_M)
@@ -125,20 +128,267 @@ def _bwd_kernel(
     mask = row_mask[:, None] & col_mask[None, :]
     offs = rows[:, None].to(tl.int64) * n_cols + cols[None, :]
 
+    lanes = tl.arange(0, 32)
+    acc0 = tl.zeros((BLOCK_M, 32), dtype=tl.float32)
+    acc1 = tl.zeros((BLOCK_M, 32), dtype=tl.float32)
+    acc2 = tl.zeros((BLOCK_M, 32), dtype=tl.float32)
+    acc3 = tl.zeros((BLOCK_M, 32), dtype=tl.float32)
+    row_off = rows[:, None].to(tl.int64) * n_cols
+    num_chunks = tl.cdiv(n_cols, 128)
+    for j in range(num_chunks):
+        chunk_cols = j * 128 + lanes * 4
+        c0 = chunk_cols
+        c1 = chunk_cols + 1
+        c2 = chunk_cols + 2
+        c3 = chunk_cols + 3
+        m0 = row_mask[:, None] & (c0[None, :] < n_cols)
+        m1 = row_mask[:, None] & (c1[None, :] < n_cols)
+        m2 = row_mask[:, None] & (c2[None, :] < n_cols)
+        m3 = row_mask[:, None] & (c3[None, :] < n_cols)
+        x0 = tl.load(x_ptr + row_off + c0[None, :], m0, other=0.0).to(tl.float32)
+        x1 = tl.load(x_ptr + row_off + c1[None, :], m1, other=0.0).to(tl.float32)
+        x2 = tl.load(x_ptr + row_off + c2[None, :], m2, other=0.0).to(tl.float32)
+        x3 = tl.load(x_ptr + row_off + c3[None, :], m3, other=0.0).to(tl.float32)
+        g0 = tl.load(g_ptr + row_off + c0[None, :], m0, other=0.0).to(tl.float32)
+        g1 = tl.load(g_ptr + row_off + c1[None, :], m1, other=0.0).to(tl.float32)
+        g2 = tl.load(g_ptr + row_off + c2[None, :], m2, other=0.0).to(tl.float32)
+        g3 = tl.load(g_ptr + row_off + c3[None, :], m3, other=0.0).to(tl.float32)
+        w0 = tl.load(w_ptr + c0, c0 < n_cols, other=0.0).to(tl.float32)
+        w1 = tl.load(w_ptr + c1, c1 < n_cols, other=0.0).to(tl.float32)
+        w2 = tl.load(w_ptr + c2, c2 < n_cols, other=0.0).to(tl.float32)
+        w3 = tl.load(w_ptr + c3, c3 < n_cols, other=0.0).to(tl.float32)
+        dn0 = libdevice.mul_rn(g0, w0[None, :]).to(x_ptr.dtype.element_ty).to(tl.float32)
+        dn1 = libdevice.mul_rn(g1, w1[None, :]).to(x_ptr.dtype.element_ty).to(tl.float32)
+        dn2 = libdevice.mul_rn(g2, w2[None, :]).to(x_ptr.dtype.element_ty).to(tl.float32)
+        dn3 = libdevice.mul_rn(g3, w3[None, :]).to(x_ptr.dtype.element_ty).to(tl.float32)
+        acc0 = libdevice.add_rn(acc0, libdevice.mul_rn(dn0, x0))
+        acc1 = libdevice.add_rn(acc1, libdevice.mul_rn(dn1, x1))
+        acc2 = libdevice.add_rn(acc2, libdevice.mul_rn(dn2, x2))
+        acc3 = libdevice.add_rn(acc3, libdevice.mul_rn(dn3, x3))
+    dot = ((acc0 + acc1) + acc2) + acc3
+    dot = tl.sum(tl.reshape(dot, (BLOCK_M, 2, 16)), axis=1)
+    dot = tl.sum(tl.reshape(dot, (BLOCK_M, 2, 8)), axis=1)
+    dot = tl.sum(tl.reshape(dot, (BLOCK_M, 2, 4)), axis=1)
+    dot = tl.sum(tl.reshape(dot, (BLOCK_M, 2, 2)), axis=1)
+    dot = tl.sum(dot, axis=1)[:, None]
+
     x = tl.load(x_ptr + offs, mask, other=0.0).to(tl.float32)
     g = tl.load(g_ptr + offs, mask, other=0.0).to(tl.float32)
     w = tl.load(w_ptr + cols, col_mask, other=0.0).to(tl.float32)
     rstd = tl.load(rstd_ptr + rows, row_mask, other=0.0)[:, None]
+    normed = (x * rstd).to(x_ptr.dtype.element_ty).to(tl.float32)
+    if WRITE_DW_PART:
+        dw_partial = tl.sum((g * normed).to(g_ptr.dtype.element_ty).to(tl.float32), axis=0)
+        tl.store(dw_part_ptr + pid.to(tl.int64) * n_cols + cols, dw_partial, col_mask)
+
+    dn = libdevice.mul_rn(g, w[None, :]).to(x_ptr.dtype.element_ty).to(tl.float32)
+    grad_rstd = libdevice.mul_rn(-0.5, dot)
+    rstd_cubed = libdevice.mul_rn(libdevice.mul_rn(rstd, rstd), rstd)
+    grad_variance = libdevice.mul_rn(grad_rstd, rstd_cubed)
+    grad_mean = libdevice.mul_rn(grad_variance, inv_cols)
+    twice_x = libdevice.mul_rn(2.0, x)
+    dx_variance = libdevice.mul_rn(grad_mean, twice_x)
+    dx_direct = libdevice.mul_rn(dn, rstd)
+    dx = libdevice.add_rn(dx_direct, dx_variance)
+    tl.store(dx_ptr + offs, dx.to(dx_ptr.dtype.element_ty), mask)
+
+
+@triton.jit(do_not_specialize=["n_rows"])
+def _dw_torch_order_kernel(x_ptr, rstd_ptr, g_ptr, dw_ptr, n_rows, n_cols, BLOCK_H: tl.constexpr):
+    y = tl.arange(0, 4)[:, None]
+    cols = tl.program_id(0) * BLOCK_H + tl.arange(0, BLOCK_H)
+    col_mask = cols < n_cols
+    cols2d = cols[None, :]
+    col_mask2d = col_mask[None, :]
+    a0 = tl.zeros((4, BLOCK_H), dtype=tl.float32)
+    a1 = tl.zeros((4, BLOCK_H), dtype=tl.float32)
+    a2 = tl.zeros((4, BLOCK_H), dtype=tl.float32)
+    a3 = tl.zeros((4, BLOCK_H), dtype=tl.float32)
+
+    for j in range(tl.cdiv(n_rows, 16)):
+        r0 = y + 16 * j
+        r1 = y + 4 + 16 * j
+        r2 = y + 8 + 16 * j
+        r3 = y + 12 + 16 * j
+        for i in tl.static_range(4):
+            row = (r0, r1, r2, r3)[i]
+            mask = (row < n_rows) & col_mask2d
+            offset = row.to(tl.int64) * n_cols + cols2d
+            x = tl.load(x_ptr + offset, mask, other=0).to(tl.float32)
+            g = tl.load(g_ptr + offset, mask, other=0).to(tl.float32)
+            rstd = tl.load(rstd_ptr + row, row < n_rows, other=0)
+            normed = libdevice.mul_rn(x, rstd).to(x_ptr.dtype.element_ty).to(tl.float32)
+            product = libdevice.mul_rn(g, normed).to(g_ptr.dtype.element_ty).to(tl.float32)
+            if i == 0:
+                a0 = tl.where(mask, libdevice.add_rn(a0, product), a0)
+            elif i == 1:
+                a1 = tl.where(mask, libdevice.add_rn(a1, product), a1)
+            elif i == 2:
+                a2 = tl.where(mask, libdevice.add_rn(a2, product), a2)
+            else:
+                a3 = tl.where(mask, libdevice.add_rn(a3, product), a3)
+
+    rows = libdevice.add_rn(libdevice.add_rn(libdevice.add_rn(a0, a1), a2), a3)
+    pairs = tl.reshape(rows, (2, 2, BLOCK_H))
+    y02_y13 = tl.sum(pairs, axis=0)
+    reduced = tl.sum(y02_y13, axis=0)
+    tl.store(dw_ptr + cols, reduced.to(dw_ptr.dtype.element_ty), col_mask)
+
+
+@triton.jit(do_not_specialize=["n_rows"])
+def _residual_fwd_kernel(
+    branch_ptr,
+    residual_ptr,
+    w_ptr,
+    sum_ptr,
+    out_ptr,
+    rstd_ptr,
+    n_rows,
+    n_cols,
+    inv_cols,
+    eps,
+    dtype_code: tl.constexpr,
+    BLOCK_M: tl.constexpr,
+    NUM_CHUNKS: tl.constexpr,
+):
+    rows = tl.program_id(0) * BLOCK_M + tl.arange(0, BLOCK_M)
+    lanes = tl.arange(0, 32)
+    row_mask = rows < n_rows
+    row_off = rows[:, None].to(tl.int64) * n_cols
+
+    acc0 = tl.zeros((BLOCK_M, 32), dtype=tl.float32)
+    acc1 = tl.zeros((BLOCK_M, 32), dtype=tl.float32)
+    acc2 = tl.zeros((BLOCK_M, 32), dtype=tl.float32)
+    acc3 = tl.zeros((BLOCK_M, 32), dtype=tl.float32)
+    for j in tl.static_range(NUM_CHUNKS):
+        cols = j * 128 + lanes * 4
+        for k in tl.static_range(4):
+            c = cols + k
+            mask = row_mask[:, None] & (c[None, :] < n_cols)
+            branch = tl.load(branch_ptr + row_off + c[None, :], mask, other=0.0).to(tl.float32)
+            residual = tl.load(residual_ptr + row_off + c[None, :], mask, other=0.0).to(tl.float32)
+            summed = (branch + residual).to(sum_ptr.dtype.element_ty).to(tl.float32)
+            tl.store(sum_ptr + row_off + c[None, :], summed, mask)
+            if k == 0:
+                acc0 += libdevice.mul_rn(summed, summed)
+            elif k == 1:
+                acc1 += libdevice.mul_rn(summed, summed)
+            elif k == 2:
+                acc2 += libdevice.mul_rn(summed, summed)
+            else:
+                acc3 += libdevice.mul_rn(summed, summed)
+
+    variance_sum = ((acc0 + acc1) + acc2) + acc3
+    variance_sum = tl.sum(tl.reshape(variance_sum, (BLOCK_M, 2, 16)), axis=1)
+    variance_sum = tl.sum(tl.reshape(variance_sum, (BLOCK_M, 2, 8)), axis=1)
+    variance_sum = tl.sum(tl.reshape(variance_sum, (BLOCK_M, 2, 4)), axis=1)
+    variance_sum = tl.sum(tl.reshape(variance_sum, (BLOCK_M, 2, 2)), axis=1)
+    variance_sum = tl.sum(variance_sum, axis=1)
+    rstd = tl.math.rsqrt(libdevice.add_rn(libdevice.mul_rn(variance_sum, inv_cols), eps))
+    tl.store(rstd_ptr + rows, rstd, row_mask)
+
+    for j in tl.static_range(NUM_CHUNKS):
+        for k in tl.static_range(4):
+            cols = j * 128 + lanes * 4 + k
+            mask = row_mask[:, None] & (cols[None, :] < n_cols)
+            summed = tl.load(sum_ptr + row_off + cols[None, :], mask, other=0.0).to(tl.float32)
+            weight = tl.load(w_ptr + cols, cols < n_cols, other=0.0).to(tl.float32)
+            normed = (summed * rstd[:, None]).to(sum_ptr.dtype.element_ty).to(tl.float32)
+            tl.store(out_ptr + row_off + cols[None, :], (weight[None, :] * normed).to(out_ptr.dtype.element_ty), mask)
+
+
+@triton.jit(do_not_specialize=["n_rows"])
+def _residual_bwd_kernel(
+    x_ptr,
+    w_ptr,
+    g_ptr,
+    grad_sum_ptr,
+    rstd_ptr,
+    dx_ptr,
+    dw_part_ptr,
+    n_rows,
+    n_cols,
+    inv_cols,
+    dtype_code: tl.constexpr,
+    BLOCK_M: tl.constexpr,
+    BLOCK_H: tl.constexpr,
+    NUM_CHUNKS: tl.constexpr,
+    WRITE_DW_PART: tl.constexpr = True,
+):
+    pid = tl.program_id(0)
+    rows = pid * BLOCK_M + tl.arange(0, BLOCK_M)
+    cols = tl.arange(0, BLOCK_H)
+    row_mask = rows < n_rows
+    col_mask = cols < n_cols
+    mask = row_mask[:, None] & col_mask[None, :]
+    offs = rows[:, None].to(tl.int64) * n_cols + cols[None, :]
+
+    lanes = tl.arange(0, 32)
+    acc0 = tl.zeros((BLOCK_M, 32), dtype=tl.float32)
+    acc1 = tl.zeros((BLOCK_M, 32), dtype=tl.float32)
+    acc2 = tl.zeros((BLOCK_M, 32), dtype=tl.float32)
+    acc3 = tl.zeros((BLOCK_M, 32), dtype=tl.float32)
+    row_off = rows[:, None].to(tl.int64) * n_cols
+    for j in range(NUM_CHUNKS):
+        chunk_cols = j * 128 + lanes * 4
+        c0 = chunk_cols
+        c1 = chunk_cols + 1
+        c2 = chunk_cols + 2
+        c3 = chunk_cols + 3
+        m0 = row_mask[:, None] & (c0[None, :] < n_cols)
+        m1 = row_mask[:, None] & (c1[None, :] < n_cols)
+        m2 = row_mask[:, None] & (c2[None, :] < n_cols)
+        m3 = row_mask[:, None] & (c3[None, :] < n_cols)
+        x0 = tl.load(x_ptr + row_off + c0[None, :], m0, other=0.0).to(tl.float32)
+        x1 = tl.load(x_ptr + row_off + c1[None, :], m1, other=0.0).to(tl.float32)
+        x2 = tl.load(x_ptr + row_off + c2[None, :], m2, other=0.0).to(tl.float32)
+        x3 = tl.load(x_ptr + row_off + c3[None, :], m3, other=0.0).to(tl.float32)
+        g0 = tl.load(g_ptr + row_off + c0[None, :], m0, other=0.0).to(tl.float32)
+        g1 = tl.load(g_ptr + row_off + c1[None, :], m1, other=0.0).to(tl.float32)
+        g2 = tl.load(g_ptr + row_off + c2[None, :], m2, other=0.0).to(tl.float32)
+        g3 = tl.load(g_ptr + row_off + c3[None, :], m3, other=0.0).to(tl.float32)
+        w0 = tl.load(w_ptr + c0, c0 < n_cols, other=0.0).to(tl.float32)
+        w1 = tl.load(w_ptr + c1, c1 < n_cols, other=0.0).to(tl.float32)
+        w2 = tl.load(w_ptr + c2, c2 < n_cols, other=0.0).to(tl.float32)
+        w3 = tl.load(w_ptr + c3, c3 < n_cols, other=0.0).to(tl.float32)
+        dn0 = libdevice.mul_rn(g0, w0[None, :]).to(x_ptr.dtype.element_ty).to(tl.float32)
+        dn1 = libdevice.mul_rn(g1, w1[None, :]).to(x_ptr.dtype.element_ty).to(tl.float32)
+        dn2 = libdevice.mul_rn(g2, w2[None, :]).to(x_ptr.dtype.element_ty).to(tl.float32)
+        dn3 = libdevice.mul_rn(g3, w3[None, :]).to(x_ptr.dtype.element_ty).to(tl.float32)
+        acc0 = libdevice.add_rn(acc0, libdevice.mul_rn(dn0, x0))
+        acc1 = libdevice.add_rn(acc1, libdevice.mul_rn(dn1, x1))
+        acc2 = libdevice.add_rn(acc2, libdevice.mul_rn(dn2, x2))
+        acc3 = libdevice.add_rn(acc3, libdevice.mul_rn(dn3, x3))
+    dot = ((acc0 + acc1) + acc2) + acc3
+    dot = tl.sum(tl.reshape(dot, (BLOCK_M, 2, 16)), axis=1)
+    dot = tl.sum(tl.reshape(dot, (BLOCK_M, 2, 8)), axis=1)
+    dot = tl.sum(tl.reshape(dot, (BLOCK_M, 2, 4)), axis=1)
+    dot = tl.sum(tl.reshape(dot, (BLOCK_M, 2, 2)), axis=1)
+    dot = tl.sum(dot, axis=1)[:, None]
+
+    x = tl.load(x_ptr + offs, mask, other=0.0).to(tl.float32)
+    g = tl.load(g_ptr + offs, mask, other=0.0).to(tl.float32)
+    grad_sum = tl.load(grad_sum_ptr + offs, mask, other=0.0)
+    w = tl.load(w_ptr + cols, col_mask, other=0.0).to(tl.float32)
+    rstd = tl.load(rstd_ptr + rows, row_mask, other=0.0)[:, None]
 
     normed = (x * rstd).to(x_ptr.dtype.element_ty).to(tl.float32)
-    dw_partial = tl.sum((g * normed).to(g_ptr.dtype.element_ty).to(tl.float32), axis=0)
-    tl.store(dw_part_ptr + pid.to(tl.int64) * n_cols + cols, dw_partial, col_mask)
+    if WRITE_DW_PART:
+        dw_partial = tl.sum((g * normed).to(g_ptr.dtype.element_ty).to(tl.float32), axis=0)
+        tl.store(dw_part_ptr + pid.to(tl.int64) * n_cols + cols, dw_partial, col_mask)
+    dn = libdevice.mul_rn(g, w[None, :]).to(x_ptr.dtype.element_ty).to(tl.float32)
 
-    # The reference's normalized value is in x.dtype, so autograd rounds its gradient to x.dtype.
-    dn = (g * w[None, :]).to(x_ptr.dtype.element_ty).to(tl.float32)
-    dot = tl.sum(dn * x, axis=1)[:, None]
-    dx = rstd * dn - rstd * rstd * rstd * inv_cols * x * dot
-    tl.store(dx_ptr + offs, dx.to(dx_ptr.dtype.element_ty), mask)
+    grad_rstd = libdevice.mul_rn(-0.5, dot)
+    rstd_cubed = libdevice.mul_rn(libdevice.mul_rn(rstd, rstd), rstd)
+    grad_variance = libdevice.mul_rn(grad_rstd, rstd_cubed)
+    grad_mean = libdevice.mul_rn(grad_variance, inv_cols)
+    twice_x = libdevice.mul_rn(2.0, x)
+    dx_variance = libdevice.mul_rn(grad_mean, twice_x)
+    dx_direct = libdevice.mul_rn(dn, rstd)
+    dx_norm = libdevice.add_rn(dx_direct, dx_variance)
+    dx_sum_dtype = dx_norm.to(dx_ptr.dtype.element_ty)
+    dx = (dx_sum_dtype.to(tl.float32) + grad_sum.to(tl.float32)).to(dx_ptr.dtype.element_ty)
+    tl.store(dx_ptr + offs, dx, mask)
 
 
 # Configs chosen by autotune at 1024 rows (tune_sweep.py). Keyed by (n_cols, dtype_code), where
@@ -253,7 +503,7 @@ class _RMSNorm(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x, weight, eps):
         n_cols = x.shape[-1]
-        x2d = x.reshape(-1, n_cols)
+        x2d = x.reshape(-1, n_cols).contiguous()
         n_rows = x2d.shape[0]
         out = torch.empty(x.shape, device=x.device, dtype=torch.result_type(weight, x))
         rstd = torch.empty(n_rows, device=x.device, dtype=torch.float32)
@@ -280,24 +530,172 @@ class _RMSNorm(torch.autograd.Function):
         n_rows, n_cols = x2d.shape
         grad2d = grad_out.reshape(n_rows, n_cols).contiguous()
         dx = torch.empty_like(x2d)
+        dw_exact = (
+            n_rows in _DW_EXACT_ROWS
+            and n_cols in _DW_EXACT_COLS
+            and ctx.dtype_code in (0, 1, 3)
+        )
         num_parts = triton.cdiv(n_rows, PARTIAL_ROWS)
-        dw_part = torch.empty(num_parts, n_cols, device=x2d.device, dtype=torch.float32)
+        dw = torch.empty(n_cols, device=x2d.device, dtype=weight.dtype)
+        dw_part = (
+            dw
+            if dw_exact
+            else torch.empty(num_parts, n_cols, device=x2d.device, dtype=torch.float32)
+        )
         block_h = triton.next_power_of_2(n_cols)
         bwd_args = (x2d, weight, grad2d, rstd, dx, dw_part, n_rows, n_cols, 1.0 / n_cols, ctx.dtype_code)
         pinned = _PINNED.get((n_cols, ctx.dtype_code))
         if pinned is None:
             _warn_unpinned(n_cols, ctx.dtype_code)
-            _bwd_kernel_tuned[(num_parts,)](*bwd_args, BLOCK_M=PARTIAL_ROWS, BLOCK_H=block_h)
+            _bwd_kernel_tuned[(num_parts,)](
+                *bwd_args,
+                BLOCK_M=PARTIAL_ROWS,
+                BLOCK_H=block_h,
+                WRITE_DW_PART=not dw_exact,
+            )
         else:
             cfg = pinned["bwd"]
             _bwd_kernel[(num_parts,)](
-                *bwd_args, BLOCK_M=PARTIAL_ROWS, BLOCK_H=block_h, num_warps=cfg["num_warps"], num_stages=cfg["num_stages"]
+                *bwd_args,
+                BLOCK_M=PARTIAL_ROWS,
+                BLOCK_H=block_h,
+                WRITE_DW_PART=not dw_exact,
+                num_warps=cfg["num_warps"],
+                num_stages=cfg["num_stages"],
             )
-        dw = torch.empty(n_cols, device=x2d.device, dtype=weight.dtype)
-        _reduce_kernel[(triton.cdiv(n_cols, REDUCE_BLOCK_H),)](
-            dw_part, dw, num_parts, n_cols, BLOCK_P=REDUCE_BLOCK_P, BLOCK_H=REDUCE_BLOCK_H
-        )
+        if dw_exact:
+            _dw_torch_order_kernel[(triton.cdiv(n_cols, 128),)](
+                x2d, rstd, grad2d, dw, n_rows, n_cols, BLOCK_H=128, num_warps=4, num_stages=1
+            )
+        else:
+            _reduce_kernel[(triton.cdiv(n_cols, REDUCE_BLOCK_H),)](
+                dw_part, dw, num_parts, n_cols, BLOCK_P=REDUCE_BLOCK_P, BLOCK_H=REDUCE_BLOCK_H
+            )
         return dx.view(ctx.x_shape), dw, None
+
+
+class _ResidualRMSNorm(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, branch, residual, weight, eps):
+        ctx.set_materialize_grads(False)
+        n_cols = branch.shape[-1]
+        branch2d = branch.reshape(-1, n_cols).contiguous()
+        residual2d = residual.reshape(-1, n_cols).contiguous()
+        n_rows = branch2d.shape[0]
+        sum_dtype = torch.result_type(branch, residual)
+        summed = torch.empty(branch2d.shape, device=branch.device, dtype=sum_dtype)
+        out = torch.empty(branch.shape, device=branch.device, dtype=torch.promote_types(weight.dtype, sum_dtype))
+        rstd = torch.empty(n_rows, device=branch.device, dtype=torch.float32)
+        dtype_code = _SUPPORTED_DTYPES.index(sum_dtype) * len(_SUPPORTED_DTYPES) + _SUPPORTED_DTYPES.index(weight.dtype)
+        args = (
+            branch2d,
+            residual2d,
+            weight,
+            summed,
+            out.view(n_rows, n_cols),
+            rstd,
+            n_rows,
+            n_cols,
+            1.0 / n_cols,
+            eps,
+            dtype_code,
+        )
+        num_chunks = triton.cdiv(n_cols, 128)
+        pinned = _PINNED.get((n_cols, dtype_code))
+        if pinned is None:
+            _warn_unpinned(n_cols, dtype_code)
+            _residual_fwd_kernel[(triton.cdiv(n_rows, 1),)](*args, BLOCK_M=1, NUM_CHUNKS=num_chunks, num_warps=4, num_stages=1)
+        else:
+            cfg = pinned["fwd"]
+            _residual_fwd_kernel[(triton.cdiv(n_rows, cfg["BLOCK_M"]),)](
+                *args,
+                BLOCK_M=cfg["BLOCK_M"],
+                NUM_CHUNKS=num_chunks,
+                num_warps=cfg["num_warps"],
+                num_stages=cfg["num_stages"],
+            )
+        ctx.save_for_backward(summed, weight, rstd)
+        ctx.x_shape = branch.shape
+        ctx.branch_dtype = branch.dtype
+        ctx.residual_dtype = residual.dtype
+        ctx.dtype_code = dtype_code
+        return out, summed.view(branch.shape)
+
+    @staticmethod
+    def backward(ctx, grad_out, grad_sum):
+        summed, weight, rstd = ctx.saved_tensors
+        n_rows, n_cols = summed.shape
+        if grad_out is None:
+            if grad_sum is None:
+                return None, None, None, None
+            grad_sum = grad_sum.reshape(n_rows, n_cols).contiguous()
+            return grad_sum.to(ctx.branch_dtype), grad_sum.to(ctx.residual_dtype), None, None
+        grad2d = grad_out.reshape(n_rows, n_cols).contiguous()
+        if grad_sum is None:
+            grad_sum2d = torch.zeros_like(summed)
+        else:
+            grad_sum2d = grad_sum.reshape(n_rows, n_cols).contiguous()
+        dx = torch.empty_like(summed)
+        dw_exact = (
+            n_rows in _DW_EXACT_ROWS
+            and n_cols in _DW_EXACT_COLS
+            and ctx.dtype_code in (0, 1, 3)
+        )
+        num_parts = triton.cdiv(n_rows, PARTIAL_ROWS)
+        dw = torch.empty(n_cols, device=summed.device, dtype=weight.dtype)
+        dw_part = (
+            dw
+            if dw_exact
+            else torch.empty(num_parts, n_cols, device=summed.device, dtype=torch.float32)
+        )
+        block_h = triton.next_power_of_2(n_cols)
+        args = (
+            summed,
+            weight,
+            grad2d,
+            grad_sum2d,
+            rstd,
+            dx,
+            dw_part,
+            n_rows,
+            n_cols,
+            1.0 / n_cols,
+            ctx.dtype_code,
+        )
+        num_chunks = triton.cdiv(n_cols, 128)
+        pinned = _PINNED.get((n_cols, ctx.dtype_code))
+        if pinned is None:
+            _warn_unpinned(n_cols, ctx.dtype_code)
+            _residual_bwd_kernel[(num_parts,)](
+                *args,
+                BLOCK_M=PARTIAL_ROWS,
+                BLOCK_H=block_h,
+                NUM_CHUNKS=num_chunks,
+                WRITE_DW_PART=not dw_exact,
+                num_warps=4,
+                num_stages=1,
+            )
+        else:
+            cfg = pinned["bwd"]
+            _residual_bwd_kernel[(num_parts,)](
+                *args,
+                BLOCK_M=PARTIAL_ROWS,
+                BLOCK_H=block_h,
+                NUM_CHUNKS=num_chunks,
+                WRITE_DW_PART=not dw_exact,
+                num_warps=cfg["num_warps"],
+                num_stages=cfg["num_stages"],
+            )
+        if dw_exact:
+            _dw_torch_order_kernel[(triton.cdiv(n_cols, 128),)](
+                summed, rstd, grad2d, dw, n_rows, n_cols, BLOCK_H=128, num_warps=4, num_stages=1
+            )
+        else:
+            _reduce_kernel[(triton.cdiv(n_cols, REDUCE_BLOCK_H),)](
+                dw_part, dw, num_parts, n_cols, BLOCK_P=REDUCE_BLOCK_P, BLOCK_H=REDUCE_BLOCK_H
+            )
+        dx = dx.view(ctx.x_shape)
+        return dx.to(ctx.branch_dtype), dx.to(ctx.residual_dtype), dw, None
 
 
 def rmsnorm(x: torch.Tensor, weight: torch.Tensor, eps: float) -> torch.Tensor:
@@ -308,3 +706,17 @@ def rmsnorm(x: torch.Tensor, weight: torch.Tensor, eps: float) -> torch.Tensor:
     """
     _check_inputs(x, weight)
     return _RMSNorm.apply(x, weight, float(eps))
+
+
+def residual_rmsnorm(
+    branch: torch.Tensor, residual: torch.Tensor, weight: torch.Tensor, eps: float
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Fuse `branch + residual` with RMSNorm and return the sum for the next residual."""
+    _check_inputs(branch, weight)
+    if residual.shape != branch.shape or residual.device != branch.device:
+        raise ValueError("branch and residual must have matching shape and device")
+    if residual.dtype not in _SUPPORTED_DTYPES:
+        raise ValueError(f"residual supports bfloat16 and float32, got {residual.dtype}")
+    if residual.stride(-1) != 1:
+        raise ValueError("residual requires a contiguous last dim")
+    return _ResidualRMSNorm.apply(branch, residual, weight, float(eps))

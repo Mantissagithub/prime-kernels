@@ -80,6 +80,12 @@ python-only = true
 requires = ["triton"]
 arch = ["8.9"]
 
+[triton_residual_rmsnorm]
+description = "Triton fused residual add and RMSNorm forward and backward"
+python-only = true
+requires = ["triton"]
+arch = ["8.9"]
+
 [triton_rope]
 description = "Triton fused rotary position embedding forward and backward"
 python-only = true
