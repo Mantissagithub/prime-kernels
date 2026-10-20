@@ -42,6 +42,12 @@ python-only = true
 requires = ["cutlass.cute", "cuda.bindings.driver"]
 arch = ["8.9"]
 
+[lm_head_cute_tvm_ffi]
+description = "CuTeDSL fused BF16 LM-head callbacks invoked through Apache TVM-FFI"
+python-only = true
+requires = ["cutlass.cute", "cuda.bindings.driver", "tvm_ffi"]
+arch = ["8.9"]
+
 [lm_head_triton_online_update]
 description = "Triton fused online update and backward epilogue for the fused LM head"
 python-only = true
@@ -67,3 +73,21 @@ arch = ["8.9"]
 #include-dirs = [".", "src/include"]
 #arch = ["10.0a", "12.0a"]
 #cxx-std = 20
+
+[triton_rmsnorm]
+description = "Triton fused RMSNorm forward and backward"
+python-only = true
+requires = ["triton"]
+arch = ["8.9"]
+
+[triton_rope]
+description = "Triton fused rotary position embedding forward and backward"
+python-only = true
+requires = ["triton"]
+arch = ["8.9"]
+
+[triton_swiglu]
+description = "Triton fused SwiGLU activation forward and backward"
+python-only = true
+requires = ["triton"]
+arch = ["8.9"]
