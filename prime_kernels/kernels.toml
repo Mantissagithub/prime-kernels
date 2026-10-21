@@ -99,7 +99,7 @@ requires = ["triton"]
 arch = ["8.9"]
 
 [triton_clip_adamw]
-description = "Batched Triton FP32 gradient clipping and AdamW update"
+description = "Batched Triton FP32 gradient clipping and AdamW update (requires matching CUDA toolkit libdevice)"
 python-only = true
 requires = ["triton"]
 arch = ["8.9"]

@@ -1,11 +1,71 @@
 """Batched FP32 gradient clipping and AdamW updates using Triton."""
 
+import json
+import os
+import re
+import shutil
+import subprocess
+from functools import lru_cache
+from pathlib import Path
+
 import torch
 import triton
 import triton.language as tl
+from torch.utils.cpp_extension import CUDA_HOME as _TORCH_CUDA_HOME
 from triton.language.extra.cuda import libdevice
 
 _BLOCK = 1024
+
+
+@lru_cache(maxsize=1)
+def _cuda_libdevice_path():
+    torch_cuda = torch.version.cuda
+    if torch_cuda is None:
+        raise RuntimeError("clip AdamW kernel requires a CUDA-enabled PyTorch build")
+    torch_cuda_version = tuple(int(component) for component in torch_cuda.split(".")[:2])
+
+    candidates = []
+    for root in (os.environ.get("CUDA_HOME"), _TORCH_CUDA_HOME):
+        if root:
+            candidates.append(Path(root).expanduser())
+    nvcc = shutil.which("nvcc")
+    if nvcc:
+        candidates.append(Path(nvcc).resolve().parent.parent)
+
+    checked = set()
+    for candidate in candidates:
+        root = candidate.resolve()
+        if root in checked:
+            continue
+        checked.add(root)
+        libdevice = root / "nvvm" / "libdevice" / "libdevice.10.bc"
+        if not libdevice.is_file():
+            continue
+
+        version_path = root / "version.json"
+        if version_path.is_file():
+            version = json.loads(version_path.read_text()).get("cuda", {}).get("version")
+        else:
+            version = None
+        if version is None:
+            nvcc_path = root / "bin" / "nvcc"
+            if not nvcc_path.is_file():
+                continue
+            banner = subprocess.run(
+                [str(nvcc_path), "--version"], capture_output=True, text=True, check=True
+            ).stdout
+            match = re.search(r"release (\d+)\.(\d+)", banner)
+            if match is None:
+                continue
+            version = f"{match[1]}.{match[2]}"
+        toolkit_version = tuple(int(component) for component in str(version).split(".")[:2])
+        if toolkit_version == torch_cuda_version:
+            return str(libdevice)
+
+    raise RuntimeError(
+        "clip AdamW kernel requires libdevice.10.bc from CUDA "
+        f"{torch_cuda}, matching PyTorch; set CUDA_HOME to that toolkit"
+    )
 
 
 @triton.jit
@@ -19,11 +79,10 @@ def _prepare_steps_kernel(pointers, scalars, bias_corrections, num_tensors: tl.c
     step = libdevice.add_rn(step, 1.0)
     tl.store(step_ptrs, step, mask)
 
-    beta1 = tl.load(scalars + 1).to(tl.float64)
-    beta2 = tl.load(scalars + 2).to(tl.float64)
-    step_f64 = step.to(tl.float64)
-    pow_beta1 = libdevice.pow(beta1, step_f64).to(tl.float32)
-    pow_beta2 = libdevice.pow(beta2, step_f64).to(tl.float32)
+    beta1 = tl.load(scalars + 1)
+    beta2 = tl.load(scalars + 2)
+    pow_beta1 = libdevice.pow(beta1, step)
+    pow_beta2 = libdevice.pow(beta2, step)
     bias_correction1 = libdevice.add_rn(1.0, -pow_beta1)
     bias_correction2 = libdevice.add_rn(1.0, -pow_beta2)
     bias_correction2_sqrt = libdevice.sqrt_rn(bias_correction2)
@@ -93,6 +152,7 @@ class ClipAdamWPlan:
     """
 
     def __init__(self, params):
+        self._libdevice_path = _cuda_libdevice_path()
         if not params:
             raise ValueError("at least one parameter is required")
         first = params[0]
@@ -159,6 +219,9 @@ class ClipAdamWPlan:
             self.num_tensors,
             self._block_tensors,
             num_warps=4,
+            enable_fp_fusion=False,
+            enable_reflect_ftz=False,
+            extern_libs={"libdevice": self._libdevice_path},
         )
         _clip_adamw_multi_kernel[(self.block_tensor_ids.numel(),)](
             pointers,
@@ -170,6 +233,7 @@ class ClipAdamWPlan:
             self.bias_corrections,
             BLOCK=_BLOCK,
             num_warps=4,
+            enable_reflect_ftz=False,
         )
         for grad in grads:
             torch.autograd.graph.increment_version(grad)
