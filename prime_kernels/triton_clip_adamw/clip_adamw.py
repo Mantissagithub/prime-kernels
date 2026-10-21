@@ -137,7 +137,9 @@ def _clip_adamw_multi_kernel(pointers, lengths, block_tensor_ids, block_offsets,
     param = libdevice.add_rn(param, -update)
 
     tl.store(param_ptr + offsets, param, mask)
-    tl.store(grad_ptr + offsets, grad, mask)
+    # Preserve native NaN quieting while skipping finite writes for a unit coefficient.
+    grad_store_mask = mask & ((clip != 1.0) | (grad != grad))
+    tl.store(grad_ptr + offsets, grad, grad_store_mask)
     tl.store(avg_ptr + offsets, avg, mask)
     tl.store(avg_sq_ptr + offsets, avg_sq, mask)
 
