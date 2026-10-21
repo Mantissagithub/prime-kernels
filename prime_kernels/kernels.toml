@@ -103,3 +103,9 @@ description = "Batched Triton FP32 gradient clipping and AdamW update (requires 
 python-only = true
 requires = ["triton"]
 arch = ["8.9"]
+
+[cute_sliced_adamw]
+description = "CuTeDSL bitwise-matching unfused FP32 AdamW update for one CUDA slice"
+python-only = true
+requires = ["cutlass.cute", "cuda.bindings.driver"]
+arch = ["8.9"]
