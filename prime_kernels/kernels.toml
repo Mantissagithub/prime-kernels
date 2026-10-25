@@ -109,3 +109,9 @@ description = "CuTeDSL bitwise-matching unfused FP32 AdamW update for one CUDA s
 python-only = true
 requires = ["cutlass.cute", "cuda.bindings.driver"]
 arch = ["8.9"]
+
+[decode_megakernel]
+description = "SM 8.9 cooperative batched decode step for SmolLM2-135M (BF16, B 1..4), built at first use"
+python-only = true
+requires = ["torch.utils.cpp_extension", "ninja"]
+arch = ["8.9"]
