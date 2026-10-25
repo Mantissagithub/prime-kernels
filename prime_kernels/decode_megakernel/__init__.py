@@ -1,9 +1,9 @@
-"""Batched decode step for SmolLM2-135M on SM 8.9 (csrc/megakernel.cu, R5 stage A).
+"""Batched decode step for SmolLM2-135M on SM 8.9 (csrc/megakernel.cu, R6).
 
-csrc/megakernel.cu is a byte-identical copy of the R5 kernel,
-sha256 170d6b5c651d69664325d8d1fdc1d718ef0b8e01a9254b4e1f1730d2e095dc0d.
-The kernel is compiled with nvcc on first use into ~/.cache/prime_kernels/decode_megakernel/<hash>
-and loaded through ctypes. It is one cooperative launch per call (24 CTAs x 256 threads).
+csrc/megakernel.cu is the R6 kernel, sha256
+454d5529eb754f27f546e6e7278c303e0b91bf299c4fa29b0962f387a0955cfc. The kernel is compiled
+with nvcc on first use into ~/.cache/prime_kernels/decode_megakernel/r6-<hash> and loaded through
+ctypes. It is one cooperative launch per call (24 CTAs x 256 threads).
 
 decode_step(**kwargs) takes the contract of integration-spec.md. Requirements:
 - input_ids int32 or int64 [B]; positions int64 [B]; seq_lens int32 [B]; slot_mapping int64 [B] (-1 skips
@@ -30,9 +30,9 @@ import torch
 from torch.utils import cpp_extension
 
 SOURCE = Path(__file__).resolve().parent / "csrc" / "megakernel.cu"
-SOURCE_SHA256 = "170d6b5c651d69664325d8d1fdc1d718ef0b8e01a9254b4e1f1730d2e095dc0d"  # final R5 source, built with -DMK_PREFETCH=1
+SOURCE_SHA256 = "454d5529eb754f27f546e6e7278c303e0b91bf299c4fa29b0962f387a0955cfc"  # final R6 source
 CACHE_ROOT = Path.home() / ".cache" / "prime_kernels" / "decode_megakernel"
-NVCC_FLAGS = ["-O3", "-arch=sm_89", "-std=c++17", "-lineinfo", "-DMK_PREFETCH=1"]  # MK_COUNTER_SYNC stays off
+NVCC_FLAGS = ["-O3", "-arch=sm_89", "-std=c++17", "-lineinfo", "-DMK_PREFETCH=1"]  # R6 options default on in source
 
 MAX_BATCH = 4
 MAX_SEQ = 8192
@@ -63,14 +63,14 @@ def _library():
     global _lib
     if _lib is None:
         if hashlib.sha256(SOURCE.read_bytes()).hexdigest() != SOURCE_SHA256:
-            raise RuntimeError(f"{SOURCE} does not match the R5 kernel sha256 {SOURCE_SHA256}")
+            raise RuntimeError(f"{SOURCE} does not match the R6 kernel sha256 {SOURCE_SHA256}")
         if shutil.which("ninja") is None:
             # torch's extension builder shells out to ninja; the venv that provides it may not be on PATH.
             os.environ["PATH"] = os.path.dirname(sys.executable) + os.pathsep + os.environ["PATH"]
-        build_dir = CACHE_ROOT / f"{SOURCE_SHA256[:16]}-prefetch"
+        build_dir = CACHE_ROOT / f"r6-{SOURCE_SHA256[:16]}"
         build_dir.mkdir(parents=True, exist_ok=True)
         library = cpp_extension.load(
-            name="prime_decode_megakernel",
+            name="prime_decode_megakernel_r6",
             sources=[str(SOURCE)],
             extra_cuda_cflags=NVCC_FLAGS,
             build_directory=str(build_dir),

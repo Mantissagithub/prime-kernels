@@ -1,4 +1,4 @@
-// SM89 batched decode megakernel for SmolLM2-135M (R5, stage A). One cooperative launch per
+// SM89 batched decode megakernel for SmolLM2-135M (R6). One cooperative launch per
 // decode step: 24 CTAs x 256 threads, five grid barriers per layer. See NOTES.md and
 // ../integration-spec.md. B (1..4) is a template parameter; the host dispatches.
 #include <cuda_bf16.h>
@@ -12,11 +12,41 @@
 //   MK_PREFETCH=1     before each barrier, prefetch.global.L2 the weight rows the next phase reads.
 //   MK_COUNTER_SYNC=1 replace grid.sync with a device-side arrival counter per barrier (release/acquire).
 #ifndef MK_PREFETCH
-#define MK_PREFETCH 0
+#define MK_PREFETCH 1
 #endif
 #ifndef MK_COUNTER_SYNC
 #define MK_COUNTER_SYNC 0
 #endif
+// R6: MK_ATTN_V2=1 batches 4 positions per lane group (loads for all 4 issued before the math,
+// one exp rescale per batch). MK_ADAPT_NC=1 uses ceil(seq/16) chunks per (request, kv head) instead
+// of 64/B, so short contexts merge fewer partials.
+#ifndef MK_ATTN_V2
+#define MK_ATTN_V2 1
+#endif
+#ifndef MK_ADAPT_NC
+#define MK_ADAPT_NC 1
+#endif
+// MK_GEMV_BATCH=1: load all weight rows of a K=576 GEMV phase (QKV, O) before any dot, and two
+// gate/up row pairs at a time, so the phase waits on one memory round trip instead of one per row.
+#ifndef MK_GEMV_BATCH
+#define MK_GEMV_BATCH 1
+#endif
+// MK_ATTN_FAST=1 (with MK_ATTN_V2): attention score dots use fused FMA, __expf for the softmax, and
+// shift/mask block indexing when block_size is a power of two. Attention has no cuBLAS order to match.
+#ifndef MK_ATTN_FAST
+#define MK_ATTN_FAST 0
+#endif
+
+// Chunks per (request, kv head) for a context of `seq` tokens; nc_max = 64 / B.
+__device__ __forceinline__ int chunks_for(int seq, int nc_max) {
+#if MK_ADAPT_NC
+  const int want = (seq + 15) / 16;
+  return want < 1 ? 1 : (want < nc_max ? want : nc_max);
+#else
+  (void)seq;
+  return nc_max;
+#endif
+}
 
 namespace cg = cooperative_groups;
 using bf16 = __nv_bfloat16;
@@ -120,6 +150,7 @@ struct Params {
   float* wsf;               // fp32 scratch
   long long k_off, v_off, block_stride, token_stride, head_stride;  // elements
   int block_size;
+  int bs_shift;  // log2(block_size) when it is a power of two, else -1
 };
 
 __device__ __forceinline__ float bf2f(bf16 v) { return __bfloat162float(v); }
@@ -205,6 +236,33 @@ __device__ __forceinline__ void dots(const bf16* __restrict__ row, const float* 
   for (int b = 0; b < B; ++b) out[b] = warp_sum(s[b]);
 }
 
+// Raw 4-byte words of one K=576 weight row for this lane (elements 18L..18L+17), read-only.
+__device__ __forceinline__ void load_row576(const bf16* row, int lane, uint32_t* w) {
+  const uint32_t* p = reinterpret_cast<const uint32_t*>(row + 18 * lane);
+#pragma unroll
+  for (int i = 0; i < 9; ++i) w[i] = __ldg(p + i);
+}
+
+// Same arithmetic as dots<576,B> on words loaded by load_row576.
+template <int B>
+__device__ __forceinline__ void dot576_from(const uint32_t* w, const float* vs, int lane, float* out) {
+  float s[B];
+#pragma unroll
+  for (int b = 0; b < B; ++b) s[b] = 0.f;
+#pragma unroll
+  for (int i = 0; i < 9; ++i) {
+    const float2 f = __bfloat1622float2(*reinterpret_cast<const bf162*>(&w[i]));
+#pragma unroll
+    for (int b = 0; b < B; ++b) {
+      const float2 x = *reinterpret_cast<const float2*>(vs + b * kH + 18 * lane + 2 * i);
+      s[b] = add_rn(s[b], mul_rn(f.x, x.x));
+      s[b] = add_rn(s[b], mul_rn(f.y, x.y));
+    }
+  }
+#pragma unroll
+  for (int b = 0; b < B; ++b) out[b] = warp_sum(s[b]);
+}
+
 // RoPE (neox rotate-half), fp32 math with one BF16 rounding at the end (vLLM rotary kernel).
 __device__ __forceinline__ float rope_val(const bf16* head, int d, int pos, const void* cs, int cs_fp32) {
   const int ci = pos * kD + (d & 31);
@@ -250,7 +308,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
   __shared__ float wt_s[B * kQH * NC];               // merge weights exp(m_c - M)
   __shared__ float inv_s[B * kQH];                   // 1 / merged denominator
   __shared__ float red[kWarps];
-  __shared__ int seq_s[B], pos_s[B];
+  __shared__ int seq_s[B], pos_s[B], nc_s[B];
 
   bf16* ws = p.ws;
   unsigned* ctrs = reinterpret_cast<unsigned*>(p.wsf + kFOffCtr);
@@ -280,8 +338,10 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
   // Padded rows (slot_mapping < 0) keep a valid position and length so RoPE indices and the
   // softmax stay finite; their K/V write is skipped and their output is ignored by the caller.
   if (t < B) {
-    seq_s[t] = max(static_cast<int>(p.seq_lens[t]), 1);
+    const int sq = max(static_cast<int>(p.seq_lens[t]), 1);
+    seq_s[t] = sq;
     pos_s[t] = max(static_cast<int>(p.positions[t]), 0);
+    nc_s[t] = chunks_for(sq, NC);
   }
   __syncthreads();
 
@@ -297,9 +357,19 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
       const bf16* xin = layer == 0 ? p.embed + static_cast<size_t>(tok[b]) * kH : ws + kOffX + b * kH;
       rms_norm_to_smem(xin, L.norm1, vec_s + b * kH, red);
     }
+#if MK_GEMV_BATCH
+    uint32_t wqkv[5][9];
+#pragma unroll
+    for (int k = 0; k < 5; ++k) load_row576(L.qkv + static_cast<size_t>(gw + k * kGlobalWarps) * kH, lane, wqkv[k]);
+#endif
+#pragma unroll
     for (int k = 0; k < 5; ++k) {
       const int r = gw + k * kGlobalWarps;
+#if MK_GEMV_BATCH
+      dot576_from<B>(wqkv[k], vec_s, lane, o);
+#else
       dots<kH, B>(L.qkv + static_cast<size_t>(r) * kH, vec_s, lane, o);
+#endif
       if (lane == 0) {
 #pragma unroll
         for (int b = 0; b < B; ++b) {
@@ -347,11 +417,14 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
     if (gw < NI) {
       const int c = gw % NC, bk = gw / NC, kvh = bk % kKVH, b = bk / kKVH;
       const int seqb = seq_s[b];
-      const int Lc = (seqb + NC - 1) / NC;
+      const int ncb = nc_s[b];
+      const int Lc = (seqb + ncb - 1) / ncb;
       const int start = c * Lc;
       const int end = min(start + Lc, seqb);
       const int item = (b * kKVH + kvh) * NC + c;
-      if (start >= end) {
+      if (c >= ncb) {
+        // inactive chunk for this request: no partial is written or merged
+      } else if (start >= end) {
         if (lane < 8) {
 #pragma unroll
           for (int hh = 0; hh < 3; ++hh) {
@@ -425,6 +498,116 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
           unpack8(vu, vf);
         };
 
+#if MK_ATTN_V2
+        // Software pipeline: raw K/V of batch n+1 are requested before the math of batch n.
+        // Each batch is 4 positions per lane group; the current token comes from shared memory.
+        uint4 kc[4], vc[4], kn[4], vn[4];
+        bool okc[4], curc[4], okn[4], curn[4];
+        auto fetch = [&](int it, uint4* kk, uint4* vv, bool* okf, bool* curf) {
+#pragma unroll
+          for (int u = 0; u < 4; ++u) {
+            const int i = it + u;
+            const int pp = start + g + 4 * i;
+            const bool valid = (i < niter) && (pp < end);
+            okf[u] = valid;
+            curf[u] = valid && (pp == seqb - 1);
+            kk[u] = make_uint4(0u, 0u, 0u, 0u);
+            vv[u] = make_uint4(0u, 0u, 0u, 0u);
+            if (valid && !curf[u]) {
+#if MK_ATTN_FAST
+              const int blk = p.block_table[b * p.bt_stride +
+                                            (p.bs_shift >= 0 ? (pp >> p.bs_shift) : pp / p.block_size)];
+              const int off = p.bs_shift >= 0 ? (pp & (p.block_size - 1)) : pp % p.block_size;
+#else
+              const int blk = p.block_table[b * p.bt_stride + pp / p.block_size];
+              const int off = pp % p.block_size;
+#endif
+              const long long e = static_cast<long long>(blk) * p.block_stride + off * p.token_stride +
+                                  kvh * p.head_stride + 8 * j;
+              kk[u] = *reinterpret_cast<const uint4*>(kvw + p.k_off + e);
+              vv[u] = *reinterpret_cast<const uint4*>(kvw + p.v_off + e);
+            }
+          }
+        };
+        auto compute = [&](const uint4* kk, const uint4* vv, const bool* okf, const bool* curf) {
+          float kf[4][8], vf[4][8];
+#pragma unroll
+          for (int u = 0; u < 4; ++u) {
+            if (curf[u]) {
+#pragma unroll
+              for (int i = 0; i < 8; ++i) {
+                kf[u][i] = k_s[(b * kKVH + kvh) * kD + 8 * j + i];
+                vf[u][i] = v_s[(b * kKVH + kvh) * kD + 8 * j + i];
+              }
+            } else {
+              unpack8(kk[u], kf[u]);
+              unpack8(vv[u], vf[u]);
+            }
+          }
+          float sc[4][3];
+#pragma unroll
+          for (int u = 0; u < 4; ++u) {
+#pragma unroll
+            for (int hh = 0; hh < 3; ++hh) {
+              float d = 0.f;
+#if MK_ATTN_FAST
+#pragma unroll
+              for (int i = 0; i < 8; ++i) d = fmaf(qr[hh][i], kf[u][i], d);
+#else
+#pragma unroll
+              for (int i = 0; i < 8; ++i) d = add_rn(d, mul_rn(qr[hh][i], kf[u][i]));
+#endif
+              d = add_rn(d, __shfl_xor_sync(0xffffffffu, d, 4));
+              d = add_rn(d, __shfl_xor_sync(0xffffffffu, d, 2));
+              d = add_rn(d, __shfl_xor_sync(0xffffffffu, d, 1));
+              sc[u][hh] = okf[u] ? d * kAttnScale : -INFINITY;
+            }
+          }
+#pragma unroll
+          for (int hh = 0; hh < 3; ++hh) {  // batched online softmax: one rescale per 4 positions
+            float mx = m[hh];
+#pragma unroll
+            for (int u = 0; u < 4; ++u) mx = fmaxf(mx, sc[u][hh]);
+#if MK_ATTN_FAST
+            const float alpha = (mx == -INFINITY) ? 1.f : __expf(m[hh] - mx);
+#else
+            const float alpha = (mx == -INFINITY) ? 1.f : expf(m[hh] - mx);
+#endif
+            float ev[4];
+            float esum = 0.f;
+#pragma unroll
+            for (int u = 0; u < 4; ++u) {
+#if MK_ATTN_FAST
+              ev[u] = (sc[u][hh] == -INFINITY) ? 0.f : __expf(sc[u][hh] - mx);
+#else
+              ev[u] = (sc[u][hh] == -INFINITY) ? 0.f : expf(sc[u][hh] - mx);
+#endif
+              esum += ev[u];
+            }
+            l[hh] = l[hh] * alpha + esum;
+#pragma unroll
+            for (int i = 0; i < 8; ++i) {
+              float av = acc[hh][i] * alpha;
+#pragma unroll
+              for (int u = 0; u < 4; ++u) av = fmaf(ev[u], vf[u][i], av);
+              acc[hh][i] = av;
+            }
+            m[hh] = mx;
+          }
+        };
+        if (niter > 0) fetch(0, kc, vc, okc, curc);
+        for (int it = 0; it < niter; it += 4) {
+          if (it + 4 < niter) fetch(it + 4, kn, vn, okn, curn);
+          compute(kc, vc, okc, curc);
+#pragma unroll
+          for (int u = 0; u < 4; ++u) {
+            kc[u] = kn[u];
+            vc[u] = vn[u];
+            okc[u] = okn[u];
+            curc[u] = curn[u];
+          }
+        }
+#else
         for (int it = 0; it < niter; it += 2) {
           const int pa = start + g + 4 * it;
           const int pb = pa + 4;
@@ -436,6 +619,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
           update(va, ka, va8);
           update(vb, kb, vb8);
         }
+#endif
 
         // Merge the 4 lane groups of this warp (xor 8 and 16) into one partial per head.
 #pragma unroll
@@ -479,9 +663,9 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
     if (t < B * kQH) {
       const int b = t / kQH, hq = t % kQH, kvh = hq / 3, hh = hq % 3;
       float M = -INFINITY;
-      for (int c = 0; c < NC; ++c) M = fmaxf(M, pm[((b * kKVH + kvh) * NC + c) * 3 + hh]);
+      for (int c = 0; c < nc_s[b]; ++c) M = fmaxf(M, pm[((b * kKVH + kvh) * NC + c) * 3 + hh]);
       float den = 0.f;
-      for (int c = 0; c < NC; ++c) {
+      for (int c = 0; c < nc_s[b]; ++c) {
         const int item = (b * kKVH + kvh) * NC + c;
         const float w = expf(pm[item * 3 + hh] - M);
         wt_s[(b * kQH + hq) * NC + c] = w;
@@ -495,7 +679,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
       const int b = idx / kH, r = idx % kH, hq = r / kD, d = r % kD;
       const int kvh = hq / 3, hh = hq % 3;
       float sum = 0.f;
-      for (int c = 0; c < NC; ++c) {
+      for (int c = 0; c < nc_s[b]; ++c) {
         const int item = (b * kKVH + kvh) * NC + c;
         sum = add_rn(sum, mul_rn(wt_s[(b * kQH + hq) * NC + c], pacc[(item * 3 + hh) * kD + d]));
       }
@@ -503,9 +687,19 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
     }
     __syncthreads();
     // Phase 3c: O projection (576 rows), residual h1 = x + o.
+#if MK_GEMV_BATCH
+    uint32_t wo[3][9];
+#pragma unroll
+    for (int k = 0; k < 3; ++k) load_row576(L.o + static_cast<size_t>(gw + k * kGlobalWarps) * kH, lane, wo[k]);
+#endif
+#pragma unroll
     for (int k = 0; k < 3; ++k) {
       const int r = gw + k * kGlobalWarps;
+#if MK_GEMV_BATCH
+      dot576_from<B>(wo[k], vec_s, lane, o);
+#else
       dots<kH, B>(L.o + static_cast<size_t>(r) * kH, vec_s, lane, o);
+#endif
       if (lane == 0) {
 #pragma unroll
         for (int b = 0; b < B; ++b) {
@@ -523,6 +717,32 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
     // Phase 4: RMSNorm(h1) per request, gate/up row pairs (1536), SwiGLU.
 #pragma unroll
     for (int b = 0; b < B; ++b) rms_norm_to_smem(ws + kOffH1 + b * kH, L.norm2, vec_s + b * kH, red);
+#if MK_GEMV_BATCH
+    for (int kk = 0; kk < 4; ++kk) {
+      uint32_t wg[2][9], wu[2][9];
+#pragma unroll
+      for (int q = 0; q < 2; ++q) {
+        const int r = gw + (2 * kk + q) * kGlobalWarps;
+        load_row576(L.gate_up + static_cast<size_t>(r) * kH, lane, wg[q]);
+        load_row576(L.gate_up + static_cast<size_t>(kI + r) * kH, lane, wu[q]);
+      }
+#pragma unroll
+      for (int q = 0; q < 2; ++q) {
+        const int r = gw + (2 * kk + q) * kGlobalWarps;
+        dot576_from<B>(wg[q], vec_s, lane, go);
+        dot576_from<B>(wu[q], vec_s, lane, uo);
+        if (lane == 0) {
+#pragma unroll
+          for (int b = 0; b < B; ++b) {
+            const float g = rnd(go[b]);
+            const float u = rnd(uo[b]);
+            const float act = g / (1.f + expf(-g)) * u;
+            ws[kOffAct + b * kI + r] = __float2bfloat16_rn(act);
+          }
+        }
+      }
+    }
+#else
     for (int k = 0; k < 8; ++k) {
       const int r = gw + k * kGlobalWarps;
       dots<kH, B>(L.gate_up + static_cast<size_t>(r) * kH, vec_s, lane, go);
@@ -537,6 +757,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
         }
       }
     }
+#endif
 #if MK_PREFETCH
     if (layer + 1 < kLayers) {
       const LayerW Ln = p.layers[layer + 1];
@@ -676,6 +897,7 @@ extern "C" int mk_decode(void* stream, int B, const void* input_ids, int ids_i64
   p.token_stride = token_stride;
   p.head_stride = head_stride;
   p.block_size = block_size;
+  p.bs_shift = (block_size & (block_size - 1)) == 0 ? __builtin_ctz(static_cast<unsigned>(block_size)) : -1;
 
   cudaStream_t s = reinterpret_cast<cudaStream_t>(stream);
   cudaError_t e;
