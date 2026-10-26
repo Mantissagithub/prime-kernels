@@ -283,21 +283,25 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
     } else {
       constexpr int kDimTiles = kD / 32;
       constexpr int kPvTasks = B * kQH * kDimTiles;
-      const int group = t >> 7;
-      const int group_lane = t & 127;
+      const int seqb = seq_s[0];
+      const int ygroups = seqb <= 32 ? 2 : 4;
+      const int chunk = ygroups == 2 ? 16 : 32;
+      const int accumulators = ygroups == 2 ? 2 : 1;
+      const int group_width = ygroups * 32;
+      const int group = t / group_width;
+      const int group_lane = t % group_width;
       const int y = group_lane >> 5;
       const int x = group_lane & 31;
       const int task = blockIdx.x + group * kCTAs;
-      float partial = 0.f;
+      float acc[2] = {0.f, 0.f};
       if (task < kPvTasks) {
         const int dtile = task % kDimTiles;
         const int qh = (task / kDimTiles) % kQH;
         const int b = task / (kDimTiles * kQH);
         const int kvh = qh / 3;
-        const int seqb = seq_s[b];
-        for (int base = 0; base < seqb; base += 128) {
-          const int start = base + y * 32;
-          for (int j = 0; j < 32 && start + j < seqb; ++j) {
+        for (int base = 0; base < seqb; base += ygroups * chunk) {
+          const int start = base + y * chunk;
+          for (int j = 0; j < chunk && start + j < seqb; ++j) {
             const int pos = start + j;
             const int physical_block = p.block_table[b * p.bt_stride + pos / 16];
             const int token_off = pos & 15;
@@ -305,20 +309,22 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
                                 token_off * p.token_stride + kvh * p.head_stride + dtile * 32 + x;
             const float prob = bf2f(scores[(b * kQH + qh) * kMaxSeq + pos]);
             const float value = bf2f(kvw[p.v_off + e]);
-            partial = add_rn(partial, mul_rn(prob, value));
+            const int accumulator = j % accumulators;
+            acc[accumulator] = add_rn(acc[accumulator], mul_rn(prob, value));
           }
         }
       }
-      float* pv_partials = wmma_c + group * 128;
+      const float partial = accumulators == 2 ? add_rn(acc[0], acc[1]) : acc[0];
+      float* pv_partials = wmma_c + group * ygroups * 32;
       pv_partials[y * 32 + x] = partial;
       __syncthreads();
       if (task < kPvTasks && y == 0) {
         const int dtile = task % kDimTiles;
         const int qh = (task / kDimTiles) % kQH;
         const int b = task / (kDimTiles * kQH);
-        float result = add_rn(pv_partials[x], pv_partials[32 + x]);
-        result = add_rn(result, pv_partials[64 + x]);
-        result = add_rn(result, pv_partials[96 + x]);
+        float result = pv_partials[x];
+        for (int part = 1; part < ygroups; ++part)
+          result = add_rn(result, pv_partials[part * 32 + x]);
         attn_out[b * kH + qh * kD + dtile * 32 + x] = __float2bfloat16_rn(result);
       }
       __syncthreads();

@@ -1,18 +1,18 @@
 {
-  "schema": "smollm2-360m-full-decode-validation-summary-r8",
+  "schema": "smollm2-360m-full-decode-validation-summary-r9",
   "candidate": {
-    "revision": "R8",
+    "revision": "R9",
     "source": "block360.cu",
     "source_sha256": "0f24bb3a9502310e1e25fcd7c40f0ec299dd2a0a018a5b2cd4850f231e709f66",
     "include": "block360_kernel.inc",
-    "include_sha256": "b860cc423a3c036426da4541662fc35fa0c00dc94e7f08ce77f1d26802bf0596",
-    "library": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r8/build/libdecode360_r8.so",
-    "library_sha256": "c296249e1afdfec1a256b1aad968c743c20072bddf2db1ae98bcac1dc970609a",
-    "change": "PV sequence dispatch: B1 retains WMMA through K=16 then uses y4/chunk32/one FP32 accumulator; B2 retains y2/chunk16 through K=32 then uses y2/chunk32/one FP32 accumulator. Products use separate RN multiply/add; partition partials fold serially before one BF16 round.",
-    "source_provenance": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r8/provenance.json",
-    "build_script_sha256": "7a16c27fde1414500b27abad18366edf9fc0c6185306d012cb0678f024db52bb",
+    "include_sha256": "5c7b651550e07f57affd81f90c814bd561e12ea7d838e50b0e7878777fb2ad7d",
+    "library": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r9/build/libdecode360_r9.so",
+    "library_sha256": "213c0ff647517aff853eef71b0db4e8d317ac23b2835727f15857d4a0851a7aa",
+    "change": "B1 medium sequences K=17..32 use y2/chunk16 with two round-robin FP32 accumulators per lane; K<=16 retains WMMA, K>32 retains y4/chunk32/one accumulator. B2 retains R8. Products use separate RN multiply/add; accumulator and y partials fold serially before one BF16 round.",
+    "source_provenance": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r9/provenance.json",
+    "build_script_sha256": "4b095bc462e5007222bf8df6415852f4d31b4c3d2c4afb9410beaabb62ab57ec",
     "fast_math": false,
-    "base_candidate": "R7 (RMSNorm source retained; PV dispatch updated in include)"
+    "base_candidate": "R8 (R7 QK/RMSNorm retained; PV dispatch updated in include)"
   },
   "initial_four_fixtures": {
     "status": "passed",
@@ -33,24 +33,22 @@
       "b2-ctx8",
       "b2-ctx32"
     ],
-    "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/results-r3-r8/comparison.json",
+    "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/results-r4-r9/comparison.json",
     "harness_sha256": "b33bf8b5413533724fa0c19c91902c8ab4679b3e8843f9975bea9f0dcaf1c011",
     "guard": {
-      "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/guard-r8/result.json",
+      "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/guard-r9/result.json",
       "returncode": 0,
       "stop_reason": null,
-      "elapsed_seconds": 6.037358064000728,
-      "minimum_available_bytes": 3793244160,
+      "elapsed_seconds": 6.0368381529988255,
+      "minimum_available_bytes": 3542044672,
       "peak_swap_bytes": 0,
-      "peak_gpu_mib": 1339
+      "peak_gpu_mib": 1335
     }
   },
   "heldout_30": {
-    "status": "failed_numerical_gates",
-    "passed": 29,
-    "failed": [
-      "seed17-b1-ctx16"
-    ],
+    "status": "passed",
+    "passed": 30,
+    "failed": [],
     "all_30_greedy_ids_match": true,
     "scope": "one full 32-layer custom decode step; seeds 17/101/2027, batches 1/2, contexts 1/8/16/32/128; native SDPA prefill and eager decode",
     "unchanged_gates": {
@@ -60,52 +58,20 @@
       "final_logits_bf16_ulp": 2,
       "greedy_ids": "exact"
     },
-    "passing_cases_final_logits": "29/29 are bitwise equal to native (0 BF16 ULP).",
-    "sole_failure": {
-      "case_id": "seed17-b1-ctx16",
-      "first_post_block_divergence_layer": 9,
-      "first_post_block_kv_bitwise_equal": true,
-      "first_kv_divergence_layer": 10,
-      "greedy_ids_match": true
-    },
+    "observed": "All 30 cases pass; every recorded per-layer block output and KV, final hidden state, and logits are bitwise equal to native (0 BF16 ULP); all greedy IDs match exactly.",
     "pass_to_fail_cases": [],
-    "repaired_vs_r7": [
-      "seed17-b1-ctx128",
-      "seed17-b2-ctx128",
-      "seed101-b1-ctx16",
-      "seed2027-b1-ctx128",
-      "seed2027-b2-ctx128"
+    "repaired_vs_r8": [
+      "seed17-b1-ctx16"
     ],
-    "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r14/results-r1/comparison.json",
+    "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r16/results-r1/comparison.json",
     "guard": {
-      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r14/guard/result.json",
-      "returncode": 1,
+      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r16/guard/result.json",
+      "returncode": 0,
       "stop_reason": null,
-      "elapsed_seconds": 10.053290630996344,
-      "minimum_available_bytes": 3990245376,
+      "elapsed_seconds": 9.852344120008638,
+      "minimum_available_bytes": 3720990720,
       "peak_swap_bytes": 0,
-      "peak_gpu_mib": 1357,
-      "interpretation": "Return code 1 records one numerical gate failure; the guard completed all cases without a resource stop."
-    },
-    "causal_diagnostic": {
-      "case_id": "seed17-b1-ctx16",
-      "layer": 9,
-      "rotated_query_raw_qk_scaled_qk_and_probabilities": "bitwise equal to native",
-      "pv_output": {
-        "different_elements": 1,
-        "elements": 960,
-        "max_bf16_ulp": 1
-      },
-      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r15/results-r1/comparison.json",
-      "guard": {
-        "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r15/guard/result.json",
-        "returncode": 0,
-        "elapsed_seconds": 4.626425786002073,
-        "minimum_available_bytes": 3967975424,
-        "peak_swap_bytes": 0,
-        "peak_gpu_mib": 1309
-      },
-      "scope": "single-case causal-layer diagnostic only; does not replace the 30-case held-out result"
+      "peak_gpu_mib": 1359
     }
   },
   "historical_r6": {
@@ -160,9 +126,11 @@
   },
   "claim_limits": {
     "production_accepted": false,
+    "single_step_numerical_validation": "34/34 fixtures passed bitwise (4 initial plus 30 held-out)",
+    "multi_step_or_serving_validation": false,
     "speed_claim": false,
     "reward_or_quality_claim": false,
-    "reason": "R8 passes the initial four fixtures and 29/30 held-out cases, but one of 30 still fails the unchanged numerical gates."
+    "reason": "R9 passes 34 single-step numerical fixtures, but no multi-step serving, long-context, speed, reward, or quality validation is recorded."
   },
   "historical_r7": {
     "status": "superseded_candidate_preserved_as_history",
@@ -180,5 +148,17 @@
       "seed2027-b2-ctx128"
     ],
     "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r13/results-r1/comparison.json"
+  },
+  "historical_r8": {
+    "status": "superseded_candidate_preserved_as_history",
+    "source_sha256": "0f24bb3a9502310e1e25fcd7c40f0ec299dd2a0a018a5b2cd4850f231e709f66",
+    "include_sha256": "b860cc423a3c036426da4541662fc35fa0c00dc94e7f08ce77f1d26802bf0596",
+    "library_sha256": "c296249e1afdfec1a256b1aad968c743c20072bddf2db1ae98bcac1dc970609a",
+    "initial_four": "4/4 bitwise pass under unchanged gates.",
+    "heldout": "29/30 pass; one numerical failure (`seed17-b1-ctx16`); all greedy IDs match; 29 passing cases have bitwise-exact logits.",
+    "change": "R7 RMSNorm source plus B1/B2 PV dispatch from R8.",
+    "causal_diagnostic": "At layer 9, rotated Q, raw/scaled QK, and probabilities were exact; PV differed in one output by one BF16 ULP. First post-block divergence was layer 9 with exact K/V, followed by first K/V divergence at layer 10.",
+    "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r14/results-r1/comparison.json",
+    "diagnostic_evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r15/results-r1/comparison.json"
   }
 }
