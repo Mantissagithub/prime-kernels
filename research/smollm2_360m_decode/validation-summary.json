@@ -1,18 +1,18 @@
 {
-  "schema": "smollm2-360m-full-decode-validation-summary-r7",
+  "schema": "smollm2-360m-full-decode-validation-summary-r8",
   "candidate": {
-    "revision": "R7",
+    "revision": "R8",
     "source": "block360.cu",
     "source_sha256": "0f24bb3a9502310e1e25fcd7c40f0ec299dd2a0a018a5b2cd4850f231e709f66",
     "include": "block360_kernel.inc",
-    "include_sha256": "e42fffa718488910810b48ee3c8581d306fbde389b70f980d33005bd8a6e73af",
-    "library": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r7/build/libdecode360_r7.so",
-    "library_sha256": "efe0bd039e6aa2146ade424cffb5e5889e80189bc377d593286f922d40b679e1",
-    "change": "R6 full decoder with the RMSNorm reduction changed to four ordered input accumulators, a 128-lane shared reduction tree, descending warp shuffles, mean factor multiplication, separate epsilon addition, and approximate rsqrt. QK remains R6; PV and other decoder arithmetic are unchanged.",
-    "source_provenance": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r7/provenance.json",
-    "build_script_sha256": "6ff22f4487052bb4f90949c004afaa307189d8c2c674aba9cf07d20c231ae8ab",
+    "include_sha256": "b860cc423a3c036426da4541662fc35fa0c00dc94e7f08ce77f1d26802bf0596",
+    "library": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r8/build/libdecode360_r8.so",
+    "library_sha256": "c296249e1afdfec1a256b1aad968c743c20072bddf2db1ae98bcac1dc970609a",
+    "change": "PV sequence dispatch: B1 retains WMMA through K=16 then uses y4/chunk32/one FP32 accumulator; B2 retains y2/chunk16 through K=32 then uses y2/chunk32/one FP32 accumulator. Products use separate RN multiply/add; partition partials fold serially before one BF16 round.",
+    "source_provenance": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r8/provenance.json",
+    "build_script_sha256": "7a16c27fde1414500b27abad18366edf9fc0c6185306d012cb0678f024db52bb",
     "fast_math": false,
-    "diagnostic_primitive": "norm360-probe-r3; standalone primitive only, not a decoder validation."
+    "base_candidate": "R7 (RMSNorm source retained; PV dispatch updated in include)"
   },
   "initial_four_fixtures": {
     "status": "passed",
@@ -26,35 +26,30 @@
       "final_logits_max_bf16_ulp": 2,
       "greedy_ids": "exact"
     },
-    "observed": "All per-layer block outputs and KV, final hidden state, and logits are bitwise equal to native (0 BF16 ULP); greedy IDs match exactly.",
+    "observed": "All four cases pass; all per-layer block outputs and KV, final hidden state, and logits are bitwise equal to native (0 BF16 ULP); greedy IDs match exactly.",
     "cases": [
       "b1-ctx8",
       "b1-ctx32",
       "b2-ctx8",
       "b2-ctx32"
     ],
-    "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/results-r2-r7/comparison.json",
+    "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/results-r3-r8/comparison.json",
     "harness_sha256": "b33bf8b5413533724fa0c19c91902c8ab4679b3e8843f9975bea9f0dcaf1c011",
     "guard": {
-      "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/guard-r7/result.json",
+      "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/guard-r8/result.json",
       "returncode": 0,
       "stop_reason": null,
-      "elapsed_seconds": 5.8372907459997805,
-      "minimum_available_bytes": 4090331136,
+      "elapsed_seconds": 6.037358064000728,
+      "minimum_available_bytes": 3793244160,
       "peak_swap_bytes": 0,
-      "peak_gpu_mib": 1333
+      "peak_gpu_mib": 1339
     }
   },
   "heldout_30": {
     "status": "failed_numerical_gates",
-    "passed": 24,
+    "passed": 29,
     "failed": [
-      "seed17-b1-ctx16",
-      "seed17-b1-ctx128",
-      "seed17-b2-ctx128",
-      "seed101-b1-ctx16",
-      "seed2027-b1-ctx128",
-      "seed2027-b2-ctx128"
+      "seed17-b1-ctx16"
     ],
     "all_30_greedy_ids_match": true,
     "scope": "one full 32-layer custom decode step; seeds 17/101/2027, batches 1/2, contexts 1/8/16/32/128; native SDPA prefill and eager decode",
@@ -65,29 +60,52 @@
       "final_logits_bf16_ulp": 2,
       "greedy_ids": "exact"
     },
-    "pass_to_fail_cases": [],
-    "repaired_vs_r6": [
-      "seed2027-b1-ctx8",
-      "seed2027-b2-ctx1"
-    ],
-    "failed_case_first_post_block_layers": {
-      "seed17-b1-ctx16": 13,
-      "seed17-b1-ctx128": 7,
-      "seed17-b2-ctx128": 17,
-      "seed101-b1-ctx16": 25,
-      "seed2027-b1-ctx128": 4,
-      "seed2027-b2-ctx128": 4
+    "passing_cases_final_logits": "29/29 are bitwise equal to native (0 BF16 ULP).",
+    "sole_failure": {
+      "case_id": "seed17-b1-ctx16",
+      "first_post_block_divergence_layer": 9,
+      "first_post_block_kv_bitwise_equal": true,
+      "first_kv_divergence_layer": 10,
+      "greedy_ids_match": true
     },
-    "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r13/results-r1/comparison.json",
+    "pass_to_fail_cases": [],
+    "repaired_vs_r7": [
+      "seed17-b1-ctx128",
+      "seed17-b2-ctx128",
+      "seed101-b1-ctx16",
+      "seed2027-b1-ctx128",
+      "seed2027-b2-ctx128"
+    ],
+    "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r14/results-r1/comparison.json",
     "guard": {
-      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r13/guard/result.json",
+      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r14/guard/result.json",
       "returncode": 1,
       "stop_reason": null,
-      "elapsed_seconds": 10.25644066100358,
-      "minimum_available_bytes": 4079153152,
+      "elapsed_seconds": 10.053290630996344,
+      "minimum_available_bytes": 3990245376,
       "peak_swap_bytes": 0,
-      "peak_gpu_mib": 1355,
-      "interpretation": "Return code 1 records six numerical gate failures; the guard completed all cases without a resource stop."
+      "peak_gpu_mib": 1357,
+      "interpretation": "Return code 1 records one numerical gate failure; the guard completed all cases without a resource stop."
+    },
+    "causal_diagnostic": {
+      "case_id": "seed17-b1-ctx16",
+      "layer": 9,
+      "rotated_query_raw_qk_scaled_qk_and_probabilities": "bitwise equal to native",
+      "pv_output": {
+        "different_elements": 1,
+        "elements": 960,
+        "max_bf16_ulp": 1
+      },
+      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r15/results-r1/comparison.json",
+      "guard": {
+        "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r15/guard/result.json",
+        "returncode": 0,
+        "elapsed_seconds": 4.626425786002073,
+        "minimum_available_bytes": 3967975424,
+        "peak_swap_bytes": 0,
+        "peak_gpu_mib": 1309
+      },
+      "scope": "single-case causal-layer diagnostic only; does not replace the 30-case held-out result"
     }
   },
   "historical_r6": {
@@ -144,6 +162,23 @@
     "production_accepted": false,
     "speed_claim": false,
     "reward_or_quality_claim": false,
-    "reason": "R7 passes the initial four fixtures and improves held-out exactness to 24/30, but six of 30 unchanged numerical gates still fail."
+    "reason": "R8 passes the initial four fixtures and 29/30 held-out cases, but one of 30 still fails the unchanged numerical gates."
+  },
+  "historical_r7": {
+    "status": "superseded_candidate_preserved_as_history",
+    "source_sha256": "0f24bb3a9502310e1e25fcd7c40f0ec299dd2a0a018a5b2cd4850f231e709f66",
+    "include_sha256": "e42fffa718488910810b48ee3c8581d306fbde389b70f980d33005bd8a6e73af",
+    "library_sha256": "efe0bd039e6aa2146ade424cffb5e5889e80189bc377d593286f922d40b679e1",
+    "initial_four": "4/4 bitwise pass under unchanged gates.",
+    "heldout": "24/30 pass; six numerical failures; all greedy IDs match; R8 improves five of the six failures without introducing a pass-to-fail case.",
+    "failed_case_ids": [
+      "seed17-b1-ctx16",
+      "seed17-b1-ctx128",
+      "seed17-b2-ctx128",
+      "seed101-b1-ctx16",
+      "seed2027-b1-ctx128",
+      "seed2027-b2-ctx128"
+    ],
+    "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r13/results-r1/comparison.json"
   }
 }

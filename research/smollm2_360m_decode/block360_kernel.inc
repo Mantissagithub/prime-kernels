@@ -223,62 +223,105 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
   }
   sync_grid();
 
-  // Batch 1 keeps the WMMA PV path. Batch 2 uses the context-32 GEMVX y layout
-  // and a SIMT order that matches both captured B2 primitive cases.
+  // Keep short-context B1 WMMA and reuse two y-partitions for B2.
   if constexpr (B == 1) {
-    constexpr int kDimTiles = kD / 16;
-    const int pv_tasks = B * kKVH * kDimTiles;
-    for (int task = gw; task < pv_tasks; task += kGlobalWarps) {
-      const int dtile = task % kDimTiles;
-      const int head_item = task / kDimTiles;
-      const int kvh = head_item % kKVH;
-      const int b = head_item / kKVH;
-      const int seqb = seq_s[b];
-      bf16* a_tile = wmma_a + warp * 256;
-      bf16* b_tile = wmma_b + warp * 256;
-      float* c_tile = wmma_c + warp * 256;
-      wmma::fragment<wmma::matrix_a, 16, 16, 16, bf16, wmma::row_major> a_frag;
-      wmma::fragment<wmma::matrix_b, 16, 16, 16, bf16, wmma::row_major> b_frag;
-      wmma::fragment<wmma::accumulator, 16, 16, 16, float> c_frag;
-      wmma::fill_fragment(c_frag, 0.f);
-      for (int k0 = 0; k0 < seqb; k0 += 16) {
+    if (seq_s[0] <= 16) {
+      constexpr int kDimTiles = kD / 16;
+      const int pv_tasks = B * kKVH * kDimTiles;
+      for (int task = gw; task < pv_tasks; task += kGlobalWarps) {
+        const int dtile = task % kDimTiles;
+        const int head_item = task / kDimTiles;
+        const int kvh = head_item % kKVH;
+        const int b = head_item / kKVH;
+        const int seqb = seq_s[b];
+        bf16* a_tile = wmma_a + warp * 256;
+        bf16* b_tile = wmma_b + warp * 256;
+        float* c_tile = wmma_c + warp * 256;
+        wmma::fragment<wmma::matrix_a, 16, 16, 16, bf16, wmma::row_major> a_frag;
+        wmma::fragment<wmma::matrix_b, 16, 16, 16, bf16, wmma::row_major> b_frag;
+        wmma::fragment<wmma::accumulator, 16, 16, 16, float> c_frag;
+        wmma::fill_fragment(c_frag, 0.f);
+        for (int k0 = 0; k0 < seqb; k0 += 16) {
+          for (int idx = lane; idx < 256; idx += 32) {
+            const int qrow = idx / 16;
+            const int token = idx & 15;
+            const int pos = k0 + token;
+            if (qrow < 3 && pos < seqb) {
+              const int hq = kvh * 3 + qrow;
+              a_tile[idx] = scores[(b * kQH + hq) * kMaxSeq + pos];
+            } else {
+              a_tile[idx] = __float2bfloat16_rn(0.f);
+            }
+            const int vpos = k0 + idx / 16;
+            const int d = dtile * 16 + (idx & 15);
+            if (vpos < seqb) {
+              const int physical_block = p.block_table[b * p.bt_stride + vpos / 16];
+              const int token_off = vpos & 15;
+              const long long e = static_cast<long long>(physical_block) * p.block_stride +
+                                  token_off * p.token_stride + kvh * p.head_stride + d;
+              b_tile[idx] = kvw[p.v_off + e];
+            } else {
+              b_tile[idx] = __float2bfloat16_rn(0.f);
+            }
+          }
+          __syncwarp(kFullMask);
+          wmma::load_matrix_sync(a_frag, a_tile, 16);
+          wmma::load_matrix_sync(b_frag, b_tile, 16);
+          wmma::mma_sync(c_frag, a_frag, b_frag, c_frag);
+        }
+        wmma::store_matrix_sync(c_tile, c_frag, 16, wmma::mem_row_major);
+        __syncwarp(kFullMask);
         for (int idx = lane; idx < 256; idx += 32) {
           const int qrow = idx / 16;
-          const int token = idx & 15;
-          const int pos = k0 + token;
-          if (qrow < 3 && pos < seqb) {
+          if (qrow < 3) {
             const int hq = kvh * 3 + qrow;
-            a_tile[idx] = scores[(b * kQH + hq) * kMaxSeq + pos];
-          } else {
-            a_tile[idx] = __float2bfloat16_rn(0.f);
+            const int d = dtile * 16 + (idx & 15);
+            attn_out[b * kH + hq * kD + d] = __float2bfloat16_rn(c_tile[idx]);
           }
-          const int vpos = k0 + idx / 16;
-          const int d = dtile * 16 + (idx & 15);
-          if (vpos < seqb) {
-            const int physical_block = p.block_table[b * p.bt_stride + vpos / 16];
-            const int token_off = vpos & 15;
+        }
+      }
+    } else {
+      constexpr int kDimTiles = kD / 32;
+      constexpr int kPvTasks = B * kQH * kDimTiles;
+      const int group = t >> 7;
+      const int group_lane = t & 127;
+      const int y = group_lane >> 5;
+      const int x = group_lane & 31;
+      const int task = blockIdx.x + group * kCTAs;
+      float partial = 0.f;
+      if (task < kPvTasks) {
+        const int dtile = task % kDimTiles;
+        const int qh = (task / kDimTiles) % kQH;
+        const int b = task / (kDimTiles * kQH);
+        const int kvh = qh / 3;
+        const int seqb = seq_s[b];
+        for (int base = 0; base < seqb; base += 128) {
+          const int start = base + y * 32;
+          for (int j = 0; j < 32 && start + j < seqb; ++j) {
+            const int pos = start + j;
+            const int physical_block = p.block_table[b * p.bt_stride + pos / 16];
+            const int token_off = pos & 15;
             const long long e = static_cast<long long>(physical_block) * p.block_stride +
-                                token_off * p.token_stride + kvh * p.head_stride + d;
-            b_tile[idx] = kvw[p.v_off + e];
-          } else {
-            b_tile[idx] = __float2bfloat16_rn(0.f);
+                                token_off * p.token_stride + kvh * p.head_stride + dtile * 32 + x;
+            const float prob = bf2f(scores[(b * kQH + qh) * kMaxSeq + pos]);
+            const float value = bf2f(kvw[p.v_off + e]);
+            partial = add_rn(partial, mul_rn(prob, value));
           }
         }
-        __syncwarp(kFullMask);
-        wmma::load_matrix_sync(a_frag, a_tile, 16);
-        wmma::load_matrix_sync(b_frag, b_tile, 16);
-        wmma::mma_sync(c_frag, a_frag, b_frag, c_frag);
       }
-      wmma::store_matrix_sync(c_tile, c_frag, 16, wmma::mem_row_major);
-      __syncwarp(kFullMask);
-      for (int idx = lane; idx < 256; idx += 32) {
-        const int qrow = idx / 16;
-        if (qrow < 3) {
-          const int hq = kvh * 3 + qrow;
-          const int d = dtile * 16 + (idx & 15);
-          attn_out[b * kH + hq * kD + d] = __float2bfloat16_rn(c_tile[idx]);
-        }
+      float* pv_partials = wmma_c + group * 128;
+      pv_partials[y * 32 + x] = partial;
+      __syncthreads();
+      if (task < kPvTasks && y == 0) {
+        const int dtile = task % kDimTiles;
+        const int qh = (task / kDimTiles) % kQH;
+        const int b = task / (kDimTiles * kQH);
+        float result = add_rn(pv_partials[x], pv_partials[32 + x]);
+        result = add_rn(result, pv_partials[64 + x]);
+        result = add_rn(result, pv_partials[96 + x]);
+        attn_out[b * kH + qh * kD + dtile * 32 + x] = __float2bfloat16_rn(result);
       }
+      __syncthreads();
     }
   } else {
     constexpr int kDimTiles = kD / 32;
@@ -295,9 +338,10 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
       const int b = task / (kDimTiles * kQH);
       const int kvh = qh / 3;
       const int seqb = seq_s[b];
-      for (int base = 0; base < seqb; base += 32) {
-        const int start = base + y * 16;
-        for (int j = 0; j < 16 && start + j < seqb; ++j) {
+      const int y_chunk = seqb > 32 ? 32 : 16;
+      for (int base = 0; base < seqb; base += 2 * y_chunk) {
+        const int start = base + y * y_chunk;
+        for (int j = 0; j < y_chunk && start + j < seqb; ++j) {
           const int pos = start + j;
           const int physical_block = p.block_table[b * p.bt_stride + pos / 16];
           const int token_off = pos & 15;
