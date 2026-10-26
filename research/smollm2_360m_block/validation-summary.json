@@ -1,0 +1,34 @@
+{
+  "candidate": "R5 half-warp B1 MLP",
+  "status": "research_single_block_only",
+  "initial_fixtures": 4,
+  "heldout_fixtures": 30,
+  "heldout_passed": 30,
+  "heldout_failed": 0,
+  "gates": {
+    "block_max_bf16_ulp": 1,
+    "kv_max_bf16_ulp": 1,
+    "logits_max_bf16_ulp": 2,
+    "greedy": "exact"
+  },
+  "heldout_block_kv_final_norm_logits": "bitwise_equal",
+  "internal_attention_note": "One B2 attention value at 1 ULP, unchanged from R4; downstream exact.",
+  "scope": "One custom block 0 followed by 31 native decoder blocks; no full custom decoder, vLLM, multi-step or performance claim.",
+  "sources_sha256": {
+    "block360.cu": "a96278ecfa638ea146e1b5e2aeff142dec7a34affb0487dc22a3de72788d412e",
+    "block360_kernel.inc": "b66c7aab82de9a0fb286e43cde141cac586d4745a74e9d9aae17446da103b6d3"
+  },
+  "local_evidence": [
+    "block-360-cuda-r5/candidate-validation-initial/comparison.json",
+    "block-360-heldout-r5/results-r1/comparison.json",
+    "block-360-b1-analysis-r1/r5-audit.json"
+  ],
+  "gpu_guard": {
+    "elapsed_seconds": 6.238976190004905,
+    "peak_cgroup_bytes": 1749770240,
+    "peak_gpu_mib": 989,
+    "peak_swap_bytes": 0,
+    "returncode": 0,
+    "stop_reason": null
+  }
+}
