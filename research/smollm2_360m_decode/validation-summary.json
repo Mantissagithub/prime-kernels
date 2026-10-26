@@ -81,6 +81,7 @@
     "passed": 20,
     "failed": 10,
     "all_30_greedy_ids_match": true,
+    "layer_indices_zero_based": true,
     "scope": "one full 32-layer decode step; seeds 17/101/2027, B1/B2, contexts 1/8/16/32/128; native prefill and eager decode in the same invocation",
     "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r8/results-r1/comparison.json",
     "guard": {
@@ -362,6 +363,52 @@
         "peak_gpu_mib": 1359
       },
       "acceptance_unchanged": "R4 remains 4/4 on the initial fixtures and 20/30 on held-out R8; R9 is supplemental diagnosis only."
+    },
+    "r10_attention_stage_diagnosis": {
+      "status": "diagnostic_complete",
+      "diagnostic_cases": 10,
+      "diagnostic_only_not_full_heldout_revalidation": true,
+      "first_differing_stage_at_r9_target_layer": {
+        "pv_output": [
+          "seed17-b1-ctx16@13",
+          "seed17-b1-ctx128@7",
+          "seed17-b2-ctx128@17",
+          "seed101-b1-ctx16@25",
+          "seed2027-b1-ctx128@4"
+        ],
+        "qk_product": [
+          "seed17-b1-ctx32@18",
+          "seed101-b2-ctx8@29",
+          "seed2027-b2-ctx128@3"
+        ],
+        "norm2": [
+          "seed2027-b1-ctx8@20",
+          "seed2027-b2-ctx1@17"
+        ]
+      },
+      "interpretation": "At the R9-selected target layers, rotated query, QK product, scaled scores, and softmax probabilities are bitwise equal in the five PV-output cases; PV output is the first differing captured attention stage. QK product is the first differing captured attention stage in the other three attention cases. The two norm2 cases remain separate. This localizes captured differences and does not establish a production fix or the full upstream cause.",
+      "r9_to_r10_math_equivalence": "Across the ten cases, final norm output, logits, greedy IDs, and per-layer comparisons are identical between R9 and R10; R10 instrumentation did not change those recorded outcomes.",
+      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r10/results-r1/comparison.json",
+      "guard": {
+        "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r10/guard/result.json",
+        "returncode": 0,
+        "stop_reason": null,
+        "elapsed_seconds": 8.095894186000805,
+        "minimum_available_bytes": 4898603008,
+        "peak_cgroup_bytes": 2413518848,
+        "peak_swap_bytes": 0,
+        "peak_gpu_mib": 1359
+      },
+      "instrumented_candidate_provenance_not_r4": {
+        "revision": "R5 diagnostic instrumentation",
+        "source_sha256": "4c23ba8bdf28df56c5b4e08420f5fdf93083c07d4d792687534c87164204150f",
+        "include_sha256": "cef5bb87961f26f10cb43368ddb616ecc87163323d67ab7fb48688e18224cb9e",
+        "library_sha256": "b28577183f9346ccc8f2a1493d879cb6336d88454d0550d8f26046a52aea3480",
+        "harness_sha256": "9a711c45862af7ec53689d4953825dfb017097dfb0f0b8f5717efefa8b791162",
+        "diagnostic_subset_count": 10,
+        "full_fixture_count": 30
+      },
+      "acceptance_unchanged": "R4 remains 4/4 on the initial fixtures and 20/30 on held-out R8; R10 is supplemental diagnosis only."
     }
   },
   "historical_r1": {
