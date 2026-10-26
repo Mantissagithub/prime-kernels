@@ -1,159 +1,383 @@
 {
-  "status": "research_not_accepted",
-  "scope": "One full32-layer custom decode step, B1/B2 contexts8/32; no multi-step/vLLM/performance acceptance",
-  "passed": 3,
-  "failed": 1,
-  "cases": [
-    {
-      "case_id": "b1-ctx8",
-      "status": "passed",
-      "gates": {
-        "all_32_kv_max_ulp_le_1": true,
-        "all_32_post_block_and_kv_finite": true,
-        "all_32_post_block_outputs_max_ulp_le_1": true,
-        "candidate_hidden_finite": true,
-        "candidate_logits_finite": true,
-        "final_hidden_max_ulp_le_1": true,
-        "final_logits_max_ulp_le_2": true,
-        "greedy_token_ids_match": true,
-        "native_eager_fixture_replay": true,
-        "prefill_greedy_matches_fixture": true
-      },
-      "first_post_block_divergence": null,
-      "first_kv_divergence": null
+  "schema": "smollm2-360m-full-decode-validation-summary-r4",
+  "candidate": {
+    "revision": "R4",
+    "source": "block360.cu",
+    "source_sha256": "1ca8038b741cc64139622e8e6e062fff7ce3907781cc6730d6953b40e05b6bec",
+    "include": "block360_kernel.inc",
+    "include_sha256": "acfa83c5534d0231b6144902578381b94e4a53bc79fb6df130ffae312baed15c",
+    "library": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r4/build/libdecode360_r4.so",
+    "library_sha256": "013a2ff48d2891a8bc109c427ed44135a30e74e45cf8bb496f239cc3d52ddd4b",
+    "library_build": {
+      "command": "/usr/local/cuda-13.0/bin/nvcc -std=c++17 -O3 -arch=sm_89 -lineinfo --ptxas-options=-v -Xcompiler=-fPIC --shared block360.cu -o build/libdecode360_r4.so",
+      "fast_math": false,
+      "ptxas_log_sha256": "6c6efd26c818e622bc0d5ab254ca81f3b628345b622057de40acf0cf95459296",
+      "b1_registers_per_thread": 173,
+      "b1_spills": 0,
+      "b2_registers_per_thread": 168,
+      "b2_static_shared_memory_bytes": 12864,
+      "b2_hardware_barriers": 1,
+      "b2_spills": 0
     },
-    {
-      "case_id": "b1-ctx32",
-      "status": "passed",
-      "gates": {
-        "all_32_kv_max_ulp_le_1": true,
-        "all_32_post_block_and_kv_finite": true,
-        "all_32_post_block_outputs_max_ulp_le_1": true,
-        "candidate_hidden_finite": true,
-        "candidate_logits_finite": true,
-        "final_hidden_max_ulp_le_1": true,
-        "final_logits_max_ulp_le_2": true,
-        "greedy_token_ids_match": true,
-        "native_eager_fixture_replay": true,
-        "prefill_greedy_matches_fixture": true
-      },
-      "first_post_block_divergence": null,
-      "first_kv_divergence": null
+    "debug_buffer": {
+      "getter": "decode360_debug_bytes()",
+      "bytes": 3366400,
+      "bf16_elements": 1683200,
+      "all_32_layers_stages": [
+        "norm1",
+        "qkv",
+        "attention_output",
+        "o_projection",
+        "post_attention_residual",
+        "norm2",
+        "gate",
+        "up",
+        "silu",
+        "swiglu_down_input",
+        "down_projection",
+        "post_block_output"
+      ],
+      "layer15_attention_extras": [
+        "Q",
+        "scores",
+        "probabilities",
+        "PV_output"
+      ]
+    }
+  },
+  "initial_four_fixtures": {
+    "status": "passed",
+    "passed": 4,
+    "failed": 0,
+    "scope": "one full 32-layer decode step; B1/B2 at contexts 8 and 32",
+    "gates": {
+      "per_layer_post_block_output_max_bf16_ulp": 1,
+      "per_layer_kv_max_bf16_ulp": 1,
+      "final_hidden_max_bf16_ulp": 1,
+      "final_logits_max_bf16_ulp": 2,
+      "greedy_ids": "exact"
     },
-    {
-      "case_id": "b2-ctx8",
-      "status": "passed",
-      "gates": {
-        "all_32_kv_max_ulp_le_1": true,
-        "all_32_post_block_and_kv_finite": true,
-        "all_32_post_block_outputs_max_ulp_le_1": true,
-        "candidate_hidden_finite": true,
-        "candidate_logits_finite": true,
-        "final_hidden_max_ulp_le_1": true,
-        "final_logits_max_ulp_le_2": true,
-        "greedy_token_ids_match": true,
-        "native_eager_fixture_replay": true,
-        "prefill_greedy_matches_fixture": true
-      },
-      "first_post_block_divergence": null,
-      "first_kv_divergence": null
+    "observed": "All per-layer block outputs and KV, final hidden, and final logits were bitwise equal to native (0 BF16 ULP); greedy IDs matched.",
+    "cases": [
+      "b1-ctx8",
+      "b1-ctx32",
+      "b2-ctx8",
+      "b2-ctx32"
+    ],
+    "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r8/results-r1/comparison.json",
+    "guard": {
+      "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r8/guard/result.json",
+      "returncode": 0,
+      "stop_reason": null,
+      "elapsed_seconds": 7.661729960003868,
+      "minimum_available_bytes": 5713846272,
+      "peak_cgroup_bytes": 2230394880,
+      "peak_swap_bytes": 0,
+      "peak_gpu_mib": 1331
+    }
+  },
+  "heldout_30": {
+    "status": "failed_numerical_gates",
+    "passed": 20,
+    "failed": 10,
+    "all_30_greedy_ids_match": true,
+    "scope": "one full 32-layer decode step; seeds 17/101/2027, B1/B2, contexts 1/8/16/32/128; native prefill and eager decode in the same invocation",
+    "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r8/results-r1/comparison.json",
+    "guard": {
+      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r8/guard/result.json",
+      "returncode": 1,
+      "stop_reason": null,
+      "completed_all_cases": true,
+      "elapsed_seconds": 13.27423252799781,
+      "minimum_available_bytes": 6018482176,
+      "peak_cgroup_bytes": 2353135616,
+      "peak_swap_bytes": 0,
+      "peak_gpu_mib": 1357,
+      "interpretation": "The nonzero return code records the ten failed numerical gates; the guarded process completed all cases without a stop reason."
     },
-    {
-      "case_id": "b2-ctx32",
-      "status": "failed",
-      "gates": {
-        "all_32_kv_max_ulp_le_1": false,
-        "all_32_post_block_and_kv_finite": true,
-        "all_32_post_block_outputs_max_ulp_le_1": false,
-        "candidate_hidden_finite": true,
-        "candidate_logits_finite": true,
-        "final_hidden_max_ulp_le_1": false,
-        "final_logits_max_ulp_le_2": false,
-        "greedy_token_ids_match": true,
-        "native_eager_fixture_replay": true,
-        "prefill_greedy_matches_fixture": true
-      },
-      "first_post_block_divergence": {
-        "key_value": {
-          "bitwise_equal": true,
-          "candidate_finite": true,
-          "different_elements": 0,
-          "elements": 42240,
-          "first_difference": null,
-          "max_abs": 0.0,
-          "max_bf16_ulp": 0,
-          "reference_finite": true,
-          "shape_match": true
+    "failures": [
+      {
+        "case_id": "seed17-b1-ctx16",
+        "first_post_block_layer": 13,
+        "next_kv_layer": 14,
+        "next_kv_different_elements": 247,
+        "r9_earliest_captured_difference": {
+          "layer": 13,
+          "stage": "attn_o_input",
+          "different_elements": 1,
+          "elements": 960,
+          "max_bf16_ulp": 1,
+          "max_abs": 0.0009765625
         },
-        "layer": 15,
-        "post_block_output": {
-          "bitwise_equal": false,
-          "candidate_finite": true,
-          "different_elements": 220,
-          "elements": 1920,
-          "first_difference": {
-            "absolute_error": 0.0078125,
-            "bf16_ulp": 1,
-            "candidate_bf16": -1.9140625,
-            "index": [
-              0,
-              1
-            ],
-            "reference_bf16": -1.90625
-          },
-          "max_abs": 0.0625,
-          "max_bf16_ulp": 15361,
-          "reference_finite": true,
-          "shape_match": true
+        "r9_first_captured_difference_at_post_block_layer": {
+          "layer": 13,
+          "stage": "attn_o_input",
+          "different_elements": 1,
+          "elements": 960,
+          "max_bf16_ulp": 1,
+          "max_abs": 0.0009765625
         }
       },
-      "first_kv_divergence": {
-        "key_value": {
-          "bitwise_equal": false,
-          "candidate_finite": true,
-          "different_elements": 305,
-          "elements": 42240,
-          "first_difference": {
-            "absolute_error": 0.001953125,
-            "bf16_ulp": 1,
-            "candidate_bf16": 0.35546875,
-            "index": [
-              2049
-            ],
-            "reference_bf16": 0.357421875
-          },
-          "max_abs": 0.015625,
-          "max_bf16_ulp": 29633,
-          "reference_finite": true,
-          "shape_match": true
+      {
+        "case_id": "seed17-b1-ctx32",
+        "first_post_block_layer": 18,
+        "next_kv_layer": 19,
+        "next_kv_different_elements": 296,
+        "r9_earliest_captured_difference": {
+          "layer": 5,
+          "stage": "attn_o_input",
+          "different_elements": 1,
+          "elements": 960,
+          "max_bf16_ulp": 1,
+          "max_abs": 7.450580596923828e-09
         },
-        "layer": 16,
-        "post_block_output": {
-          "bitwise_equal": false,
-          "candidate_finite": true,
-          "different_elements": 548,
+        "r9_first_captured_difference_at_post_block_layer": {
+          "layer": 18,
+          "stage": "attn_o_input",
+          "different_elements": 9,
+          "elements": 960,
+          "max_bf16_ulp": 83,
+          "max_abs": 0.00390625
+        }
+      },
+      {
+        "case_id": "seed17-b1-ctx128",
+        "first_post_block_layer": 7,
+        "next_kv_layer": 8,
+        "next_kv_different_elements": 264,
+        "r9_earliest_captured_difference": {
+          "layer": 7,
+          "stage": "attn_o_input",
+          "different_elements": 1,
+          "elements": 960,
+          "max_bf16_ulp": 1,
+          "max_abs": 0.0001220703125
+        },
+        "r9_first_captured_difference_at_post_block_layer": {
+          "layer": 7,
+          "stage": "attn_o_input",
+          "different_elements": 1,
+          "elements": 960,
+          "max_bf16_ulp": 1,
+          "max_abs": 0.0001220703125
+        }
+      },
+      {
+        "case_id": "seed17-b2-ctx128",
+        "first_post_block_layer": 17,
+        "next_kv_layer": 18,
+        "next_kv_different_elements": 183,
+        "r9_earliest_captured_difference": {
+          "layer": 8,
+          "stage": "attn_o_input",
+          "different_elements": 1,
           "elements": 1920,
-          "first_difference": {
-            "absolute_error": 0.03125,
-            "bf16_ulp": 2,
-            "candidate_bf16": -4.0,
-            "index": [
-              0,
-              1
-            ],
-            "reference_bf16": -3.96875
-          },
-          "max_abs": 0.125,
-          "max_bf16_ulp": 30905,
-          "reference_finite": true,
-          "shape_match": true
+          "max_bf16_ulp": 1,
+          "max_abs": 2.384185791015625e-07
+        },
+        "r9_first_captured_difference_at_post_block_layer": {
+          "layer": 17,
+          "stage": "attn_o_input",
+          "different_elements": 1,
+          "elements": 1920,
+          "max_bf16_ulp": 1,
+          "max_abs": 0.0009765625
+        }
+      },
+      {
+        "case_id": "seed101-b1-ctx16",
+        "first_post_block_layer": 25,
+        "next_kv_layer": 26,
+        "next_kv_different_elements": 188,
+        "r9_earliest_captured_difference": {
+          "layer": 25,
+          "stage": "attn_o_input",
+          "different_elements": 1,
+          "elements": 960,
+          "max_bf16_ulp": 1,
+          "max_abs": 0.000244140625
+        },
+        "r9_first_captured_difference_at_post_block_layer": {
+          "layer": 25,
+          "stage": "attn_o_input",
+          "different_elements": 1,
+          "elements": 960,
+          "max_bf16_ulp": 1,
+          "max_abs": 0.000244140625
+        }
+      },
+      {
+        "case_id": "seed101-b2-ctx8",
+        "first_post_block_layer": 29,
+        "next_kv_layer": 30,
+        "next_kv_different_elements": 504,
+        "r9_earliest_captured_difference": {
+          "layer": 29,
+          "stage": "attn_o_input",
+          "different_elements": 63,
+          "elements": 1920,
+          "max_bf16_ulp": 25,
+          "max_abs": 0.01953125
+        },
+        "r9_first_captured_difference_at_post_block_layer": {
+          "layer": 29,
+          "stage": "attn_o_input",
+          "different_elements": 63,
+          "elements": 1920,
+          "max_bf16_ulp": 25,
+          "max_abs": 0.01953125
+        }
+      },
+      {
+        "case_id": "seed2027-b1-ctx8",
+        "first_post_block_layer": 20,
+        "next_kv_layer": 21,
+        "next_kv_different_elements": 184,
+        "r9_earliest_captured_difference": {
+          "layer": 20,
+          "stage": "norm2",
+          "different_elements": 7,
+          "elements": 960,
+          "max_bf16_ulp": 1,
+          "max_abs": 0.00048828125
+        },
+        "r9_first_captured_difference_at_post_block_layer": {
+          "layer": 20,
+          "stage": "norm2",
+          "different_elements": 7,
+          "elements": 960,
+          "max_bf16_ulp": 1,
+          "max_abs": 0.00048828125
+        }
+      },
+      {
+        "case_id": "seed2027-b1-ctx128",
+        "first_post_block_layer": 4,
+        "next_kv_layer": 5,
+        "next_kv_different_elements": 265,
+        "r9_earliest_captured_difference": {
+          "layer": 4,
+          "stage": "attn_o_input",
+          "different_elements": 1,
+          "elements": 960,
+          "max_bf16_ulp": 1,
+          "max_abs": 0.0009765625
+        },
+        "r9_first_captured_difference_at_post_block_layer": {
+          "layer": 4,
+          "stage": "attn_o_input",
+          "different_elements": 1,
+          "elements": 960,
+          "max_bf16_ulp": 1,
+          "max_abs": 0.0009765625
+        }
+      },
+      {
+        "case_id": "seed2027-b2-ctx1",
+        "first_post_block_layer": 17,
+        "next_kv_layer": 18,
+        "next_kv_different_elements": 227,
+        "r9_earliest_captured_difference": {
+          "layer": 17,
+          "stage": "norm2",
+          "different_elements": 10,
+          "elements": 1920,
+          "max_bf16_ulp": 2,
+          "max_abs": 0.0009765625
+        },
+        "r9_first_captured_difference_at_post_block_layer": {
+          "layer": 17,
+          "stage": "norm2",
+          "different_elements": 10,
+          "elements": 1920,
+          "max_bf16_ulp": 2,
+          "max_abs": 0.0009765625
+        }
+      },
+      {
+        "case_id": "seed2027-b2-ctx128",
+        "first_post_block_layer": 3,
+        "next_kv_layer": 4,
+        "next_kv_different_elements": 296,
+        "r9_earliest_captured_difference": {
+          "layer": 3,
+          "stage": "attn_o_input",
+          "different_elements": 1,
+          "elements": 1920,
+          "max_bf16_ulp": 1,
+          "max_abs": 0.00048828125
+        },
+        "r9_first_captured_difference_at_post_block_layer": {
+          "layer": 3,
+          "stage": "attn_o_input",
+          "different_elements": 1,
+          "elements": 1920,
+          "max_bf16_ulp": 1,
+          "max_abs": 0.00048828125
         }
       }
+    ],
+    "first_internal_stage_diagnosis": {
+      "status": "diagnostic_complete",
+      "diagnostic_cases": 10,
+      "diagnostic_only_not_full_heldout_revalidation": true,
+      "same_layer_first_captured_stage_at_r8_failure": {
+        "attention_output_input": 8,
+        "mlp_norm2": 2
+      },
+      "earlier_global_differences": {
+        "interpretation": "A captured difference earlier than the first post-block failure may be erased or attenuated before that block output; it is not sufficient to assign cause.",
+        "cases": [
+          {
+            "case_id": "seed17-b1-ctx32",
+            "earliest_internal_layer": 5,
+            "first_post_block_layer": 18
+          },
+          {
+            "case_id": "seed17-b2-ctx128",
+            "earliest_internal_layer": 8,
+            "first_post_block_layer": 17
+          }
+        ]
+      },
+      "limitation": "The diagnostic captures candidate attn_o_input and norm2, but not candidate rotated Q, QK scores, softmax probabilities, or PV outputs at arbitrary layers. The same-layer first captured stage is localization evidence, not proof of the responsible arithmetic operation.",
+      "next_step": "R10: capture candidate attention internals at each dynamically selected first-post-block divergence layer; inspect norm2 cases separately, without changing math.",
+      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r9/results-r1/comparison.json",
+      "analysis": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r9/analysis-r1.md",
+      "provenance": {
+        "harness_sha256": "39c09c3db862fb918b71260766e2c7824f3fc5e19aae265a299ca5a69f977b10",
+        "source_sha256": "1ca8038b741cc64139622e8e6e062fff7ce3907781cc6730d6953b40e05b6bec",
+        "include_sha256": "acfa83c5534d0231b6144902578381b94e4a53bc79fb6df130ffae312baed15c",
+        "library_sha256": "013a2ff48d2891a8bc109c427ed44135a30e74e45cf8bb496f239cc3d52ddd4b",
+        "fixture_metadata_sha256": "4ad2dde1f136e2e0476f53ebd5830f9a143df4c78c3e4c3022fd180e5999a60c"
+      },
+      "guard": {
+        "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r9/guard/result.json",
+        "returncode": 0,
+        "stop_reason": null,
+        "elapsed_seconds": 20.492697200999828,
+        "minimum_available_bytes": 5022081024,
+        "peak_cgroup_bytes": 2318962688,
+        "peak_swap_bytes": 0,
+        "peak_gpu_mib": 1359
+      },
+      "acceptance_unchanged": "R4 remains 4/4 on the initial fixtures and 20/30 on held-out R8; R9 is supplemental diagnosis only."
     }
-  ],
-  "sources_sha256": {
-    "block360.cu": "1ca8038b741cc64139622e8e6e062fff7ce3907781cc6730d6953b40e05b6bec",
-    "block360_kernel.inc": "fb397b06d967af530a7e57eaed3e55dc57154494e77bda45e1d19c5c12970d0a"
   },
-  "local_evidence": "outputs/megakernel-20261025/decode-360-validation-r3/results-r1/comparison.json"
+  "historical_r1": {
+    "status": "historical_failed",
+    "scope": "one full 32-layer decode step; B1/B2 at contexts 8 and 32",
+    "passed": 3,
+    "failed": 1,
+    "failed_case": "b2-ctx32",
+    "first_post_block_divergence_layer": 15,
+    "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r3/results-r1/comparison.json",
+    "note": "This earlier R1 result is retained for chronology; current archive sources and R4 validation are recorded above."
+  },
+  "claim_limits": {
+    "production_accepted": false,
+    "speed_claim": false,
+    "reward_or_quality_claim": false,
+    "reason": "The 30-case held-out suite has ten strict numerical failures despite exact greedy IDs."
+  }
 }
