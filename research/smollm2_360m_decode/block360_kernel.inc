@@ -43,7 +43,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
   __shared__ __align__(16) float q_s[B * kQH * kD];
   __shared__ __align__(16) float k_s[B * kKVH * kD];
   __shared__ __align__(16) float v_s[B * kKVH * kD];
-  __shared__ float red[kWarps];
+  __shared__ float red[128];
   __shared__ int seq_s[B], pos_s[B];
 
   bf16* ws = p.ws;

@@ -1,24 +1,18 @@
 {
-  "schema": "smollm2-360m-full-decode-validation-summary-r6",
+  "schema": "smollm2-360m-full-decode-validation-summary-r7",
   "candidate": {
-    "revision": "R6",
+    "revision": "R7",
     "source": "block360.cu",
-    "source_sha256": "4c23ba8bdf28df56c5b4e08420f5fdf93083c07d4d792687534c87164204150f",
+    "source_sha256": "0f24bb3a9502310e1e25fcd7c40f0ec299dd2a0a018a5b2cd4850f231e709f66",
     "include": "block360_kernel.inc",
-    "include_sha256": "ef5d60f0dd1d31fbebabad60f0f4734cdb18029101aafa2f642259001ead55ef",
-    "library": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r6/build/libdecode360_r6.so",
-    "library_sha256": "240caca3a6a284ba4f76b13fe55349b238a0ef05014919cfb648627e26eb563a",
-    "change": "R4 full-decoder source with only the QK product replaced by a generic four-lane SIMT reduction; PV, RMSNorm, and other decoder math are unchanged.",
-    "qk_schedule": {
-      "lanes": 4,
-      "accumulators_per_lane": 1,
-      "assignment": "strided increasing K index",
-      "local_accumulation": "serial add.rn after mul.rn",
-      "group_reduction": "shuffle-down offsets 2 then 1"
-    },
-    "build_script_sha256": "351128dd6e10dacdbd3ed87de992333e1a9fa9f6ca0341c3af3c5ce8150a7c58",
+    "include_sha256": "e42fffa718488910810b48ee3c8581d306fbde389b70f980d33005bd8a6e73af",
+    "library": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r7/build/libdecode360_r7.so",
+    "library_sha256": "efe0bd039e6aa2146ade424cffb5e5889e80189bc377d593286f922d40b679e1",
+    "change": "R6 full decoder with the RMSNorm reduction changed to four ordered input accumulators, a 128-lane shared reduction tree, descending warp shuffles, mean factor multiplication, separate epsilon addition, and approximate rsqrt. QK remains R6; PV and other decoder arithmetic are unchanged.",
+    "source_provenance": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r7/provenance.json",
+    "build_script_sha256": "6ff22f4487052bb4f90949c004afaa307189d8c2c674aba9cf07d20c231ae8ab",
     "fast_math": false,
-    "debug_buffer": "Optional all-layer stage output plus selected-layer rotated Q, raw QK, scaled scores, probabilities, and PV; ABI includes debug_layer_index."
+    "diagnostic_primitive": "norm360-probe-r3; standalone primitive only, not a decoder validation."
   },
   "initial_four_fixtures": {
     "status": "passed",
@@ -39,22 +33,71 @@
       "b2-ctx8",
       "b2-ctx32"
     ],
-    "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/results-r1/comparison.json",
+    "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/results-r2-r7/comparison.json",
     "harness_sha256": "b33bf8b5413533724fa0c19c91902c8ab4679b3e8843f9975bea9f0dcaf1c011",
     "guard": {
-      "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/guard/result.json",
+      "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/guard-r7/result.json",
       "returncode": 0,
       "stop_reason": null,
-      "elapsed_seconds": 6.239029352000216,
-      "minimum_available_bytes": 4040863744,
+      "elapsed_seconds": 5.8372907459997805,
+      "minimum_available_bytes": 4090331136,
       "peak_swap_bytes": 0,
       "peak_gpu_mib": 1333
     }
   },
   "heldout_30": {
     "status": "failed_numerical_gates",
-    "passed": 22,
+    "passed": 24,
     "failed": [
+      "seed17-b1-ctx16",
+      "seed17-b1-ctx128",
+      "seed17-b2-ctx128",
+      "seed101-b1-ctx16",
+      "seed2027-b1-ctx128",
+      "seed2027-b2-ctx128"
+    ],
+    "all_30_greedy_ids_match": true,
+    "scope": "one full 32-layer custom decode step; seeds 17/101/2027, batches 1/2, contexts 1/8/16/32/128; native SDPA prefill and eager decode",
+    "unchanged_gates": {
+      "each_layer_kv_bf16_ulp": 1,
+      "each_post_block_output_bf16_ulp": 1,
+      "final_hidden_bf16_ulp": 1,
+      "final_logits_bf16_ulp": 2,
+      "greedy_ids": "exact"
+    },
+    "pass_to_fail_cases": [],
+    "repaired_vs_r6": [
+      "seed2027-b1-ctx8",
+      "seed2027-b2-ctx1"
+    ],
+    "failed_case_first_post_block_layers": {
+      "seed17-b1-ctx16": 13,
+      "seed17-b1-ctx128": 7,
+      "seed17-b2-ctx128": 17,
+      "seed101-b1-ctx16": 25,
+      "seed2027-b1-ctx128": 4,
+      "seed2027-b2-ctx128": 4
+    },
+    "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r13/results-r1/comparison.json",
+    "guard": {
+      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r13/guard/result.json",
+      "returncode": 1,
+      "stop_reason": null,
+      "elapsed_seconds": 10.25644066100358,
+      "minimum_available_bytes": 4079153152,
+      "peak_swap_bytes": 0,
+      "peak_gpu_mib": 1355,
+      "interpretation": "Return code 1 records six numerical gate failures; the guard completed all cases without a resource stop."
+    }
+  },
+  "historical_r6": {
+    "status": "superseded_candidate_preserved_as_history",
+    "source_sha256": "4c23ba8bdf28df56c5b4e08420f5fdf93083c07d4d792687534c87164204150f",
+    "include_sha256": "ef5d60f0dd1d31fbebabad60f0f4734cdb18029101aafa2f642259001ead55ef",
+    "library_sha256": "240caca3a6a284ba4f76b13fe55349b238a0ef05014919cfb648627e26eb563a",
+    "initial_four": "4/4 bitwise pass under unchanged gates.",
+    "heldout": "22/30 pass; 8 numerical failures; all greedy IDs match; no pass-to-fail cases relative to R4.",
+    "failed_case_ids": [
       "seed17-b1-ctx16",
       "seed17-b1-ctx128",
       "seed17-b2-ctx128",
@@ -64,75 +107,7 @@
       "seed2027-b2-ctx1",
       "seed2027-b2-ctx128"
     ],
-    "all_30_greedy_ids_match": true,
-    "scope": "one full 32-layer custom decode step; seeds 17/101/2027, B1/B2, contexts 1/8/16/32/128; native SDPA prefill and eager decode in the same invocation",
-    "unchanged_gates": {
-      "each_layer_kv_bf16_ulp": 1,
-      "each_post_block_output_bf16_ulp": 1,
-      "final_hidden_bf16_ulp": 1,
-      "final_logits_bf16_ulp": 2,
-      "greedy_ids": "exact"
-    },
-    "repaired_vs_r4": [
-      "seed17-b1-ctx32",
-      "seed101-b2-ctx8"
-    ],
-    "pass_to_fail_cases": [],
-    "failed_case_first_post_block_layers": {
-      "seed17-b1-ctx16": 13,
-      "seed17-b1-ctx128": 7,
-      "seed17-b2-ctx128": 17,
-      "seed101-b1-ctx16": 25,
-      "seed2027-b1-ctx8": 20,
-      "seed2027-b1-ctx128": 4,
-      "seed2027-b2-ctx1": 17,
-      "seed2027-b2-ctx128": 4
-    },
-    "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r11/results-r1/comparison.json",
-    "guard": {
-      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r11/guard/result.json",
-      "returncode": 1,
-      "stop_reason": null,
-      "elapsed_seconds": 9.26835826599563,
-      "minimum_available_bytes": 4607897600,
-      "peak_swap_bytes": 0,
-      "peak_gpu_mib": 1353,
-      "interpretation": "Return code 1 records numerical gate failures; the guard completed all cases without a resource stop."
-    }
-  },
-  "r12_targeted_diagnostic": {
-    "status": "diagnostic_complete",
-    "diagnostic_cases": 8,
-    "diagnostic_only_not_full_heldout_revalidation": true,
-    "scope": "The eight R11 failing cases, recaptured at each R11 first-post-block divergence layer; R6 numerical math unchanged.",
-    "first_stage_counts": {
-      "pv_output": 6,
-      "norm2_output": 2
-    },
-    "pv_first_cases": [
-      "seed17-b1-ctx16@13",
-      "seed17-b1-ctx128@7",
-      "seed17-b2-ctx128@17",
-      "seed101-b1-ctx16@25",
-      "seed2027-b1-ctx128@4",
-      "seed2027-b2-ctx128@4"
-    ],
-    "norm2_cases": [
-      "seed2027-b1-ctx8@20",
-      "seed2027-b2-ctx1@17"
-    ],
-    "attention_detail": "All eight target-layer rotated Q, raw QK, scaled QK scores, and softmax probabilities match native exactly. Six cases first differ at PV output by one BF16 element; two cases have exact norm2 input and weight but differ at norm2 output.",
-    "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r12/results-r1/comparison.json",
-    "guard": {
-      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r12/guard/result.json",
-      "returncode": 0,
-      "stop_reason": null,
-      "elapsed_seconds": 7.249153361990466,
-      "minimum_available_bytes": 4361584640,
-      "peak_swap_bytes": 0,
-      "peak_gpu_mib": 1359
-    },
-    "harness_sha256": "1cddc2c89e7504db700253ad16288f7bf5a90260cf1d47705dab627295139edc"
+    "targeted_diagnostic": "R12: six PV-first and two norm2-output cases; all eight rotated-Q/QK/scores/probabilities comparisons exact. Evidence: prime-rl/outputs/megakernel-20261025/block-360-heldout-r12/results-r1/comparison.json."
   },
   "historical_r4": {
     "status": "superseded_candidate_preserved_as_history",
@@ -169,6 +144,6 @@
     "production_accepted": false,
     "speed_claim": false,
     "reward_or_quality_claim": false,
-    "reason": "R6 passes the four initial fixtures but fails 8 of 30 held-out numerical gates. R12 is diagnostic only; further PV/norm investigation and unchanged-gate revalidation are required."
+    "reason": "R7 passes the initial four fixtures and improves held-out exactness to 24/30, but six of 30 unchanged numerical gates still fail."
   }
 }

@@ -119,13 +119,46 @@ __device__ float block_sum(float v, float* red) {
 
 // out[i] = bf16(bf16(src[i] * rsqrt(mean(src^2) + eps)) * w[i]), expanded to fp32.
 __device__ void rms_norm_to_smem(const bf16* src, const bf16* w, float* out, float* red) {
-  float ss = 0.f;
-  for (int i = threadIdx.x; i < kH; i += kThreads) {
-    const float v = bf2f(src[i]);
-    ss = add_rn(ss, mul_rn(v, v));
+  constexpr int kReduceThreads = 128;
+  constexpr int kInputVector = 4;
+  const int lane = threadIdx.x;
+  if (lane < kReduceThreads) {
+    float values[kInputVector] = {0.f, 0.f, 0.f, 0.f};
+    const int vector_count = kH / kInputVector;
+    for (int vector_index = lane; vector_index < vector_count; vector_index += kReduceThreads) {
+#pragma unroll
+      for (int item = 0; item < kInputVector; ++item) {
+        const float v = bf2f(src[vector_index * kInputVector + item]);
+        values[item] = add_rn(values[item], mul_rn(v, v));
+      }
+    }
+    for (int i = vector_count * kInputVector + lane; i < kH; i += kReduceThreads) {
+      const float v = bf2f(src[i]);
+      values[0] = add_rn(values[0], mul_rn(v, v));
+    }
+    float partial = values[0];
+#pragma unroll
+    for (int item = 1; item < kInputVector; ++item)
+      partial = add_rn(partial, values[item]);
+    red[lane] = partial;
   }
-  ss = block_sum(ss, red);
-  const float scale = rsqrtf(ss / static_cast<float>(kH) + kEps);
+  __syncthreads();
+  for (int offset = kReduceThreads / 2; offset >= 32; offset >>= 1) {
+    if (lane < offset) red[lane] = add_rn(red[lane], red[lane + offset]);
+    __syncthreads();
+  }
+  if (lane < 32) {
+    float partial = red[lane];
+    constexpr unsigned mask = 0xffffffffu;
+    for (int offset = 16; offset > 0; offset >>= 1)
+      partial = add_rn(partial, __shfl_down_sync(mask, partial, offset));
+    if (lane == 0) red[0] = partial;
+  }
+  __syncthreads();
+  const float factor = 1.0f / static_cast<float>(kH);
+  const float mean = mul_rn(red[0], factor);
+  const float mean_eps = add_rn(mean, kEps);
+  const float scale = rsqrtf(mean_eps);
   for (int i = threadIdx.x; i < kH; i += kThreads) {
     out[i] = rnd(mul_rn(rnd(mul_rn(bf2f(src[i]), scale)), bf2f(w[i])));
   }
