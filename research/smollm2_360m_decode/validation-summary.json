@@ -1,55 +1,30 @@
 {
-  "schema": "smollm2-360m-full-decode-validation-summary-r4",
+  "schema": "smollm2-360m-full-decode-validation-summary-r6",
   "candidate": {
-    "revision": "R4",
+    "revision": "R6",
     "source": "block360.cu",
-    "source_sha256": "1ca8038b741cc64139622e8e6e062fff7ce3907781cc6730d6953b40e05b6bec",
+    "source_sha256": "4c23ba8bdf28df56c5b4e08420f5fdf93083c07d4d792687534c87164204150f",
     "include": "block360_kernel.inc",
-    "include_sha256": "acfa83c5534d0231b6144902578381b94e4a53bc79fb6df130ffae312baed15c",
-    "library": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r4/build/libdecode360_r4.so",
-    "library_sha256": "013a2ff48d2891a8bc109c427ed44135a30e74e45cf8bb496f239cc3d52ddd4b",
-    "library_build": {
-      "command": "/usr/local/cuda-13.0/bin/nvcc -std=c++17 -O3 -arch=sm_89 -lineinfo --ptxas-options=-v -Xcompiler=-fPIC --shared block360.cu -o build/libdecode360_r4.so",
-      "fast_math": false,
-      "ptxas_log_sha256": "6c6efd26c818e622bc0d5ab254ca81f3b628345b622057de40acf0cf95459296",
-      "b1_registers_per_thread": 173,
-      "b1_spills": 0,
-      "b2_registers_per_thread": 168,
-      "b2_static_shared_memory_bytes": 12864,
-      "b2_hardware_barriers": 1,
-      "b2_spills": 0
+    "include_sha256": "ef5d60f0dd1d31fbebabad60f0f4734cdb18029101aafa2f642259001ead55ef",
+    "library": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r6/build/libdecode360_r6.so",
+    "library_sha256": "240caca3a6a284ba4f76b13fe55349b238a0ef05014919cfb648627e26eb563a",
+    "change": "R4 full-decoder source with only the QK product replaced by a generic four-lane SIMT reduction; PV, RMSNorm, and other decoder math are unchanged.",
+    "qk_schedule": {
+      "lanes": 4,
+      "accumulators_per_lane": 1,
+      "assignment": "strided increasing K index",
+      "local_accumulation": "serial add.rn after mul.rn",
+      "group_reduction": "shuffle-down offsets 2 then 1"
     },
-    "debug_buffer": {
-      "getter": "decode360_debug_bytes()",
-      "bytes": 3366400,
-      "bf16_elements": 1683200,
-      "all_32_layers_stages": [
-        "norm1",
-        "qkv",
-        "attention_output",
-        "o_projection",
-        "post_attention_residual",
-        "norm2",
-        "gate",
-        "up",
-        "silu",
-        "swiglu_down_input",
-        "down_projection",
-        "post_block_output"
-      ],
-      "layer15_attention_extras": [
-        "Q",
-        "scores",
-        "probabilities",
-        "PV_output"
-      ]
-    }
+    "build_script_sha256": "351128dd6e10dacdbd3ed87de992333e1a9fa9f6ca0341c3af3c5ce8150a7c58",
+    "fast_math": false,
+    "debug_buffer": "Optional all-layer stage output plus selected-layer rotated Q, raw QK, scaled scores, probabilities, and PV; ABI includes debug_layer_index."
   },
   "initial_four_fixtures": {
     "status": "passed",
     "passed": 4,
     "failed": 0,
-    "scope": "one full 32-layer decode step; B1/B2 at contexts 8 and 32",
+    "scope": "one full 32-layer custom decode step; B1/B2 at contexts 8 and 32; native SDPA prefill and eager decode",
     "gates": {
       "per_layer_post_block_output_max_bf16_ulp": 1,
       "per_layer_kv_max_bf16_ulp": 1,
@@ -57,359 +32,128 @@
       "final_logits_max_bf16_ulp": 2,
       "greedy_ids": "exact"
     },
-    "observed": "All per-layer block outputs and KV, final hidden, and final logits were bitwise equal to native (0 BF16 ULP); greedy IDs matched.",
+    "observed": "All per-layer block outputs and KV, final hidden state, and logits are bitwise equal to native (0 BF16 ULP); greedy IDs match exactly.",
     "cases": [
       "b1-ctx8",
       "b1-ctx32",
       "b2-ctx8",
       "b2-ctx32"
     ],
-    "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r8/results-r1/comparison.json",
+    "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/results-r1/comparison.json",
+    "harness_sha256": "b33bf8b5413533724fa0c19c91902c8ab4679b3e8843f9975bea9f0dcaf1c011",
     "guard": {
-      "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r8/guard/result.json",
+      "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/guard/result.json",
       "returncode": 0,
       "stop_reason": null,
-      "elapsed_seconds": 7.661729960003868,
-      "minimum_available_bytes": 5713846272,
-      "peak_cgroup_bytes": 2230394880,
+      "elapsed_seconds": 6.239029352000216,
+      "minimum_available_bytes": 4040863744,
       "peak_swap_bytes": 0,
-      "peak_gpu_mib": 1331
+      "peak_gpu_mib": 1333
     }
   },
   "heldout_30": {
     "status": "failed_numerical_gates",
-    "passed": 20,
-    "failed": 10,
+    "passed": 22,
+    "failed": [
+      "seed17-b1-ctx16",
+      "seed17-b1-ctx128",
+      "seed17-b2-ctx128",
+      "seed101-b1-ctx16",
+      "seed2027-b1-ctx8",
+      "seed2027-b1-ctx128",
+      "seed2027-b2-ctx1",
+      "seed2027-b2-ctx128"
+    ],
     "all_30_greedy_ids_match": true,
-    "layer_indices_zero_based": true,
-    "scope": "one full 32-layer decode step; seeds 17/101/2027, B1/B2, contexts 1/8/16/32/128; native prefill and eager decode in the same invocation",
-    "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r8/results-r1/comparison.json",
+    "scope": "one full 32-layer custom decode step; seeds 17/101/2027, B1/B2, contexts 1/8/16/32/128; native SDPA prefill and eager decode in the same invocation",
+    "unchanged_gates": {
+      "each_layer_kv_bf16_ulp": 1,
+      "each_post_block_output_bf16_ulp": 1,
+      "final_hidden_bf16_ulp": 1,
+      "final_logits_bf16_ulp": 2,
+      "greedy_ids": "exact"
+    },
+    "repaired_vs_r4": [
+      "seed17-b1-ctx32",
+      "seed101-b2-ctx8"
+    ],
+    "pass_to_fail_cases": [],
+    "failed_case_first_post_block_layers": {
+      "seed17-b1-ctx16": 13,
+      "seed17-b1-ctx128": 7,
+      "seed17-b2-ctx128": 17,
+      "seed101-b1-ctx16": 25,
+      "seed2027-b1-ctx8": 20,
+      "seed2027-b1-ctx128": 4,
+      "seed2027-b2-ctx1": 17,
+      "seed2027-b2-ctx128": 4
+    },
+    "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r11/results-r1/comparison.json",
     "guard": {
-      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r8/guard/result.json",
+      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r11/guard/result.json",
       "returncode": 1,
       "stop_reason": null,
-      "completed_all_cases": true,
-      "elapsed_seconds": 13.27423252799781,
-      "minimum_available_bytes": 6018482176,
-      "peak_cgroup_bytes": 2353135616,
+      "elapsed_seconds": 9.26835826599563,
+      "minimum_available_bytes": 4607897600,
       "peak_swap_bytes": 0,
-      "peak_gpu_mib": 1357,
-      "interpretation": "The nonzero return code records the ten failed numerical gates; the guarded process completed all cases without a stop reason."
-    },
-    "failures": [
-      {
-        "case_id": "seed17-b1-ctx16",
-        "first_post_block_layer": 13,
-        "next_kv_layer": 14,
-        "next_kv_different_elements": 247,
-        "r9_earliest_captured_difference": {
-          "layer": 13,
-          "stage": "attn_o_input",
-          "different_elements": 1,
-          "elements": 960,
-          "max_bf16_ulp": 1,
-          "max_abs": 0.0009765625
-        },
-        "r9_first_captured_difference_at_post_block_layer": {
-          "layer": 13,
-          "stage": "attn_o_input",
-          "different_elements": 1,
-          "elements": 960,
-          "max_bf16_ulp": 1,
-          "max_abs": 0.0009765625
-        }
-      },
-      {
-        "case_id": "seed17-b1-ctx32",
-        "first_post_block_layer": 18,
-        "next_kv_layer": 19,
-        "next_kv_different_elements": 296,
-        "r9_earliest_captured_difference": {
-          "layer": 5,
-          "stage": "attn_o_input",
-          "different_elements": 1,
-          "elements": 960,
-          "max_bf16_ulp": 1,
-          "max_abs": 7.450580596923828e-09
-        },
-        "r9_first_captured_difference_at_post_block_layer": {
-          "layer": 18,
-          "stage": "attn_o_input",
-          "different_elements": 9,
-          "elements": 960,
-          "max_bf16_ulp": 83,
-          "max_abs": 0.00390625
-        }
-      },
-      {
-        "case_id": "seed17-b1-ctx128",
-        "first_post_block_layer": 7,
-        "next_kv_layer": 8,
-        "next_kv_different_elements": 264,
-        "r9_earliest_captured_difference": {
-          "layer": 7,
-          "stage": "attn_o_input",
-          "different_elements": 1,
-          "elements": 960,
-          "max_bf16_ulp": 1,
-          "max_abs": 0.0001220703125
-        },
-        "r9_first_captured_difference_at_post_block_layer": {
-          "layer": 7,
-          "stage": "attn_o_input",
-          "different_elements": 1,
-          "elements": 960,
-          "max_bf16_ulp": 1,
-          "max_abs": 0.0001220703125
-        }
-      },
-      {
-        "case_id": "seed17-b2-ctx128",
-        "first_post_block_layer": 17,
-        "next_kv_layer": 18,
-        "next_kv_different_elements": 183,
-        "r9_earliest_captured_difference": {
-          "layer": 8,
-          "stage": "attn_o_input",
-          "different_elements": 1,
-          "elements": 1920,
-          "max_bf16_ulp": 1,
-          "max_abs": 2.384185791015625e-07
-        },
-        "r9_first_captured_difference_at_post_block_layer": {
-          "layer": 17,
-          "stage": "attn_o_input",
-          "different_elements": 1,
-          "elements": 1920,
-          "max_bf16_ulp": 1,
-          "max_abs": 0.0009765625
-        }
-      },
-      {
-        "case_id": "seed101-b1-ctx16",
-        "first_post_block_layer": 25,
-        "next_kv_layer": 26,
-        "next_kv_different_elements": 188,
-        "r9_earliest_captured_difference": {
-          "layer": 25,
-          "stage": "attn_o_input",
-          "different_elements": 1,
-          "elements": 960,
-          "max_bf16_ulp": 1,
-          "max_abs": 0.000244140625
-        },
-        "r9_first_captured_difference_at_post_block_layer": {
-          "layer": 25,
-          "stage": "attn_o_input",
-          "different_elements": 1,
-          "elements": 960,
-          "max_bf16_ulp": 1,
-          "max_abs": 0.000244140625
-        }
-      },
-      {
-        "case_id": "seed101-b2-ctx8",
-        "first_post_block_layer": 29,
-        "next_kv_layer": 30,
-        "next_kv_different_elements": 504,
-        "r9_earliest_captured_difference": {
-          "layer": 29,
-          "stage": "attn_o_input",
-          "different_elements": 63,
-          "elements": 1920,
-          "max_bf16_ulp": 25,
-          "max_abs": 0.01953125
-        },
-        "r9_first_captured_difference_at_post_block_layer": {
-          "layer": 29,
-          "stage": "attn_o_input",
-          "different_elements": 63,
-          "elements": 1920,
-          "max_bf16_ulp": 25,
-          "max_abs": 0.01953125
-        }
-      },
-      {
-        "case_id": "seed2027-b1-ctx8",
-        "first_post_block_layer": 20,
-        "next_kv_layer": 21,
-        "next_kv_different_elements": 184,
-        "r9_earliest_captured_difference": {
-          "layer": 20,
-          "stage": "norm2",
-          "different_elements": 7,
-          "elements": 960,
-          "max_bf16_ulp": 1,
-          "max_abs": 0.00048828125
-        },
-        "r9_first_captured_difference_at_post_block_layer": {
-          "layer": 20,
-          "stage": "norm2",
-          "different_elements": 7,
-          "elements": 960,
-          "max_bf16_ulp": 1,
-          "max_abs": 0.00048828125
-        }
-      },
-      {
-        "case_id": "seed2027-b1-ctx128",
-        "first_post_block_layer": 4,
-        "next_kv_layer": 5,
-        "next_kv_different_elements": 265,
-        "r9_earliest_captured_difference": {
-          "layer": 4,
-          "stage": "attn_o_input",
-          "different_elements": 1,
-          "elements": 960,
-          "max_bf16_ulp": 1,
-          "max_abs": 0.0009765625
-        },
-        "r9_first_captured_difference_at_post_block_layer": {
-          "layer": 4,
-          "stage": "attn_o_input",
-          "different_elements": 1,
-          "elements": 960,
-          "max_bf16_ulp": 1,
-          "max_abs": 0.0009765625
-        }
-      },
-      {
-        "case_id": "seed2027-b2-ctx1",
-        "first_post_block_layer": 17,
-        "next_kv_layer": 18,
-        "next_kv_different_elements": 227,
-        "r9_earliest_captured_difference": {
-          "layer": 17,
-          "stage": "norm2",
-          "different_elements": 10,
-          "elements": 1920,
-          "max_bf16_ulp": 2,
-          "max_abs": 0.0009765625
-        },
-        "r9_first_captured_difference_at_post_block_layer": {
-          "layer": 17,
-          "stage": "norm2",
-          "different_elements": 10,
-          "elements": 1920,
-          "max_bf16_ulp": 2,
-          "max_abs": 0.0009765625
-        }
-      },
-      {
-        "case_id": "seed2027-b2-ctx128",
-        "first_post_block_layer": 3,
-        "next_kv_layer": 4,
-        "next_kv_different_elements": 296,
-        "r9_earliest_captured_difference": {
-          "layer": 3,
-          "stage": "attn_o_input",
-          "different_elements": 1,
-          "elements": 1920,
-          "max_bf16_ulp": 1,
-          "max_abs": 0.00048828125
-        },
-        "r9_first_captured_difference_at_post_block_layer": {
-          "layer": 3,
-          "stage": "attn_o_input",
-          "different_elements": 1,
-          "elements": 1920,
-          "max_bf16_ulp": 1,
-          "max_abs": 0.00048828125
-        }
-      }
-    ],
-    "first_internal_stage_diagnosis": {
-      "status": "diagnostic_complete",
-      "diagnostic_cases": 10,
-      "diagnostic_only_not_full_heldout_revalidation": true,
-      "same_layer_first_captured_stage_at_r8_failure": {
-        "attention_output_input": 8,
-        "mlp_norm2": 2
-      },
-      "earlier_global_differences": {
-        "interpretation": "A captured difference earlier than the first post-block failure may be erased or attenuated before that block output; it is not sufficient to assign cause.",
-        "cases": [
-          {
-            "case_id": "seed17-b1-ctx32",
-            "earliest_internal_layer": 5,
-            "first_post_block_layer": 18
-          },
-          {
-            "case_id": "seed17-b2-ctx128",
-            "earliest_internal_layer": 8,
-            "first_post_block_layer": 17
-          }
-        ]
-      },
-      "limitation": "The diagnostic captures candidate attn_o_input and norm2, but not candidate rotated Q, QK scores, softmax probabilities, or PV outputs at arbitrary layers. The same-layer first captured stage is localization evidence, not proof of the responsible arithmetic operation.",
-      "next_step": "R10: capture candidate attention internals at each dynamically selected first-post-block divergence layer; inspect norm2 cases separately, without changing math.",
-      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r9/results-r1/comparison.json",
-      "analysis": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r9/analysis-r1.md",
-      "provenance": {
-        "harness_sha256": "39c09c3db862fb918b71260766e2c7824f3fc5e19aae265a299ca5a69f977b10",
-        "source_sha256": "1ca8038b741cc64139622e8e6e062fff7ce3907781cc6730d6953b40e05b6bec",
-        "include_sha256": "acfa83c5534d0231b6144902578381b94e4a53bc79fb6df130ffae312baed15c",
-        "library_sha256": "013a2ff48d2891a8bc109c427ed44135a30e74e45cf8bb496f239cc3d52ddd4b",
-        "fixture_metadata_sha256": "4ad2dde1f136e2e0476f53ebd5830f9a143df4c78c3e4c3022fd180e5999a60c"
-      },
-      "guard": {
-        "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r9/guard/result.json",
-        "returncode": 0,
-        "stop_reason": null,
-        "elapsed_seconds": 20.492697200999828,
-        "minimum_available_bytes": 5022081024,
-        "peak_cgroup_bytes": 2318962688,
-        "peak_swap_bytes": 0,
-        "peak_gpu_mib": 1359
-      },
-      "acceptance_unchanged": "R4 remains 4/4 on the initial fixtures and 20/30 on held-out R8; R9 is supplemental diagnosis only."
-    },
-    "r10_attention_stage_diagnosis": {
-      "status": "diagnostic_complete",
-      "diagnostic_cases": 10,
-      "diagnostic_only_not_full_heldout_revalidation": true,
-      "first_differing_stage_at_r9_target_layer": {
-        "pv_output": [
-          "seed17-b1-ctx16@13",
-          "seed17-b1-ctx128@7",
-          "seed17-b2-ctx128@17",
-          "seed101-b1-ctx16@25",
-          "seed2027-b1-ctx128@4"
-        ],
-        "qk_product": [
-          "seed17-b1-ctx32@18",
-          "seed101-b2-ctx8@29",
-          "seed2027-b2-ctx128@3"
-        ],
-        "norm2": [
-          "seed2027-b1-ctx8@20",
-          "seed2027-b2-ctx1@17"
-        ]
-      },
-      "interpretation": "At the R9-selected target layers, rotated query, QK product, scaled scores, and softmax probabilities are bitwise equal in the five PV-output cases; PV output is the first differing captured attention stage. QK product is the first differing captured attention stage in the other three attention cases. The two norm2 cases remain separate. This localizes captured differences and does not establish a production fix or the full upstream cause.",
-      "r9_to_r10_math_equivalence": "Across the ten cases, final norm output, logits, greedy IDs, and per-layer comparisons are identical between R9 and R10; R10 instrumentation did not change those recorded outcomes.",
-      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r10/results-r1/comparison.json",
-      "guard": {
-        "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r10/guard/result.json",
-        "returncode": 0,
-        "stop_reason": null,
-        "elapsed_seconds": 8.095894186000805,
-        "minimum_available_bytes": 4898603008,
-        "peak_cgroup_bytes": 2413518848,
-        "peak_swap_bytes": 0,
-        "peak_gpu_mib": 1359
-      },
-      "instrumented_candidate_provenance_not_r4": {
-        "revision": "R5 diagnostic instrumentation",
-        "source_sha256": "4c23ba8bdf28df56c5b4e08420f5fdf93083c07d4d792687534c87164204150f",
-        "include_sha256": "cef5bb87961f26f10cb43368ddb616ecc87163323d67ab7fb48688e18224cb9e",
-        "library_sha256": "b28577183f9346ccc8f2a1493d879cb6336d88454d0550d8f26046a52aea3480",
-        "harness_sha256": "9a711c45862af7ec53689d4953825dfb017097dfb0f0b8f5717efefa8b791162",
-        "diagnostic_subset_count": 10,
-        "full_fixture_count": 30
-      },
-      "acceptance_unchanged": "R4 remains 4/4 on the initial fixtures and 20/30 on held-out R8; R10 is supplemental diagnosis only."
+      "peak_gpu_mib": 1353,
+      "interpretation": "Return code 1 records numerical gate failures; the guard completed all cases without a resource stop."
     }
+  },
+  "r12_targeted_diagnostic": {
+    "status": "diagnostic_complete",
+    "diagnostic_cases": 8,
+    "diagnostic_only_not_full_heldout_revalidation": true,
+    "scope": "The eight R11 failing cases, recaptured at each R11 first-post-block divergence layer; R6 numerical math unchanged.",
+    "first_stage_counts": {
+      "pv_output": 6,
+      "norm2_output": 2
+    },
+    "pv_first_cases": [
+      "seed17-b1-ctx16@13",
+      "seed17-b1-ctx128@7",
+      "seed17-b2-ctx128@17",
+      "seed101-b1-ctx16@25",
+      "seed2027-b1-ctx128@4",
+      "seed2027-b2-ctx128@4"
+    ],
+    "norm2_cases": [
+      "seed2027-b1-ctx8@20",
+      "seed2027-b2-ctx1@17"
+    ],
+    "attention_detail": "All eight target-layer rotated Q, raw QK, scaled QK scores, and softmax probabilities match native exactly. Six cases first differ at PV output by one BF16 element; two cases have exact norm2 input and weight but differ at norm2 output.",
+    "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r12/results-r1/comparison.json",
+    "guard": {
+      "evidence": "prime-rl/outputs/megakernel-20261025/block-360-heldout-r12/guard/result.json",
+      "returncode": 0,
+      "stop_reason": null,
+      "elapsed_seconds": 7.249153361990466,
+      "minimum_available_bytes": 4361584640,
+      "peak_swap_bytes": 0,
+      "peak_gpu_mib": 1359
+    },
+    "harness_sha256": "1cddc2c89e7504db700253ad16288f7bf5a90260cf1d47705dab627295139edc"
+  },
+  "historical_r4": {
+    "status": "superseded_candidate_preserved_as_history",
+    "source_sha256": "1ca8038b741cc64139622e8e6e062fff7ce3907781cc6730d6953b40e05b6bec",
+    "include_sha256": "acfa83c5534d0231b6144902578381b94e4a53bc79fb6df130ffae312baed15c",
+    "library_sha256": "013a2ff48d2891a8bc109c427ed44135a30e74e45cf8bb496f239cc3d52ddd4b",
+    "initial_four": "4/4 bitwise pass under original gates.",
+    "heldout": "20/30 pass; ten numerical failures; all greedy IDs match. No pass-to-fail comparison is claimed for R6.",
+    "failed_case_ids": [
+      "seed17-b1-ctx16",
+      "seed17-b1-ctx32",
+      "seed17-b1-ctx128",
+      "seed17-b2-ctx128",
+      "seed101-b1-ctx16",
+      "seed101-b2-ctx8",
+      "seed2027-b1-ctx8",
+      "seed2027-b1-ctx128",
+      "seed2027-b2-ctx1",
+      "seed2027-b2-ctx128"
+    ],
+    "evidence": "R4 results remain in prime-rl/outputs/megakernel-20261025/{decode-360-validation-r8,block-360-heldout-r8}/."
   },
   "historical_r1": {
     "status": "historical_failed",
@@ -425,6 +169,6 @@
     "production_accepted": false,
     "speed_claim": false,
     "reward_or_quality_claim": false,
-    "reason": "The 30-case held-out suite has ten strict numerical failures despite exact greedy IDs."
+    "reason": "R6 passes the four initial fixtures but fails 8 of 30 held-out numerical gates. R12 is diagnostic only; further PV/norm investigation and unchanged-gate revalidation are required."
   }
 }

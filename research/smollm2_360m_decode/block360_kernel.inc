@@ -13,7 +13,8 @@ constexpr int kDbgOut = kDbgDown + kMaxB * kH;
 constexpr int kDebugLayerBf16 = kDbgOut + kMaxB * kH;
 constexpr size_t kDebugStagesBf16 = size_t(kLayers) * kDebugLayerBf16;
 constexpr size_t kDbgAttnQ = kDebugStagesBf16;
-constexpr size_t kDbgAttnScores = kDbgAttnQ + size_t(kMaxB) * kH;
+constexpr size_t kDbgAttnQK = kDbgAttnQ + size_t(kMaxB) * kH;
+constexpr size_t kDbgAttnScores = kDbgAttnQK + size_t(kMaxB) * kQH * kMaxSeq;
 constexpr size_t kDbgAttnProbs = kDbgAttnScores + size_t(kMaxB) * kQH * kMaxSeq;
 constexpr size_t kDbgAttnPv = kDbgAttnProbs + size_t(kMaxB) * kQH * kMaxSeq;
 constexpr size_t kDebugBf16 = kDbgAttnPv + size_t(kMaxB) * kH;
@@ -112,7 +113,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
     v_s[idx] = bf2f(ws[kOffQKV + b * 1600 + qkv_v + d]);
   }
   __syncthreads();
-  if (p.debug && layer_index == 15 && blockIdx.x == 0) {
+  if (p.debug && layer_index == p.debug_layer_index && blockIdx.x == 0) {
     bf16* attn_debug = p.debug + kDebugStagesBf16;
     for (int idx = t; idx < B * kH; idx += kThreads)
       attn_debug[kDbgAttnQ - kDebugStagesBf16 + idx] = __float2bfloat16_rn(q_s[idx]);
@@ -137,63 +138,49 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
   constexpr unsigned kFullMask = 0xffffffffu;
   const int pages = (p.max_seq_len + 15) / 16;
 
-  // QK: one warp computes a three-query-by-sixteen-token tile for one KV head.
-  // WMMA accumulates K64 in four K16 steps; only the first three query rows are stored.
-  const int qk_tasks = B * kKVH * pages;
-  for (int task = gw; task < qk_tasks; task += kGlobalWarps) {
-    const int page = task % pages;
-    const int head_item = task / pages;
-    const int kvh = head_item % kKVH;
-    const int b = head_item / kKVH;
-    const int seqb = seq_s[b];
-    if (page * 16 < seqb) {
+  // QK SIMT path: each four-lane group computes one query-token dot product.
+  // Each lane accumulates strided K dimensions in increasing order, then the
+  // group reduces offsets 2 and 1 with explicit FP32 RN adds.
+  constexpr int kQkLanes = 4;
+  constexpr int kQkGroupsPerWarp = 32 / kQkLanes;
+  const int qk_tasks = B * kQH * pages * 16;
+  const int qk_group = lane / kQkLanes;
+  const int qk_lane = lane % kQkLanes;
+  for (int task_base = gw * kQkGroupsPerWarp; task_base < qk_tasks;
+       task_base += kGlobalWarps * kQkGroupsPerWarp) {
+    const int task = task_base + qk_group;
+    const bool task_valid = task < qk_tasks;
+    const int token_in_page = task % 16;
+    const int page = (task / 16) % pages;
+    const int row = task / (16 * pages);
+    const int b = row / kQH;
+    const int hq = row % kQH;
+    const int pos = page * 16 + token_in_page;
+    const int kvh = hq / 3;
+    const int seqb = task_valid ? seq_s[b] : 0;
+    float partial = 0.f;
+    if (task_valid && pos < seqb) {
       const int physical_block = p.block_table[b * p.bt_stride + page];
-      bf16* a_tile = wmma_a + warp * 256;
-      bf16* b_tile = wmma_b + warp * 256;
-      float* c_tile = wmma_c + warp * 256;
-      wmma::fragment<wmma::matrix_a, 16, 16, 16, bf16, wmma::row_major> a_frag;
-      wmma::fragment<wmma::matrix_b, 16, 16, 16, bf16, wmma::col_major> b_frag;
-      wmma::fragment<wmma::accumulator, 16, 16, 16, float> c_frag;
-      wmma::fill_fragment(c_frag, 0.f);
-      for (int k0 = 0; k0 < kD; k0 += 16) {
-        for (int idx = lane; idx < 256; idx += 32) {
-          const int qrow = idx / 16;
-          const int d = idx & 15;
-          a_tile[idx] = qrow < 3
-              ? __float2bfloat16_rn(q_s[(b * kQH + kvh * 3 + qrow) * kD + k0 + d])
-              : __float2bfloat16_rn(0.f);
-          const int token = idx / 16;
-          const int pos = page * 16 + token;
-          if (pos < seqb) {
-            const long long e = static_cast<long long>(physical_block) * p.block_stride +
-                                token * p.token_stride + kvh * p.head_stride + k0 + d;
-            b_tile[idx] = kvw[p.k_off + e];
-          } else {
-            b_tile[idx] = __float2bfloat16_rn(0.f);
-          }
-        }
-        __syncwarp(kFullMask);
-        wmma::load_matrix_sync(a_frag, a_tile, 16);
-        wmma::load_matrix_sync(b_frag, b_tile, 16);
-        wmma::mma_sync(c_frag, a_frag, b_frag, c_frag);
+      for (int j = 0; j < kD / kQkLanes; ++j) {
+        const int d = qk_lane + j * kQkLanes;
+        const long long e = static_cast<long long>(physical_block) * p.block_stride +
+                            token_in_page * p.token_stride + kvh * p.head_stride + d;
+        const float q = q_s[(b * kQH + hq) * kD + d];
+        const float k = bf2f(kvw[p.k_off + e]);
+        partial = add_rn(partial, mul_rn(q, k));
       }
-      wmma::store_matrix_sync(c_tile, c_frag, 16, wmma::mem_row_major);
-      __syncwarp(kFullMask);
-      for (int idx = lane; idx < 256; idx += 32) {
-        const int qrow = idx / 16;
-        const int token = idx & 15;
-        const int pos = page * 16 + token;
-        if (qrow < 3 && pos < seqb) {
-          const int hq = kvh * 3 + qrow;
-          const bf16 dot_bf16 = __float2bfloat16_rn(c_tile[idx]);
-          const float scaled = mul_rn(bf2f(dot_bf16), kAttnScale);
-          scores[(b * kQH + hq) * kMaxSeq + pos] = __float2bfloat16_rn(scaled);
-          if (p.debug && layer_index == 15) {
-            bf16* attn_debug = p.debug + kDebugStagesBf16;
-            attn_debug[kDbgAttnScores - kDebugStagesBf16 + (b * kQH + hq) * kMaxSeq + pos] =
-                scores[(b * kQH + hq) * kMaxSeq + pos];
-          }
-        }
+    }
+    for (int offset = kQkLanes / 2; offset > 0; offset >>= 1)
+      partial = add_rn(partial, __shfl_down_sync(kFullMask, partial, offset, kQkLanes));
+    if (task_valid && pos < seqb && qk_lane == 0) {
+      const bf16 dot_bf16 = __float2bfloat16_rn(partial);
+      const float scaled = mul_rn(bf2f(dot_bf16), kAttnScale);
+      const int score_index = (b * kQH + hq) * kMaxSeq + pos;
+      scores[score_index] = __float2bfloat16_rn(scaled);
+      if (p.debug && layer_index == p.debug_layer_index) {
+        bf16* attn_debug = p.debug + kDebugStagesBf16;
+        attn_debug[kDbgAttnQK - kDebugStagesBf16 + score_index] = dot_bf16;
+        attn_debug[kDbgAttnScores - kDebugStagesBf16 + score_index] = scores[score_index];
       }
     }
   }
@@ -227,7 +214,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
       if (pos < seqb) {
         const float probability = expf(bf2f(scores[row * kMaxSeq + pos]) - local_max) / local_sum;
         scores[row * kMaxSeq + pos] = __float2bfloat16_rn(probability);
-        if (p.debug && layer_index == 15) {
+        if (p.debug && layer_index == p.debug_layer_index) {
           bf16* attn_debug = p.debug + kDebugStagesBf16;
           attn_debug[kDbgAttnProbs - kDebugStagesBf16 + row * kMaxSeq + pos] = scores[row * kMaxSeq + pos];
         }
@@ -335,7 +322,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
     __syncthreads();
   }
   sync_grid();
-  if (p.debug && layer_index == 15 && blockIdx.x == 0) {
+  if (p.debug && layer_index == p.debug_layer_index && blockIdx.x == 0) {
     bf16* attn_debug = p.debug + kDebugStagesBf16;
     for (int idx = t; idx < B * kH; idx += kThreads)
       attn_debug[kDbgAttnPv - kDebugStagesBf16 + idx] = attn_out[idx];
@@ -510,9 +497,11 @@ extern "C" int decode360(void* stream, int B, const void* input_ids, const void*
                                 long long head_stride, int block_size,
                                 const void* cos_sin, int cs_fp32, void* out_hidden, void* layer_outputs,
                                 void* scratch, size_t scratch_bytes,
-                                void* debug, size_t debug_bytes, int max_seq_len) {
+                                void* debug, size_t debug_bytes, int max_seq_len,
+                                int debug_layer_index) {
   if (B < 1 || B > 2) return kErrB;
   if (max_seq_len < 1 || max_seq_len > kMaxSeq) return kErrMaxSeq;
+  if (debug_layer_index < -1 || debug_layer_index >= kLayers) return kErrBlock;
   if (!input_ids || !embed || !final_norm || !positions || !seq_lens || !block_table || !slot_mapping || !layers ||
       !kv || !cos_sin || !out_hidden || !scratch) return kErrNull;
   if (scratch_bytes < kWorkspaceBytes) return kErrScratch;
@@ -556,6 +545,7 @@ extern "C" int decode360(void* stream, int B, const void* input_ids, const void*
   p.token_stride = token_stride; p.head_stride = head_stride;
   p.block_size = block_size;
   p.max_seq_len = max_seq_len;
+  p.debug_layer_index = debug_layer_index;
   void* args[] = {&p};
   cudaStream_t s = reinterpret_cast<cudaStream_t>(stream);
   const size_t dynamic_bytes = dynamic_smem_bytes<1>();

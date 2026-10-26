@@ -1,45 +1,39 @@
-# SmolLM2-360M full-decoder research checkpoint
+# SmolLM2-360M full-decoder research snapshot
 
-This folder contains the exact R4 CUDA source and include used by the recorded R4 validations. The candidate is a single cooperative launch for one decode step across all 32 SmolLM2-360M layers, including embedding lookup, paged KV writes/reads, and final RMSNorm. It remains research code; passing the initial fixtures does not amount to held-out acceptance, production readiness, multi-step decode, or vLLM integration.
+This directory contains the R6 source used by the recorded full-decoder checks. It performs one single-launch decode step across all 32 layers, including embedding lookup, paged KV reads/writes, and final RMSNorm. The snapshot is research code and is not accepted for serving.
 
-## R4 attention PV schedule
+## R6 change
 
-R4 keeps the batch-one WMMA probability/value (PV) path. For batch two it uses a coalesced SIMT layout: each 64-thread group handles one 32-dimension task, with two 32-thread y partitions accumulating contiguous 16-token chunks. The two FP32 partials are added once and rounded to BF16. Tasks map across the fixed 24-CTA cooperative grid. Every CTA reaches both B2 CTA barriers, followed by the existing grid barrier; the launch still requires the full grid to satisfy cooperative residency checks. This is the tested R4 schedule, not a general reconstruction of native cuBLAS arithmetic.
+R6 keeps the R4 decoder and changes only the QK product: four SIMT lanes accumulate strided K dimensions with FP32 round-to-nearest multiply/add, then reduce at shuffle offsets 2 and 1 before BF16 rounding. PV and RMSNorm are unchanged. The selected reduction is a generic matching candidate; the primitive sweep did not uniquely identify native cuBLAS's arithmetic order. The candidate uses no fast-math flag.
 
-The recorded PTXAS build reports 173 registers/thread and no spills for B1; B2 uses 168 registers/thread, 12,864 bytes static shared memory, one hardware barrier, and no spills. The build is standalone and uses no fast-math flag.
+## Validation
 
-## Numerical validation
+R6 passes all four initial B1/B2 context-8/32 fixtures bitwise: per-layer block outputs, KV, final hidden state, and logits are 0 BF16 ULP from native, and greedy IDs match. The unchanged gates are per-layer output/KV <=1 ULP, final hidden <=1 ULP, logits <=2 ULP, and exact greedy IDs.
 
-The four initial B1/B2, context-8/32 fixtures pass all original gates under R4. Every recorded per-layer block output and KV tensor, final hidden state, and final logits are bitwise equal to native (0 BF16 ULP); greedy IDs match exactly.
+On the frozen 30-case held-out set (seeds 17/101/2027, batches 1/2, contexts 1/8/16/32/128), R6 passes 22 and fails 8 numerical gates. Greedy IDs match on all 30. It fixes two R4 failures, with no prior pass becoming a failure. The run completed without a resource stop; its guard returned 1 for the numerical failures. This is not full-suite acceptance.
 
-The wider 30-case held-out run passes 20 and fails 10. Greedy IDs match in all 30, but the ten numerical failures still reject the full candidate under the unchanged gates. The compact failure list and first divergent post-block / following KV layers are in `validation-summary.json`.
+R12 recaptured the eight failed cases at their first post-block divergence layers. At those targets, rotated Q, raw QK, scaled scores, and softmax probabilities match native in all eight. Six cases first differ at PV output by one BF16 element; two have exact norm2 input and weight but differ at norm2 output. This diagnostic does not itself change the acceptance result.
 
-R9 completed a guarded diagnostic of those ten failures (20.49 s, 1,359 MiB peak GPU, zero swap, guard return code 0). At each R8 first-post-block divergence layer, the first captured differing stage is `attn_o_input` in eight cases and `norm2` in two. Layer indices in the result files are zero-based. In two attention cases, the earliest captured difference occurs several layers before the first post-block divergence; an earlier difference may be attenuated or erased and is not enough to assign cause. R10 then captured rotated Q, QK product, scaled scores, softmax probabilities, and PV output at the R9-selected layers, using R5 diagnostic instrumentation (guard 0, 8.10 s, 1,359 MiB peak GPU, zero swap). Five cases first differ at PV output, three at QK product, and the same two cases differ at norm2. The R9-to-R10 final norm, logits, greedy IDs, and per-layer comparisons are identical across the ten cases, so the instrumentation did not change those outcomes. These observations localize captured differences, but do not establish the full upstream cause or a production fix. R10 is supplemental diagnosis only; R4 acceptance remains 4/4 initial and 20/30 held out. Per-case layers and R10 provenance are in `validation-summary.json`.
+The earlier R4 candidate passed 4/4 initial fixtures and 20/30 held-out fixtures, with all 30 greedy IDs matching. Its source and validation history are summarized in `validation-summary.json`; R4 remains a historical baseline, not the source in this directory.
 
-Next diagnostic: compare native and candidate QK, PV, and reduction arithmetic directly for the three QK-first and five PV-first cases, retaining the two norm2 cases separately. R10 used R5 instrumentation and is not a production candidate validation.
+## Build
 
-No speed, reward, quality, or production-acceptance claim follows from these numerical checks. The R4 guard results, source/include/library hashes, exact case IDs, and earlier R1 result are recorded in `validation-summary.json`.
-
-## Optional debug buffer
-
-With a non-null debug pointer, the source can capture 12 stage tensors for all 32 layers: norm1, QKV, attention output, O projection, post-attention residual, norm2, gate, up, SiLU, SwiGLU/down input, down projection, and post-block output. At layer 15 it also captures Q, attention scores, probabilities, and PV output. `decode360_debug_bytes()` reports **3,366,400 bytes** (1,683,200 BF16 elements) for the maximum B=2 layout. The debug buffer is optional; no-debug calls use the normal output path.
-
-## Standalone build
-
-From this folder, build the library with CUDA 13.0 and SM89 support:
+With CUDA 13.0 and SM89 support, build the shared library with:
 
 ```sh
 mkdir -p build
 /usr/local/cuda-13.0/bin/nvcc -std=c++17 -O3 -arch=sm_89 -lineinfo \
   --ptxas-options=-v -Xcompiler=-fPIC --shared \
-  block360.cu -o build/libdecode360_r4.so
+  block360.cu -o build/libdecode360_r6.so
 ```
 
-This omits `-use_fast_math`. The archived `.so` was built from these exact source files; its hash is in `validation-summary.json`. Rebuilding is not part of this checkpoint update.
+The archived R6 source and include hashes are recorded in `validation-summary.json`. Build and library provenance is under `prime-rl/outputs/megakernel-20261025/decode-360-cuda-r6/`.
 
 ## Evidence
 
-- Initial four fixtures: `prime-rl/outputs/megakernel-20261025/decode-360-validation-r8/results-r1/` and `decode-360-validation-r8/guard/result.json`.
-- Thirty held-out fixtures: `prime-rl/outputs/megakernel-20261025/block-360-heldout-r8/results-r1/` and `block-360-heldout-r8/guard/result.json`.
-- Source, compile, PTXAS, and shared-library provenance: `prime-rl/outputs/megakernel-20261025/decode-360-cuda-r4/provenance.json`.
-- The earlier R1 three-pass / one-fail result is retained as historical context in `validation-summary.json`.
+- Initial four: `prime-rl/outputs/megakernel-20261025/decode-360-validation-r10/results-r1/comparison.json` and `decode-360-validation-r10/guard/result.json`.
+- Full held-out 30: `prime-rl/outputs/megakernel-20261025/block-360-heldout-r11/results-r1/comparison.json` and `block-360-heldout-r11/guard/result.json`.
+- Targeted eight-case diagnostic: `prime-rl/outputs/megakernel-20261025/block-360-heldout-r12/results-r1/comparison.json` and `block-360-heldout-r12/guard/result.json`.
+- Source, build, and compiled-library hashes: `prime-rl/outputs/megakernel-20261025/decode-360-cuda-r6/provenance.json`.
+
+No speed, reward, quality, or production claim follows from these numerical checks. See `validation-summary.json` for exact hashes, case IDs, and guard details.

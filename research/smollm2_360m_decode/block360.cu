@@ -80,6 +80,7 @@ struct Params {
   long long k_off, v_off, block_stride, token_stride, head_stride;  // elements
   int block_size;
   int max_seq_len;
+  int debug_layer_index;
 };
 
 __device__ __forceinline__ float bf2f(bf16 v) { return __bfloat162float(v); }
