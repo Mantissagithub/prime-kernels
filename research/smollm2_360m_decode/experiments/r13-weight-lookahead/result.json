@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "candidate": "R13 B1 projection weight lookahead",
+  "base": "R12",
+  "candidate_hashes": {
+    "R12_source_sha256": "0f24bb3a9502310e1e25fcd7c40f0ec299dd2a0a018a5b2cd4850f231e709f66",
+    "R12_include_sha256": "39205351dd906bc235fc96677e21f082cd4ad28a7aeb83ad03d6e5a4a4a49bc3",
+    "R12_library_sha256": "98b1fbc11d755e212bc5b499c6a9b9eddbd909655c242071dcce19f16ee4e56e",
+    "R13_source_sha256": "e92dcc5cfed0472b906ee779385d3e20555ac9e70bf9e36c3b26530dc303b7c7",
+    "R13_include_sha256": "39205351dd906bc235fc96677e21f082cd4ad28a7aeb83ad03d6e5a4a4a49bc3",
+    "R13_library_sha256": "b14d297a84c73fbdf2c994a08395b449b8a1024e2d452e21740fb07545ef95e4"
+  },
+  "direct_decoder_abba": {
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "warmups_per_candidate": 3,
+    "blocks": 3,
+    "samples_per_candidate_per_case": 120,
+    "cuda_event_scope": "one direct 32-layer decode360 call through final hidden; LM head excluded; prefill, prefix reset, reference and telemetry excluded",
+    "cases": [
+      {
+        "case_id": "seed17-b1-ctx32",
+        "batch": 1,
+        "context": 32,
+        "R12_median_ms": 16.83142375946045,
+        "R13_median_ms": 5.28166389465332,
+        "R12_over_R13_median_ratio": 3.1867654010508057,
+        "sample_count_per_candidate": 120,
+        "R12_native_hidden_max_ulp": 0,
+        "R13_native_hidden_max_ulp": 0,
+        "R12_vs_R13_hidden_max_ulp": 0,
+        "R12_R13_native_and_cross_kv_exact": true,
+        "aggregation": {
+          "R12": {
+            "reported_upper_median_per_20_sample_arm_ms": [
+              17.0199031829834,
+              16.83148765563965,
+              16.83251190185547,
+              16.83251190185547,
+              16.828767776489258,
+              16.82841682434082
+            ],
+            "median_of_six_reported_arm_stats_ms": 16.83199977874756,
+            "median_of_120_event_samples_ms": 16.83142375946045
+          },
+          "R13": {
+            "reported_upper_median_per_20_sample_arm_ms": [
+              5.281792163848877,
+              5.281760215759277,
+              5.28169584274292,
+              5.281792163848877,
+              5.280831813812256,
+              5.281087875366211
+            ],
+            "median_of_six_reported_arm_stats_ms": 5.281728029251099,
+            "median_of_120_event_samples_ms": 5.28166389465332
+          }
+        },
+        "R12_over_R13_ratio_median_of_120": 3.1867654010508057,
+        "R12_over_R13_ratio_median_of_six_arm_medians": 3.1870721364759,
+        "R12_over_R13_ratio_median_of_six_reported_arm_stats": 3.1868357638880895
+      },
+      {
+        "case_id": "seed17-b1-ctx128",
+        "batch": 1,
+        "context": 128,
+        "R12_median_ms": 16.921600341796875,
+        "R13_median_ms": 5.372928142547607,
+        "R12_over_R13_median_ratio": 3.1494186955147687,
+        "sample_count_per_candidate": 120,
+        "R12_native_hidden_max_ulp": 0,
+        "R13_native_hidden_max_ulp": 0,
+        "R12_vs_R13_hidden_max_ulp": 0,
+        "R12_R13_native_and_cross_kv_exact": true,
+        "aggregation": {
+          "R12": {
+            "reported_upper_median_per_20_sample_arm_ms": [
+              16.920576095581055,
+              16.921600341796875,
+              16.920576095581055,
+              16.921600341796875,
+              16.923967361450195,
+              16.922624588012695
+            ],
+            "median_of_six_reported_arm_stats_ms": 16.921600341796875,
+            "median_of_120_event_samples_ms": 16.921600341796875
+          },
+          "R13": {
+            "reported_upper_median_per_20_sample_arm_ms": [
+              5.372928142547607,
+              5.3739519119262695,
+              5.37388801574707,
+              5.372928142547607,
+              5.371903896331787,
+              5.372928142547607
+            ],
+            "median_of_six_reported_arm_stats_ms": 5.372928142547607,
+            "median_of_120_event_samples_ms": 5.372928142547607
+          }
+        },
+        "R12_over_R13_ratio_median_of_120": 3.1494186955147687,
+        "R12_over_R13_ratio_median_of_six_arm_medians": 3.149408223239098,
+        "R12_over_R13_ratio_median_of_six_reported_arm_stats": 3.1494186955147687
+      },
+      {
+        "case_id": "seed17-b2-ctx32",
+        "batch": 2,
+        "context": 32,
+        "R12_median_ms": 8.467455863952637,
+        "R13_median_ms": 8.467455863952637,
+        "R12_over_R13_median_ratio": 1.0,
+        "sample_count_per_candidate": 120,
+        "R12_native_hidden_max_ulp": 0,
+        "R13_native_hidden_max_ulp": 0,
+        "R12_vs_R13_hidden_max_ulp": 0,
+        "R12_R13_native_and_cross_kv_exact": true,
+        "aggregation": {
+          "R12": {
+            "reported_upper_median_per_20_sample_arm_ms": [
+              8.469504356384277,
+              8.469504356384277,
+              8.468480110168457,
+              8.467455863952637,
+              8.467455863952637,
+              8.4684476852417
+            ],
+            "median_of_six_reported_arm_stats_ms": 8.468463897705078,
+            "median_of_120_event_samples_ms": 8.467455863952637
+          },
+          "R13": {
+            "reported_upper_median_per_20_sample_arm_ms": [
+              8.468480110168457,
+              8.465408325195312,
+              8.467455863952637,
+              8.467231750488281,
+              8.467616081237793,
+              8.464384078979492
+            ],
+            "median_of_six_reported_arm_stats_ms": 8.467343807220459,
+            "median_of_120_event_samples_ms": 8.467455863952637
+          }
+        },
+        "R12_over_R13_ratio_median_of_120": 1.0,
+        "R12_over_R13_ratio_median_of_six_arm_medians": 1.0000963851350637,
+        "R12_over_R13_ratio_median_of_six_reported_arm_stats": 1.000132283572053
+      },
+      {
+        "case_id": "seed17-b2-ctx128",
+        "batch": 2,
+        "context": 128,
+        "R12_median_ms": 8.70809555053711,
+        "R13_median_ms": 8.713215827941895,
+        "R12_over_R13_median_ratio": 0.999412355035627,
+        "sample_count_per_candidate": 120,
+        "R12_native_hidden_max_ulp": 0,
+        "R13_native_hidden_max_ulp": 0,
+        "R12_vs_R13_hidden_max_ulp": 0,
+        "R12_R13_native_and_cross_kv_exact": true,
+        "aggregation": {
+          "R12": {
+            "reported_upper_median_per_20_sample_arm_ms": [
+              8.707072257995605,
+              8.708895683288574,
+              8.70911979675293,
+              8.70809555053711,
+              8.707072257995605,
+              8.71014404296875
+            ],
+            "median_of_six_reported_arm_stats_ms": 8.708495616912842,
+            "median_of_120_event_samples_ms": 8.70809555053711
+          },
+          "R13": {
+            "reported_upper_median_per_20_sample_arm_ms": [
+              8.712191581726074,
+              8.713215827941895,
+              8.713215827941895,
+              8.713279724121094,
+              8.71292781829834,
+              8.713343620300293
+            ],
+            "median_of_six_reported_arm_stats_ms": 8.713215827941895,
+            "median_of_120_event_samples_ms": 8.713215827941895
+          }
+        },
+        "R12_over_R13_ratio_median_of_120": 0.999412355035627,
+        "R12_over_R13_ratio_median_of_six_arm_medians": 0.9994408093433764,
+        "R12_over_R13_ratio_median_of_six_reported_arm_stats": 0.9994582699290064
+      }
+    ],
+    "interpretation": "B1 measured 3.15-3.19x faster for these two contexts. B2 medians were neutral. Decoder-only microbenchmark evidence; no serving or RL speed claim.",
+    "aggregation": {
+      "primary": "standard median of all 120 event samples per candidate and case",
+      "secondary": "median of six reported arm medians; each arm statistic is the upper middle sample sorted20[10], not the standard median of 20 samples"
+    }
+  },
+  "numerical_validation": {
+    "original_heldout30": {
+      "status": "passed",
+      "pass": 30,
+      "fail": 0
+    },
+    "initial4": {
+      "status": "passed",
+      "pass": 4,
+      "fail": 0
+    },
+    "wide12": {
+      "status": "6/12; same cases and first post-block/KV divergence layers as R12",
+      "pass": 6,
+      "fail": 6,
+      "cases": [
+        {
+          "case_id": "seed777-b1-ctx31",
+          "r13_status": "passed",
+          "r12_status": "passed",
+          "r13_first_post_block_layer": null,
+          "r12_first_post_block_layer": null,
+          "r13_first_kv_layer": null,
+          "r12_first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b1-ctx63",
+          "r13_status": "passed",
+          "r12_status": "passed",
+          "r13_first_post_block_layer": null,
+          "r12_first_post_block_layer": null,
+          "r13_first_kv_layer": null,
+          "r12_first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b1-ctx255",
+          "r13_status": "failed",
+          "r12_status": "failed",
+          "r13_first_post_block_layer": 22,
+          "r12_first_post_block_layer": 22,
+          "r13_first_kv_layer": 23,
+          "r12_first_kv_layer": 23
+        },
+        {
+          "case_id": "seed777-b1-ctx511",
+          "r13_status": "passed",
+          "r12_status": "passed",
+          "r13_first_post_block_layer": null,
+          "r12_first_post_block_layer": null,
+          "r13_first_kv_layer": null,
+          "r12_first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b1-ctx2048",
+          "r13_status": "failed",
+          "r12_status": "failed",
+          "r13_first_post_block_layer": 13,
+          "r12_first_post_block_layer": 13,
+          "r13_first_kv_layer": 14,
+          "r12_first_kv_layer": 14
+        },
+        {
+          "case_id": "seed777-b1-ctx8000",
+          "r13_status": "failed",
+          "r12_status": "failed",
+          "r13_first_post_block_layer": 21,
+          "r12_first_post_block_layer": 21,
+          "r13_first_kv_layer": 22,
+          "r12_first_kv_layer": 22
+        },
+        {
+          "case_id": "seed777-b2-ctx31",
+          "r13_status": "passed",
+          "r12_status": "passed",
+          "r13_first_post_block_layer": null,
+          "r12_first_post_block_layer": null,
+          "r13_first_kv_layer": null,
+          "r12_first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b2-ctx63",
+          "r13_status": "passed",
+          "r12_status": "passed",
+          "r13_first_post_block_layer": null,
+          "r12_first_post_block_layer": null,
+          "r13_first_kv_layer": null,
+          "r12_first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b2-ctx255",
+          "r13_status": "passed",
+          "r12_status": "passed",
+          "r13_first_post_block_layer": null,
+          "r12_first_post_block_layer": null,
+          "r13_first_kv_layer": null,
+          "r12_first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b2-ctx511",
+          "r13_status": "failed",
+          "r12_status": "failed",
+          "r13_first_post_block_layer": 6,
+          "r12_first_post_block_layer": 6,
+          "r13_first_kv_layer": 7,
+          "r12_first_kv_layer": 7
+        },
+        {
+          "case_id": "seed777-b2-ctx2048",
+          "r13_status": "failed",
+          "r12_status": "failed",
+          "r13_first_post_block_layer": 10,
+          "r12_first_post_block_layer": 10,
+          "r13_first_kv_layer": 11,
+          "r12_first_kv_layer": 11
+        },
+        {
+          "case_id": "seed777-b2-ctx8000",
+          "r13_status": "failed",
+          "r12_status": "failed",
+          "r13_first_post_block_layer": 6,
+          "r12_first_post_block_layer": 6,
+          "r13_first_kv_layer": 7,
+          "r12_first_kv_layer": 7
+        }
+      ]
+    }
+  },
+  "sass": {
+    "arch": "sm_89",
+    "r12_cuobjdump_sass_sha256": "36cde338406943707f8e9801928577ce2c73a916f9f144451efd3b575ca3266c",
+    "r13_cuobjdump_sass_sha256": "d58d98fa84778c31dd1e0d8215b42c6b91fa473861a03bd66aa796f9999ebef7",
+    "line_mapped_disassembly": {
+      "tool": "nvdisasm -g --print-line-info-inline",
+      "r12_sha256": "7b07161fcd38a58bab18106af4aea6412bf71dd755bba7987befda930e80ce81",
+      "r13_sha256": "c5ddb133925a4895fc0bf90d0ff8fbeff607c1a7961a38014eb30406ca2d55ef",
+      "r13_dots": "B1 qkv call at block360_kernel.inc:80 maps source block360.cu:184-187 to four LD.E.U16 instructions at 0x23d0-0x2400, with weight offsets 0, 0x40, 0x80, 0xc0, before the dependent conversions and arithmetic.",
+      "r13_dots16": "B1 gate/up and down calls at block360_kernel.inc:570/614 map block360.cu:220-223 to four LD.E.U16 instructions at 0x19850-0x19880, offsets 0, 0x20, 0x40, 0x60, before the dependent conversions and arithmetic.",
+      "r12_control": "At the corresponding R12 dots16 source line 194, line-mapped SASS shows a single LD.E.U16 followed by PRMT, FMUL, and FADD before the loop continues.",
+      "interpretation": "Source-line mapping confirms that both changed R13 projection loops emit the intended four-weight load group. This is instruction evidence; it does not establish performance causality or memory-stall reduction."
+    }
+  },
+  "not_claimed": [
+    "complete 46-case acceptance",
+    "vLLM or serving speed",
+    "multi-step behavior",
+    "training/reward/quality gain"
+  ]
+}
