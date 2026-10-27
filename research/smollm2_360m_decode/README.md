@@ -33,6 +33,24 @@ fixtures and 29/30 held-out cases, with one failure at `seed17-b1-ctx16`.
 R7 passed 24/30, R6 passed 22/30, and R4 passed 20/30; their compact history
 and hashes remain in the summary.
 
+## Wider-context and wrapper checks
+
+A separate seed-777 R9 set passes 5/8 medium-context cases (31/63/255/511)
+and 0/4 long-context cases (2048/8000). The three medium and four long
+failures remain under the unchanged numerical gates even though all greedy
+IDs match. At the medium failures, Q/QK/scores/probabilities are exact and a
+single PV output differs by one BF16 ULP; the native softmax recompute's
+singleton-query shape comparison is not a probability mismatch. These results
+mean the original 34-case pass does not generalize to the wider tested shapes.
+Evidence and guard data are in the `wide_context_r9` entry of
+`validation-summary.json` and the linked Prime-RL run outputs.
+
+The public package wrapper also passes the four original B1/B2 context-8/32
+fixtures for int32 and int64 IDs, with bitwise-equal hidden states, logits,
+all layer KV, and int64 CUDA Graph replay. This is single-step wrapper
+validation; end-to-end serving remains unverified. No speed or quality claim
+is made.
+
 ## Build
 
 With CUDA 13.0 and SM89 support, build the shared library with:

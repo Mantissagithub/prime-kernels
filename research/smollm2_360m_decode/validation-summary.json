@@ -127,10 +127,81 @@
   "claim_limits": {
     "production_accepted": false,
     "single_step_numerical_validation": "34/34 fixtures passed bitwise (4 initial plus 30 held-out)",
+    "wider_context_validation": "R9 wide-context follow-up fails 7/12 cases (5/8 medium, 0/4 long); original 34-case result is limited to its recorded shapes.",
+    "public_wrapper_validation": "Four B1/B2 context-8/32 fixtures pass through the public wrapper for int32/int64 IDs and int64 CUDA Graph replay; engine serving remains unverified.",
     "multi_step_or_serving_validation": false,
     "speed_claim": false,
     "reward_or_quality_claim": false,
-    "reason": "R9 passes 34 single-step numerical fixtures, but no multi-step serving, long-context, speed, reward, or quality validation is recorded."
+    "reason": "R9 passes its 34 original single-step fixtures but fails 7/12 wider-context cases; the wrapper checks are single-step only. No multi-step serving, speed, reward, or quality validation is recorded."
+  },
+  "wide_context_r9": {
+    "fixture_seed": 777,
+    "medium": {
+      "contexts": [31, 63, 255, 511],
+      "passed": 5,
+      "failed": 3,
+      "failed_cases": ["seed777-b1-ctx255", "seed777-b2-ctx255", "seed777-b2-ctx511"],
+      "all_greedy_ids_match": true,
+      "first_post_block_divergence": {
+        "seed777-b1-ctx255": 11,
+        "seed777-b2-ctx255": 8,
+        "seed777-b2-ctx511": 8
+      },
+      "observation": "At each failed case's first divergent block, K/V remains exact. Targeted captures show Q, QK, scaled scores, and probabilities exact, with one PV output differing by one BF16 ULP. The native_softmax_recompute shape-only comparison is due to the reference singleton query dimension; it is not a probability mismatch.",
+      "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-wide-validation-r1/results-medium-r2/comparison.json",
+      "diagnostic_evidence": "prime-rl/outputs/megakernel-20261025/decode-360-wide-diagnostic-r1/results-r1/comparison.json",
+      "guard": {
+        "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-wide-validation-r1/guard-medium-r2/result.json",
+        "returncode": 1,
+        "stop_reason": null,
+        "elapsed_seconds": 8.847243919997709,
+        "minimum_available_bytes": 3371659264,
+        "peak_swap_bytes": 0,
+        "peak_gpu_mib": 1473
+      }
+    },
+    "long": {
+      "contexts": [2048, 8000],
+      "passed": 0,
+      "failed": 4,
+      "failed_cases": ["seed777-b1-ctx2048", "seed777-b1-ctx8000", "seed777-b2-ctx2048", "seed777-b2-ctx8000"],
+      "all_greedy_ids_match": true,
+      "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-wide-validation-r1/results-long-r2/comparison.json",
+      "guard": {
+        "evidence": "prime-rl/outputs/megakernel-20261025/decode-360-wide-validation-r1/guard-long-r2/result.json",
+        "returncode": 1,
+        "stop_reason": null,
+        "elapsed_seconds": 46.89998291499796,
+        "minimum_available_bytes": 2572795904,
+        "peak_swap_bytes": 0,
+        "peak_gpu_mib": 4337
+      }
+    },
+    "attempt_notes": [
+      "The first medium attempt stopped during native eager capture because the expected QK/PV hook set was incomplete, before candidate execution; the corrected results-medium-r2 run is reported above.",
+      "An initial long attempt was declined by the RAM preflight; the recorded results-long-r2 run completed with the guard values above."
+    ],
+    "interpretation": "The wide-context cases fail the unchanged numerical gates despite exact greedy IDs. No speed or quality claim is made."
+  },
+  "public_wrapper_r9": {
+    "status": "passed",
+    "cases": ["b1-ctx8", "b1-ctx32", "b2-ctx8", "b2-ctx32"],
+    "input_id_dtypes": ["torch.int32", "torch.int64"],
+    "bitwise_equal": ["final_hidden", "logits", "all_32_layers_kv", "int64_cuda_graph_replay"],
+    "greedy_ids_match": true,
+    "runtime_pointers_stable_across_cases": true,
+    "serving_integration": false,
+    "evidence": "prime-rl/outputs/megakernel-20261025/wrapper-360-validation-r1/results-r1/result.json",
+    "guard": {
+      "evidence": "prime-rl/outputs/megakernel-20261025/wrapper-360-validation-r1/guard/result.json",
+      "returncode": 0,
+      "stop_reason": null,
+      "elapsed_seconds": 5.8363433640042786,
+      "minimum_available_bytes": 3512623104,
+      "peak_swap_bytes": 0,
+      "peak_gpu_mib": 1337
+    },
+    "interpretation": "Public-wrapper single-step validation only; it does not establish an end-to-end serving integration, speed, reward, or quality result."
   },
   "historical_r7": {
     "status": "superseded_candidate_preserved_as_history",
