@@ -1,0 +1,427 @@
+{
+  "candidate": "R15b attention accuracy branch",
+  "scope": "One-step numerical validation only; no serving, probability, speed, or RL acceptance",
+  "source_hashes": {
+    "block360.cu": "0f24bb3a9502310e1e25fcd7c40f0ec299dd2a0a018a5b2cd4850f231e709f66",
+    "block360_kernel.inc": "75389f7b6bcb59d9fe7ee99d4708b81c792c78ebcbaa54cd06ebd2d62a8bf369",
+    "build.sh": "6ea0ae958db15194b775c2bab16a36afc208971c6f7649f77b5ee40b32a88baf"
+  },
+  "library_sha256": "dc604d67bd4c4d0251192934d75a7f0d851652eaf90874243343f6aa7ca607e8",
+  "gates_changed": false,
+  "groups": {
+    "heldout30": {
+      "passed": 30,
+      "total": 30,
+      "result_sha256": "2257fe9d5a41d3f7e30d9bb94c636eb25f5b9eef5a12a7aff2faa36dd665fc67",
+      "guard": {
+        "command": [
+          "/home/pradheep/.venv/bin/python",
+          "outputs/megakernel-20261025/block-360-heldout-r13/validate_full32.py",
+          "--library",
+          "outputs/megakernel-20261025/decode-360-cuda-r15b-qk-wmma/build-r15b/libdecode360_r15b_qk_wmma.so",
+          "--candidate-source",
+          "outputs/megakernel-20261025/decode-360-cuda-r15b-qk-wmma/block360.cu",
+          "--candidate-include",
+          "outputs/megakernel-20261025/decode-360-cuda-r15b-qk-wmma/block360_kernel.inc",
+          "--output-dir",
+          "outputs/megakernel-20261025/validation-operator-r1/reports/r15b-heldout30-r2/results-r1"
+        ],
+        "returncode": 0,
+        "stop_reason": null,
+        "elapsed_seconds": 9.245900007008458,
+        "minimum_available_bytes": 10069872640,
+        "peak_cgroup_bytes": 1721966592,
+        "peak_swap_bytes": 0,
+        "peak_gpu_mib": 1359,
+        "disk_free_before_bytes": 10497716224,
+        "minimum_disk_free_bytes": 10489307136
+      },
+      "cases": [
+        {
+          "case_id": "seed17-b1-ctx1",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed17-b1-ctx8",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed17-b1-ctx16",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed17-b1-ctx32",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed17-b1-ctx128",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed17-b2-ctx1",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed17-b2-ctx8",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed17-b2-ctx16",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed17-b2-ctx32",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed17-b2-ctx128",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed101-b1-ctx1",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed101-b1-ctx8",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed101-b1-ctx16",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed101-b1-ctx32",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed101-b1-ctx128",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed101-b2-ctx1",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed101-b2-ctx8",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed101-b2-ctx16",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed101-b2-ctx32",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed101-b2-ctx128",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed2027-b1-ctx1",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed2027-b1-ctx8",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed2027-b1-ctx16",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed2027-b1-ctx32",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed2027-b1-ctx128",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed2027-b2-ctx1",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed2027-b2-ctx8",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed2027-b2-ctx16",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed2027-b2-ctx32",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed2027-b2-ctx128",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        }
+      ]
+    },
+    "initial4": {
+      "passed": 4,
+      "total": 4,
+      "result_sha256": "f6a2f7dafdd381fad072d800888921defe2d9e08200d740c36a0570a9730954a",
+      "guard": {
+        "command": [
+          "/home/pradheep/.venv/bin/python",
+          "outputs/megakernel-20261025/decode-360-validation-r10/validate.py",
+          "--library",
+          "outputs/megakernel-20261025/decode-360-cuda-r15b-qk-wmma/build-r15b/libdecode360_r15b_qk_wmma.so",
+          "--candidate-source",
+          "outputs/megakernel-20261025/decode-360-cuda-r15b-qk-wmma/block360.cu",
+          "--candidate-include",
+          "outputs/megakernel-20261025/decode-360-cuda-r15b-qk-wmma/block360_kernel.inc",
+          "--output-dir",
+          "outputs/megakernel-20261025/validation-operator-r1/reports/r15b-initial4-r2/results-r1"
+        ],
+        "returncode": 0,
+        "stop_reason": null,
+        "elapsed_seconds": 5.630025122998632,
+        "minimum_available_bytes": 9912336384,
+        "peak_cgroup_bytes": 1547636736,
+        "peak_swap_bytes": 0,
+        "peak_gpu_mib": 1339,
+        "disk_free_before_bytes": 10489274368,
+        "minimum_disk_free_bytes": 10473893888
+      },
+      "cases": [
+        {
+          "case_id": "b1-ctx8",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "b1-ctx32",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "b2-ctx8",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "b2-ctx32",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        }
+      ]
+    },
+    "wide12": {
+      "passed": 9,
+      "total": 12,
+      "result_sha256": "d1521f9738ce3de81da43fdb9ec3e2fb09e6fa558630f9f32457b2e0057b52fe",
+      "guard": {
+        "command": [
+          "/home/pradheep/.venv/bin/python",
+          "outputs/megakernel-20261025/decode-360-wide-validation-r2/validate_wide.py",
+          "--library",
+          "outputs/megakernel-20261025/decode-360-cuda-r15b-qk-wmma/build-r15b/libdecode360_r15b_qk_wmma.so",
+          "--candidate-source",
+          "outputs/megakernel-20261025/decode-360-cuda-r15b-qk-wmma/block360.cu",
+          "--candidate-include",
+          "outputs/megakernel-20261025/decode-360-cuda-r15b-qk-wmma/block360_kernel.inc",
+          "--case-group",
+          "all",
+          "--output-dir",
+          "outputs/megakernel-20261025/validation-operator-r1/reports/r15b-wide12-r2/results-r1"
+        ],
+        "returncode": 1,
+        "stop_reason": null,
+        "elapsed_seconds": 49.13445765399956,
+        "minimum_available_bytes": 9878679552,
+        "peak_cgroup_bytes": 1610334208,
+        "peak_swap_bytes": 0,
+        "peak_gpu_mib": 4323,
+        "disk_free_before_bytes": 10473865216,
+        "minimum_disk_free_bytes": 10382860288
+      },
+      "cases": [
+        {
+          "case_id": "seed777-b1-ctx31",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b1-ctx63",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b1-ctx255",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b1-ctx511",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b1-ctx2048",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b1-ctx8000",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b2-ctx31",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b2-ctx63",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b2-ctx255",
+          "passed": true,
+          "greedy_match": true,
+          "first_post_block_layer": null,
+          "first_kv_layer": null
+        },
+        {
+          "case_id": "seed777-b2-ctx511",
+          "passed": false,
+          "greedy_match": true,
+          "first_post_block_layer": 8,
+          "first_kv_layer": 9
+        },
+        {
+          "case_id": "seed777-b2-ctx2048",
+          "passed": false,
+          "greedy_match": true,
+          "first_post_block_layer": 11,
+          "first_kv_layer": 12
+        },
+        {
+          "case_id": "seed777-b2-ctx8000",
+          "passed": false,
+          "greedy_match": true,
+          "first_post_block_layer": 22,
+          "first_kv_layer": 23
+        }
+      ]
+    }
+  }
+}
