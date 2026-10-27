@@ -1,0 +1,185 @@
+{
+  "candidate": {
+    "source_sha256": "43590596df6ba8e23abe3b8ef1f8be9e961941c7d13eadbedadcaaba36962c7a",
+    "include_sha256": "4c1a684303d0329238ab5f3058c7f4058ae0fe36c9b13a44adc3dbb649d8be55",
+    "library_sha256": "a8a99923cdc5cd3212f896ec036e94b99705073c18f677ee78a4c34d136d112a"
+  },
+  "jobs": {
+    "r21-heldout30-r1": {
+      "status": "passed",
+      "case_count": 30,
+      "passed_case_count": 30,
+      "failed_cases": [],
+      "guard": {
+        "command": [
+          "/home/pradheep/.venv/bin/python",
+          "outputs/megakernel-20261025/block-360-heldout-r13/validate_full32.py",
+          "--library",
+          "outputs/megakernel-20261025/decode-360-cuda-r21/build/libdecode360_r21.so",
+          "--candidate-source",
+          "outputs/megakernel-20261025/decode-360-cuda-r21/block360.cu",
+          "--candidate-include",
+          "outputs/megakernel-20261025/decode-360-cuda-r21/block360_kernel.inc",
+          "--output-dir",
+          "outputs/megakernel-20261025/validation-operator-r1/reports/r21-heldout30-r1/results-r1"
+        ],
+        "returncode": 0,
+        "stop_reason": null,
+        "elapsed_seconds": 8.646196529996814,
+        "minimum_available_bytes": 5049315328,
+        "peak_cgroup_bytes": 1459818496,
+        "peak_swap_bytes": 0,
+        "peak_gpu_mib": 1353,
+        "disk_free_before_bytes": 9475346432,
+        "minimum_disk_free_bytes": 9466953728
+      },
+      "comparison_sha256": "8902bab65791d09c010ff636dc12c7dfb9404bb4c2e2a9555417ee4ea748bfe4"
+    },
+    "r21-initial4-r1": {
+      "status": "passed",
+      "case_count": 4,
+      "passed_case_count": 4,
+      "failed_cases": [],
+      "guard": {
+        "command": [
+          "/home/pradheep/.venv/bin/python",
+          "outputs/megakernel-20261025/decode-360-validation-r10/validate.py",
+          "--library",
+          "outputs/megakernel-20261025/decode-360-cuda-r21/build/libdecode360_r21.so",
+          "--candidate-source",
+          "outputs/megakernel-20261025/decode-360-cuda-r21/block360.cu",
+          "--candidate-include",
+          "outputs/megakernel-20261025/decode-360-cuda-r21/block360_kernel.inc",
+          "--output-dir",
+          "outputs/megakernel-20261025/validation-operator-r1/reports/r21-initial4-r1/results-r1"
+        ],
+        "returncode": 0,
+        "stop_reason": null,
+        "elapsed_seconds": 5.637165057007223,
+        "minimum_available_bytes": 4879622144,
+        "peak_cgroup_bytes": 1698697216,
+        "peak_swap_bytes": 0,
+        "peak_gpu_mib": 1309,
+        "disk_free_before_bytes": 9466920960,
+        "minimum_disk_free_bytes": 9451540480
+      },
+      "comparison_sha256": "4f97fa8d4c6fd491d08aac75137cb3b8a1d832339eefb4a95fa6b24562e0b71e"
+    },
+    "r21-wide12-r1": {
+      "status": "failed",
+      "case_count": 12,
+      "passed_case_count": 11,
+      "failed_cases": [
+        "seed777-b2-ctx8000"
+      ],
+      "guard": {
+        "command": [
+          "/home/pradheep/.venv/bin/python",
+          "outputs/megakernel-20261025/decode-360-wide-validation-r2/validate_wide.py",
+          "--library",
+          "outputs/megakernel-20261025/decode-360-cuda-r21/build/libdecode360_r21.so",
+          "--candidate-source",
+          "outputs/megakernel-20261025/decode-360-cuda-r21/block360.cu",
+          "--candidate-include",
+          "outputs/megakernel-20261025/decode-360-cuda-r21/block360_kernel.inc",
+          "--case-group",
+          "all",
+          "--output-dir",
+          "outputs/megakernel-20261025/validation-operator-r1/reports/r21-wide12-r1/results-r1"
+        ],
+        "returncode": 1,
+        "stop_reason": null,
+        "elapsed_seconds": 47.68386912700953,
+        "minimum_available_bytes": 4861890560,
+        "peak_cgroup_bytes": 1755795456,
+        "peak_swap_bytes": 0,
+        "peak_gpu_mib": 4323,
+        "disk_free_before_bytes": 9451388928,
+        "minimum_disk_free_bytes": 9360695296
+      },
+      "comparison_sha256": "5f957710d26d6b585580e53656252ecbefd4267ce6a9183cd2504cd6754c5045"
+    }
+  },
+  "r20_r21_wide_passset_comparison": {
+    "baseline": "R20 wide12",
+    "candidate": "R21 wide12",
+    "r20_pass_count": 9,
+    "r21_pass_count": 11,
+    "added_passes": [
+      "seed777-b2-ctx2048",
+      "seed777-b2-ctx511"
+    ],
+    "removed_passes": [],
+    "same_pass_set": false,
+    "r20_passed": [
+      "seed777-b1-ctx2048",
+      "seed777-b1-ctx255",
+      "seed777-b1-ctx31",
+      "seed777-b1-ctx511",
+      "seed777-b1-ctx63",
+      "seed777-b1-ctx8000",
+      "seed777-b2-ctx255",
+      "seed777-b2-ctx31",
+      "seed777-b2-ctx63"
+    ],
+    "r21_passed": [
+      "seed777-b1-ctx2048",
+      "seed777-b1-ctx255",
+      "seed777-b1-ctx31",
+      "seed777-b1-ctx511",
+      "seed777-b1-ctx63",
+      "seed777-b1-ctx8000",
+      "seed777-b2-ctx2048",
+      "seed777-b2-ctx255",
+      "seed777-b2-ctx31",
+      "seed777-b2-ctx511",
+      "seed777-b2-ctx63"
+    ],
+    "derivation": "For each case, pass iff all values of its gates object are true; sets derived from comparison.json."
+  },
+  "remaining_failure_causal_timeline": {
+    "case_id": "seed777-b2-ctx8000",
+    "greedy_token_ids_match": true,
+    "first_post_block_divergence": {
+      "layer": 10,
+      "different_elements": 64,
+      "elements": 1920,
+      "max_abs": 0.03125,
+      "max_bf16_ulp": 76,
+      "first_difference": {
+        "absolute_error": 0.00048828125,
+        "bf16_ulp": 2,
+        "candidate_bf16": 0.05126953125,
+        "index": [
+          0,
+          34
+        ],
+        "reference_bf16": 0.05078125
+      },
+      "kv_at_this_layer": {
+        "bitwise_equal": true,
+        "different_elements": 0,
+        "elements": 10241280
+      }
+    },
+    "first_kv_divergence": {
+      "layer": 11,
+      "different_elements": 139,
+      "elements": 10241280,
+      "max_abs": 0.0009765625,
+      "max_bf16_ulp": 28624,
+      "first_difference": {
+        "absolute_error": 0.0001220703125,
+        "bf16_ulp": 2,
+        "candidate_bf16": 0.00830078125,
+        "index": [
+          512001
+        ],
+        "reference_bf16": 0.0084228515625
+      }
+    },
+    "layer15_captured_attention_first_field_divergence": "rotated_query",
+    "interpretation": "Earliest recorded whole-block difference is post-block output at layer 10 while layer-10 KV remains exact; first K/V difference is layer 11. The layer-15 capture is a later diagnostic snapshot and does not isolate the primitive responsible for the layer-10 output mismatch."
+  },
+  "scope": "Validation only; thresholds and gates unchanged; no performance claim."
+}
