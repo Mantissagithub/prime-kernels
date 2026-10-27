@@ -1,0 +1,225 @@
+{
+  "baseline": "R16",
+  "build_resources": {
+    "architecture": "sm_89",
+    "registers_per_thread": {
+      "B1": 128,
+      "B2": 128
+    },
+    "spill_loads": 0,
+    "spill_stores": 0,
+    "stack_bytes": 8,
+    "static_shared_bytes": {
+      "B1": 6944,
+      "B2": 13344
+    }
+  },
+  "candidate": "R19 B2 warp-to-CTA swizzle",
+  "change": "B2 global warp ID remapped from blockIdx.x*kWarps+warp to warp*kCTAs+blockIdx.x; B1 mapping unchanged. All gw loops retain the 192-ID stride.",
+  "cpu_mapping_check": "mapping-check.json verifies bijection over 192 global warp IDs and exactly-once coverage for QKV100, O/down60, gate/up160 projection tiles.",
+  "direct_decoder_abba": {
+    "aggregation": "Median of six per-arm upper medians of20 samples per case/session",
+    "blocks_per_run": 3,
+    "interpretation": "Single-device direct-decoder pilot: B2 latency fell 0.398% and 0.348% in run1, then 0.391% and 0.342% in independent run2 for ctx32/128; R19 beat R16 in all three pooled blocks for each B2 context in both runs. B1 differences were neutral (within about 0.03%). This remains a sub-1% component result, not a broad performance claim or serving/RL result.",
+    "operator_root_summary_sha256": "85d4e6581a3d0c7d903610d8cc4af7a0f90eef2a6ae9fada35b4f0e1ee69a9bc",
+    "parity": "All four cases in both runs had native and cross-candidate final-hidden and all32-layer KV comparisons at 0 BF16 ULP.",
+    "passset_comparison_sha256": "d520076fcbd3033e2c2b698def5ca0387885deff695324b16e1df9e4727af0e1",
+    "samples_per_arm_per_block": 20,
+    "scope": "Direct decoder R16 versus R19 mapping; two independent sessions, no serving/RL claim",
+    "sessions": [
+      {
+        "cases": [
+          {
+            "R16_median_ms_of_6_arm_stats": 5.278719902038574,
+            "R19_both_beats_control_by_3_blocks": [
+              false,
+              false,
+              true
+            ],
+            "R19_latency_reduction_percent": 0.019394273567474585,
+            "R19_median_ms_of_6_arm_stats": 5.277696132659912,
+            "case_id": "seed17-b1-ctx32",
+            "native_and_cross_hidden_and_all32_kv_max_ulp": 0
+          },
+          {
+            "R16_median_ms_of_6_arm_stats": 5.368832111358643,
+            "R19_both_beats_control_by_3_blocks": [
+              false,
+              false,
+              false
+            ],
+            "R19_latency_reduction_percent": -0.01906875382629014,
+            "R19_median_ms_of_6_arm_stats": 5.369855880737305,
+            "case_id": "seed17-b1-ctx128",
+            "native_and_cross_hidden_and_all32_kv_max_ulp": 0
+          },
+          {
+            "R16_median_ms_of_6_arm_stats": 7.97542405128479,
+            "R19_both_beats_control_by_3_blocks": [
+              true,
+              true,
+              true
+            ],
+            "R19_latency_reduction_percent": 0.3982230554321675,
+            "R19_median_ms_of_6_arm_stats": 7.943664073944092,
+            "case_id": "seed17-b2-ctx32",
+            "native_and_cross_hidden_and_all32_kv_max_ulp": 0
+          },
+          {
+            "R16_median_ms_of_6_arm_stats": 8.219552040100098,
+            "R19_both_beats_control_by_3_blocks": [
+              true,
+              true,
+              true
+            ],
+            "R19_latency_reduction_percent": 0.3476575983385244,
+            "R19_median_ms_of_6_arm_stats": 8.1909761428833,
+            "case_id": "seed17-b2-ctx128",
+            "native_and_cross_hidden_and_all32_kv_max_ulp": 0
+          }
+        ],
+        "guard": {
+          "command": [
+            "/home/pradheep/.venv/bin/python",
+            "outputs/megakernel-20261025/r19-direct-bench-r1/bench.py",
+            "--output",
+            "outputs/megakernel-20261025/r19-direct-bench-r1/results-r1.json"
+          ],
+          "disk_free_before_bytes": 9639763968,
+          "elapsed_seconds": 11.865543411986437,
+          "minimum_available_bytes": 6767460352,
+          "minimum_disk_free_bytes": 9639358464,
+          "peak_cgroup_bytes": 1675763712,
+          "peak_gpu_mib": 1401,
+          "peak_swap_bytes": 0,
+          "returncode": 0,
+          "stop_reason": null
+        },
+        "raw_results_sha256": "b27679d4803b5af0be309603c9b1814a318624621de6e0b4bbc0c61c3434556d",
+        "run": 1
+      },
+      {
+        "cases": [
+          {
+            "R16_median_ms_of_6_arm_stats": 5.289984226226807,
+            "R19_both_beats_control_by_3_blocks": [
+              false,
+              false,
+              false
+            ],
+            "R19_latency_reduction_percent": 0.0024202487474922485,
+            "R19_median_ms_of_6_arm_stats": 5.289856195449829,
+            "case_id": "seed17-b1-ctx32",
+            "native_and_cross_hidden_and_all32_kv_max_ulp": 0
+          },
+          {
+            "R16_median_ms_of_6_arm_stats": 5.380032062530518,
+            "R19_both_beats_control_by_3_blocks": [
+              false,
+              false,
+              false
+            ],
+            "R19_latency_reduction_percent": -0.020225574538823565,
+            "R19_median_ms_of_6_arm_stats": 5.381120204925537,
+            "case_id": "seed17-b1-ctx128",
+            "native_and_cross_hidden_and_all32_kv_max_ulp": 0
+          },
+          {
+            "R16_median_ms_of_6_arm_stats": 7.980544090270996,
+            "R19_both_beats_control_by_3_blocks": [
+              true,
+              true,
+              true
+            ],
+            "R19_latency_reduction_percent": 0.3913502617705289,
+            "R19_median_ms_of_6_arm_stats": 7.949312210083008,
+            "case_id": "seed17-b2-ctx32",
+            "native_and_cross_hidden_and_all32_kv_max_ulp": 0
+          },
+          {
+            "R16_median_ms_of_6_arm_stats": 8.225264072418213,
+            "R19_both_beats_control_by_3_blocks": [
+              true,
+              true,
+              true
+            ],
+            "R19_latency_reduction_percent": 0.34216967796815156,
+            "R19_median_ms_of_6_arm_stats": 8.19711971282959,
+            "case_id": "seed17-b2-ctx128",
+            "native_and_cross_hidden_and_all32_kv_max_ulp": 0
+          }
+        ],
+        "guard": {
+          "command": [
+            "/home/pradheep/.venv/bin/python",
+            "outputs/megakernel-20261025/r19-direct-bench-r1/bench.py",
+            "--output",
+            "outputs/megakernel-20261025/r19-direct-bench-r1/results-r2.json"
+          ],
+          "disk_free_before_bytes": 9626378240,
+          "elapsed_seconds": 12.266372048994526,
+          "minimum_available_bytes": 5739323392,
+          "minimum_disk_free_bytes": 9625952256,
+          "peak_cgroup_bytes": 1707819008,
+          "peak_gpu_mib": 1401,
+          "peak_swap_bytes": 0,
+          "returncode": 0,
+          "stop_reason": null
+        },
+        "raw_results_sha256": "ef0ee66a183b7fa7533e7e6627c915043bf013794197af8a5ee28ed4c4ab8ce2",
+        "run": 2
+      }
+    ],
+    "two_independent_runs": true,
+    "warmups_per_candidate_per_case": 3
+  },
+  "full46_validation": "completed; 34/34 original+initial and 6/12 wide, identical wide pass set to R16",
+  "hashes": {
+    "R16_block360_cu_sha256": "8c1da988f2e3e06f15b157d1e5ade1222fb9761d6249e905a7d7b52383cdd421",
+    "R16_include_sha256": "b375fe040144e12688b30ff408a2c6dda1bf5b0c000c8f05e4b3703b105487b2",
+    "R16_library_sha256": "cdec6142cc7f9580ca58e1362b00c9244b1ea6c8c704ff41e5b64f97f3d242ad",
+    "R19_block360_cu_sha256": "8c1da988f2e3e06f15b157d1e5ade1222fb9761d6249e905a7d7b52383cdd421",
+    "R19_build_script_sha256": "d2dc587de7ef3525313eb514c87eb2330eebdf24fb8e21b69a9f50c7301a09c3",
+    "R19_direct_result_sha256": "b27679d4803b5af0be309603c9b1814a318624621de6e0b4bbc0c61c3434556d",
+    "R19_include_sha256": "b84a8eb94a7d46ae057bbc21a6ccfb749ee11c36f8efec47f57af7031d78cace",
+    "R19_library_sha256": "6b86087508b7113fb789b98aa3d85aaf4e6003a6173451ecb0d8cea3814c77d1"
+  },
+  "not_claimed": [
+    "a speed gain greater than the measured sub-1% component result",
+    "full-model or vLLM speed",
+    "training/reward/quality gain"
+  ],
+  "numerical_validation": {
+    "aggregate": "40/46 cases pass; wide failures are the same six cases as R16.",
+    "initial4": {
+      "passed": 4,
+      "status": "passed"
+    },
+    "original_heldout30": {
+      "failed": 0,
+      "passed": 30,
+      "status": "passed"
+    },
+    "wide12": {
+      "added_passes": [],
+      "failed": 6,
+      "failed_cases": [
+        "seed777-b1-ctx255",
+        "seed777-b1-ctx2048",
+        "seed777-b1-ctx8000",
+        "seed777-b2-ctx511",
+        "seed777-b2-ctx2048",
+        "seed777-b2-ctx8000"
+      ],
+      "passed": 6,
+      "passset_equal_to_R16": true,
+      "regressions": [],
+      "status": "6/12, same pass set as R16"
+    }
+  },
+  "parity": {
+    "all_4_cross_hidden_and_KV_max_ulp": 0,
+    "all_4_native_hidden_and_KV_max_ulp": 0
+  },
+  "schema_version": 1
+}

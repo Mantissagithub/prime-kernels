@@ -1,0 +1,142 @@
+{
+  "baseline": "R15b validated accuracy branch",
+  "build_resources": {
+    "arch": "sm_89",
+    "registers_per_thread": {
+      "B1": 148,
+      "B2": 139
+    },
+    "spill_loads": 0,
+    "spill_stores": 0,
+    "stack_bytes": 8,
+    "static_shared_bytes": {
+      "B1": 6944,
+      "B2": 13344
+    }
+  },
+  "candidate": "R20 composed R18/R17/R19 path",
+  "candidate_hashes": {
+    "R15b_include_sha256": "75389f7b6bcb59d9fe7ee99d4708b81c792c78ebcbaa54cd06ebd2d62a8bf369",
+    "R15b_library_sha256": "dc604d67bd4c4d0251192934d75a7f0d851652eaf90874243343f6aa7ca607e8",
+    "R15b_source_sha256": "0f24bb3a9502310e1e25fcd7c40f0ec299dd2a0a018a5b2cd4850f231e709f66",
+    "R20_build_script_sha256": "e489785a0fe1b7885e2d21e527bc8126dc8664718dec96cd0a8f94ee2f52b7e0",
+    "R20_include_sha256": "9b1b65a535603f938a4ab06d6714d170acd503622a5804a1c561b764e1b8cd10",
+    "R20_library_sha256": "2d39443a58a9ecba67ae5404a6b8a080a8f6545f7185af20f9aad4adaa960584",
+    "R20_source_sha256": "43590596df6ba8e23abe3b8ef1f8be9e961941c7d13eadbedadcaaba36962c7a"
+  },
+  "claim_scope": "Combined direct decoder component result against R15b; no serving or RL claim.",
+  "direct_decoder_abba": {
+    "abba_blocks": 3,
+    "aggregation_note": "Operator summary reports the standard median of all 120 event samples. The second reported median is the median of six per-invocation arm stats; each per-invocation stat is the upper median sorted20[10]. Both are listed to retain the operator/root aggregation difference.",
+    "cases": [
+      {
+        "R15b_median_ms_all120": 16.875760078430176,
+        "R15b_median_ms_of_six_reported_arm_stats": 16.876192092895508,
+        "R20_both_placements_beat_both_all_3_blocks": true,
+        "R20_latency_change_percent_six_arm_stats": -72.9440375407508,
+        "R20_median_ms_all120": 4.56601619720459,
+        "R20_median_ms_of_six_reported_arm_stats": 4.56601619720459,
+        "batch": 1,
+        "case_id": "seed17-b1-ctx32",
+        "context": 32,
+        "native_and_cross_hidden_all32_kv_max_bf16_ulp": 0,
+        "samples_per_arm": 120
+      },
+      {
+        "R15b_median_ms_all120": 16.961743354797363,
+        "R15b_median_ms_of_six_reported_arm_stats": 16.96232032775879,
+        "R20_both_placements_beat_both_all_3_blocks": true,
+        "R20_latency_change_percent_six_arm_stats": -72.54413260736561,
+        "R20_median_ms_all120": 4.65715217590332,
+        "R20_median_ms_of_six_reported_arm_stats": 4.65715217590332,
+        "batch": 1,
+        "case_id": "seed17-b1-ctx128",
+        "context": 128,
+        "native_and_cross_hidden_all32_kv_max_bf16_ulp": 0,
+        "samples_per_arm": 120
+      },
+      {
+        "R15b_median_ms_all120": 8.463359832763672,
+        "R15b_median_ms_of_six_reported_arm_stats": 8.463359832763672,
+        "R20_both_placements_beat_both_all_3_blocks": true,
+        "R20_latency_change_percent_six_arm_stats": -5.987218287592421,
+        "R20_median_ms_all120": 7.956480026245117,
+        "R20_median_ms_of_six_reported_arm_stats": 7.956640005111694,
+        "batch": 2,
+        "case_id": "seed17-b2-ctx32",
+        "context": 32,
+        "native_and_cross_hidden_all32_kv_max_bf16_ulp": 0,
+        "samples_per_arm": 120
+      },
+      {
+        "R15b_median_ms_all120": 8.704000473022461,
+        "R15b_median_ms_of_six_reported_arm_stats": 8.704959869384766,
+        "R20_both_placements_beat_both_all_3_blocks": true,
+        "R20_latency_change_percent_six_arm_stats": -5.804501670279805,
+        "R20_median_ms_all120": 8.198992252349854,
+        "R20_median_ms_of_six_reported_arm_stats": 8.19968032836914,
+        "batch": 2,
+        "case_id": "seed17-b2-ctx128",
+        "context": 128,
+        "native_and_cross_hidden_all32_kv_max_bf16_ulp": 0,
+        "samples_per_arm": 120
+      }
+    ],
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "guard": {
+      "command": [
+        "/home/pradheep/.venv/bin/python",
+        "outputs/megakernel-20261025/r20-direct-bench-r1/bench.py",
+        "--output",
+        "outputs/megakernel-20261025/r20-direct-bench-r1/results-r1.json"
+      ],
+      "disk_free_before_bytes": 9481281536,
+      "elapsed_seconds": 14.668136977998074,
+      "minimum_available_bytes": 5338673152,
+      "minimum_disk_free_bytes": 9480695808,
+      "peak_cgroup_bytes": 1764528128,
+      "peak_gpu_mib": 1401,
+      "peak_swap_bytes": 0,
+      "returncode": 0,
+      "stop_reason": null
+    },
+    "interpretation": "This directly measures the composed R20 against R15b. All four cases beat both placements in each of three blocks and all hidden/KV checks are exact. It makes no serving, RL, or full-model speed claim.",
+    "operator_summary_sha256": "a99352e837754569f4621d56840e819e5e3e6fccc70d4cae4a72008b87e5b6cf",
+    "raw_results_sha256": "e4fb10d4e476645c822c798525f940d0511864f740bc1ee18d62146a74e94bcf",
+    "samples_per_arm_per_block": 20,
+    "samples_per_arm_per_case": 120,
+    "scope": "direct decoder-only CUDA-event ABBA; LM head excluded",
+    "warmups_per_arm_case": 3
+  },
+  "not_claimed": [
+    "serving or vLLM speed",
+    "RL wall-time gain",
+    "quality or reward gain"
+  ],
+  "numerical_validation": {
+    "aggregate": "43/46; same pass set as R18",
+    "initial4": {
+      "passed": 4,
+      "status": "passed"
+    },
+    "original_heldout30": {
+      "failed": 0,
+      "passed": 30,
+      "status": "passed"
+    },
+    "wide12": {
+      "added_passes": [],
+      "failed": 3,
+      "failed_cases": [
+        "seed777-b2-ctx511",
+        "seed777-b2-ctx2048",
+        "seed777-b2-ctx8000"
+      ],
+      "pass_set_equal_R18": true,
+      "passed": 9,
+      "removed_passes": [],
+      "status": "9/12; same gate set as R18"
+    }
+  },
+  "schema_version": 1
+}
