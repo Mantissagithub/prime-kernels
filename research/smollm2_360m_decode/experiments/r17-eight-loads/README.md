@@ -1,0 +1,7 @@
+# R17 eight-load B1 projection lookahead
+
+R17 is copied from the private R17 build in `prime-rl`. In B1 `dots` and `dots16`, each lane issues up to eight successive BF16 weight loads into explicit scalar temporaries, then applies the original FP32 RN multiply/add operations in the same order. The scalar tails cover K=960 and K=2560 without out-of-range reads. B2 retains the R13 path. No accumulator reassociation is used.
+
+The candidate passed the original 30 held-out fixtures and four initial controls (34/34). The wider 12-case control passed 6/12 with the same six failures as R13; this is not complete 46-case acceptance. Direct decoder-only CUDA-event ABBA timing used 3 warmups, 3 alternating blocks, and 120 event samples per arm/case. At B1 ctx32/ctx128, median latency fell 13.74%/13.46%, with R17 faster in all three blocks for both. B2 was neutral. All four direct timing cases had exact hidden and per-layer KV parity against native and between R13/R17. These measurements cover the decoder call through final hidden state; they do not establish serving, full-model, or RL speed gains.
+
+The compact timing, parity, held-out status, and source/build hashes are in `result.json`. Raw validation and timing evidence remains under the `prime-rl/outputs/megakernel-20261025/validation-operator-r1/reports/` tree, including `r17-direct-bench-r1/summary.json`. The compiled binary is omitted; `build.sh` reproduces it with CUDA 13.0 for SM89. The recorded R17 library hash is from the validated build.

@@ -1,0 +1,383 @@
+{
+  "status": "complete_direct_component_pilot",
+  "scope": "direct decoder-only CUDA-event ABBA; LM head excluded",
+  "device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "warmups_per_candidate_per_case": 3,
+  "abba_blocks": 3,
+  "samples_per_arm_per_block": 20,
+  "sample_count_per_arm_per_case": 120,
+  "cpu_preflight": {
+    "abi_parameter_count": 28,
+    "candidates": {
+      "R13": {
+        "abi_definition_sha256": "39205351dd906bc235fc96677e21f082cd4ad28a7aeb83ad03d6e5a4a4a49bc3",
+        "abi_status": "28 source declarations and ctypes types match",
+        "debug_bytes_exported": 3857920,
+        "library_sha256": "b14d297a84c73fbdf2c994a08395b449b8a1024e2d452e21740fb07545ef95e4",
+        "translation_unit_sha256": "e92dcc5cfed0472b906ee779385d3e20555ac9e70bf9e36c3b26530dc303b7c7",
+        "workspace_bytes_exported": 536320
+      },
+      "R16": {
+        "abi_definition_sha256": "b375fe040144e12688b30ff408a2c6dda1bf5b0c000c8f05e4b3703b105487b2",
+        "abi_status": "28 source declarations and ctypes types match",
+        "debug_bytes_exported": 3857920,
+        "library_sha256": "cdec6142cc7f9580ca58e1362b00c9244b1ea6c8c704ff41e5b64f97f3d242ad",
+        "translation_unit_sha256": "8c1da988f2e3e06f15b157d1e5ade1222fb9761d6249e905a7d7b52383cdd421",
+        "workspace_bytes_exported": 536320
+      }
+    },
+    "debug_policy": "debug=null; decode360_debug_bytes() recorded but not allocated",
+    "mode": "CPU-only; no CUDA calls",
+    "workspace_policy": "allocate exact size queried from each library's decode360_workspace_bytes()"
+  },
+  "source_result_sha256": "8c5d793c42643ed6e444e698c1d9fecc0ab13521909ae6ed6403507abccdc511",
+  "guard": {
+    "returncode": 0,
+    "elapsed_seconds": 12.326044519999414,
+    "minimum_available_bytes": 7835811840,
+    "peak_cgroup_bytes": 1704415232,
+    "peak_swap_bytes": 0,
+    "peak_gpu_mib": 1401
+  },
+  "timing_interpretation": "descriptive direct decoder-only CUDA-event ABBA evidence; not a serving or full-model speed claim; candidate is R16 B2-only double buffer and R13/R16 gates are equal on tested wide subset",
+  "cases": [
+    {
+      "case_id": "seed17-b1-ctx32",
+      "batch": 1,
+      "context": 32,
+      "input_ids_sha256": "08978fb774670fa477b029b9e77f1797fffbfdaf67b412f2925a6e09c71d9fcc",
+      "prefill_greedy_ids": [
+        30
+      ],
+      "timing": {
+        "R13": {
+          "sample_count": 120,
+          "median_ms": 5.293056011199951,
+          "min_ms": 5.287936210632324,
+          "max_ms": 6.1327362060546875,
+          "block_medians": [
+            {
+              "block": 0,
+              "n": 40,
+              "median_ms": 5.6928160190582275
+            },
+            {
+              "block": 1,
+              "n": 40,
+              "median_ms": 5.291711807250977
+            },
+            {
+              "block": 2,
+              "n": 40,
+              "median_ms": 5.293056011199951
+            }
+          ]
+        },
+        "R16": {
+          "sample_count": 120,
+          "median_ms": 5.289984226226807,
+          "min_ms": 5.27564811706543,
+          "max_ms": 6.1071038246154785,
+          "block_medians": [
+            {
+              "block": 0,
+              "n": 40,
+              "median_ms": 5.281712055206299
+            },
+            {
+              "block": 1,
+              "n": 40,
+              "median_ms": 5.290175914764404
+            },
+            {
+              "block": 2,
+              "n": 40,
+              "median_ms": 5.292031764984131
+            }
+          ]
+        }
+      },
+      "R16_change_vs_R13_percent": 0.05803424272565271,
+      "all_120_samples_each_arm": true,
+      "parity_gates": {
+        "R13_vs_native": true,
+        "R16_vs_native": true,
+        "R13_vs_R16": true
+      },
+      "all_parity_gates_pass": true,
+      "gpu_telemetry_by_block": [
+        {
+          "block": 0,
+          "before": "2026/10/27 11:09:16.164, 2250, 7001, 19.25, 55",
+          "after": "2026/10/27 11:09:16.633, 2250, 7001, 31.82, 56"
+        },
+        {
+          "block": 1,
+          "before": "2026/10/27 11:09:16.651, 2250, 7001, 31.82, 56",
+          "after": "2026/10/27 11:09:17.102, 2250, 7001, 48.27, 59"
+        },
+        {
+          "block": 2,
+          "before": "2026/10/27 11:09:17.123, 2250, 7001, 48.27, 59",
+          "after": "2026/10/27 11:09:17.572, 2250, 7001, 53.65, 60"
+        }
+      ]
+    },
+    {
+      "case_id": "seed17-b1-ctx128",
+      "batch": 1,
+      "context": 128,
+      "input_ids_sha256": "720d09e5f991b39a5646b1f7c739a5f25e07b40a1c7bf033295d105cf10f55ef",
+      "prefill_greedy_ids": [
+        216
+      ],
+      "timing": {
+        "R13": {
+          "sample_count": 120,
+          "median_ms": 5.381120204925537,
+          "min_ms": 5.37497615814209,
+          "max_ms": 5.428192138671875,
+          "block_medians": [
+            {
+              "block": 0,
+              "n": 40,
+              "median_ms": 5.381632089614868
+            },
+            {
+              "block": 1,
+              "n": 40,
+              "median_ms": 5.38158392906189
+            },
+            {
+              "block": 2,
+              "n": 40,
+              "median_ms": 5.381120204925537
+            }
+          ]
+        },
+        "R16": {
+          "sample_count": 120,
+          "median_ms": 5.3831682205200195,
+          "min_ms": 5.377024173736572,
+          "max_ms": 5.424799919128418,
+          "block_medians": [
+            {
+              "block": 0,
+              "n": 40,
+              "median_ms": 5.383072137832642
+            },
+            {
+              "block": 1,
+              "n": 40,
+              "median_ms": 5.382656097412109
+            },
+            {
+              "block": 2,
+              "n": 40,
+              "median_ms": 5.3831682205200195
+            }
+          ]
+        }
+      },
+      "R16_change_vs_R13_percent": -0.038059279787279195,
+      "all_120_samples_each_arm": true,
+      "parity_gates": {
+        "R13_vs_native": true,
+        "R16_vs_native": true,
+        "R13_vs_R16": true
+      },
+      "all_parity_gates_pass": true,
+      "gpu_telemetry_by_block": [
+        {
+          "block": 0,
+          "before": "2026/10/27 11:09:17.855, 2250, 7001, 49.16, 59",
+          "after": "2026/10/27 11:09:18.313, 2250, 7001, 49.53, 60"
+        },
+        {
+          "block": 1,
+          "before": "2026/10/27 11:09:18.334, 2250, 7001, 49.53, 60",
+          "after": "2026/10/27 11:09:18.795, 2250, 7001, 51.23, 60"
+        },
+        {
+          "block": 2,
+          "before": "2026/10/27 11:09:18.819, 2250, 7001, 51.23, 61",
+          "after": "2026/10/27 11:09:19.282, 2250, 7001, 53.92, 61"
+        }
+      ]
+    },
+    {
+      "case_id": "seed17-b2-ctx32",
+      "batch": 2,
+      "context": 32,
+      "input_ids_sha256": "084775a6566c41aa287cfd5edebe541ff492dd9d4442a04a9dd97eb7b01e6c2f",
+      "prefill_greedy_ids": [
+        30,
+        198
+      ],
+      "timing": {
+        "R13": {
+          "sample_count": 120,
+          "median_ms": 8.476768016815186,
+          "min_ms": 8.466431617736816,
+          "max_ms": 8.51251220703125,
+          "block_medians": [
+            {
+              "block": 0,
+              "n": 40,
+              "median_ms": 8.477696418762207
+            },
+            {
+              "block": 1,
+              "n": 40,
+              "median_ms": 8.477696418762207
+            },
+            {
+              "block": 2,
+              "n": 40,
+              "median_ms": 8.475647926330566
+            }
+          ]
+        },
+        "R16": {
+          "sample_count": 120,
+          "median_ms": 7.980031967163086,
+          "min_ms": 7.966720104217529,
+          "max_ms": 8.018943786621094,
+          "block_medians": [
+            {
+              "block": 0,
+              "n": 40,
+              "median_ms": 7.980144023895264
+            },
+            {
+              "block": 1,
+              "n": 40,
+              "median_ms": 7.979968070983887
+            },
+            {
+              "block": 2,
+              "n": 40,
+              "median_ms": 7.980015993118286
+            }
+          ]
+        }
+      },
+      "R16_change_vs_R13_percent": 5.859969845426167,
+      "all_120_samples_each_arm": true,
+      "parity_gates": {
+        "R13_vs_native": true,
+        "R16_vs_native": true,
+        "R13_vs_R16": true
+      },
+      "all_parity_gates_pass": true,
+      "gpu_telemetry_by_block": [
+        {
+          "block": 0,
+          "before": "2026/10/27 11:09:19.572, 2250, 7001, 49.27, 61",
+          "after": "2026/10/27 11:09:20.259, 2250, 7001, 49.76, 60"
+        },
+        {
+          "block": 1,
+          "before": "2026/10/27 11:09:20.276, 2250, 7001, 49.76, 60",
+          "after": "2026/10/27 11:09:20.962, 2610, 8001, 55.49, 61"
+        },
+        {
+          "block": 2,
+          "before": "2026/10/27 11:09:20.981, 2610, 8001, 55.49, 61",
+          "after": "2026/10/27 11:09:21.664, 2610, 8001, 55.40, 61"
+        }
+      ]
+    },
+    {
+      "case_id": "seed17-b2-ctx128",
+      "batch": 2,
+      "context": 128,
+      "input_ids_sha256": "14704ae914d629da2c02f6ea32c13ad6fab2e1976368820b6ea44a01c70cb359",
+      "prefill_greedy_ids": [
+        216,
+        259
+      ],
+      "timing": {
+        "R13": {
+          "sample_count": 120,
+          "median_ms": 8.71827220916748,
+          "min_ms": 8.71014404296875,
+          "max_ms": 8.768287658691406,
+          "block_medians": [
+            {
+              "block": 0,
+              "n": 40,
+              "median_ms": 8.718431949615479
+            },
+            {
+              "block": 1,
+              "n": 40,
+              "median_ms": 8.716752052307129
+            },
+            {
+              "block": 2,
+              "n": 40,
+              "median_ms": 8.718912124633789
+            }
+          ]
+        },
+        "R16": {
+          "sample_count": 120,
+          "median_ms": 8.227840423583984,
+          "min_ms": 8.216575622558594,
+          "max_ms": 8.276991844177246,
+          "block_medians": [
+            {
+              "block": 0,
+              "n": 40,
+              "median_ms": 8.227840423583984
+            },
+            {
+              "block": 1,
+              "n": 40,
+              "median_ms": 8.227856159210205
+            },
+            {
+              "block": 2,
+              "n": 40,
+              "median_ms": 8.227840423583984
+            }
+          ]
+        }
+      },
+      "R16_change_vs_R13_percent": 5.625332334402163,
+      "all_120_samples_each_arm": true,
+      "parity_gates": {
+        "R13_vs_native": true,
+        "R16_vs_native": true,
+        "R13_vs_R16": true
+      },
+      "all_parity_gates_pass": true,
+      "gpu_telemetry_by_block": [
+        {
+          "block": 0,
+          "before": "2026/10/27 11:09:21.986, 2610, 8001, 49.90, 60",
+          "after": "2026/10/27 11:09:22.693, 2610, 8001, 49.91, 61"
+        },
+        {
+          "block": 1,
+          "before": "2026/10/27 11:09:22.714, 2610, 8001, 49.23, 61",
+          "after": "2026/10/27 11:09:23.423, 2610, 8001, 55.60, 62"
+        },
+        {
+          "block": 2,
+          "before": "2026/10/27 11:09:23.444, 2610, 8001, 55.60, 62",
+          "after": "2026/10/27 11:09:24.149, 2610, 8001, 55.65, 62"
+        }
+      ]
+    }
+  ],
+  "numerical_validation": {
+    "original_passed": 34,
+    "original_total": 34,
+    "wide_passed": 6,
+    "wide_total": 12,
+    "same_pass_set_as_R13": true,
+    "gates_changed": false
+  }
+}

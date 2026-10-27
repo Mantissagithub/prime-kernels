@@ -1,0 +1,142 @@
+{
+  "baseline": "R13 four-load B1 lookahead",
+  "build_resources": {
+    "arch": "sm_89",
+    "registers_per_thread": {
+      "B1": 128,
+      "B2": 131
+    },
+    "spill_loads": 0,
+    "spill_stores": 0,
+    "stack_bytes": 8,
+    "static_shared_bytes": {
+      "B1": 6944,
+      "B2": 13344
+    }
+  },
+  "candidate": "R17 B1 eight-load projection lookahead",
+  "candidate_hashes": {
+    "R13_include_sha256": "39205351dd906bc235fc96677e21f082cd4ad28a7aeb83ad03d6e5a4a4a49bc3",
+    "R13_library_sha256": "b14d297a84c73fbdf2c994a08395b449b8a1024e2d452e21740fb07545ef95e4",
+    "R13_source_sha256": "e92dcc5cfed0472b906ee779385d3e20555ac9e70bf9e36c3b26530dc303b7c7",
+    "R17_build_script_sha256": "f819ed597a737256bfb83e3a21f64028d449266824244277ad7d94828017223d",
+    "R17_include_sha256": "39205351dd906bc235fc96677e21f082cd4ad28a7aeb83ad03d6e5a4a4a49bc3",
+    "R17_library_sha256": "1df05d9d8a9d63ea2ee6cbe105d4ffc003c830fda31f5125daa235504293830d",
+    "R17_source_sha256": "1b7373a53266141a75e9de0b5dc57e51d762c661516ab2d3adb2353036f6a86b"
+  },
+  "direct_decoder_abba": {
+    "aggregation": "standard median of all 120 CUDA event samples per candidate and case",
+    "blocks": 3,
+    "cases": [
+      {
+        "R13_median_ms_all120": 5.297152042388916,
+        "R17_latency_change_percent": -13.744443323224653,
+        "R17_median_ms_all120": 4.569087982177734,
+        "R17_won_each_of_3_blocks": true,
+        "batch": 1,
+        "case_id": "seed17-b1-ctx32",
+        "context": 32,
+        "native_and_cross_hidden_kv": {
+          "different_elements_sum": 0,
+          "max_bf16_ulp": 0,
+          "shape_finite_ulp1": true
+        },
+        "samples_per_arm": 120
+      },
+      {
+        "R13_median_ms_all120": 5.386127948760986,
+        "R17_latency_change_percent": -13.458271852517933,
+        "R17_median_ms_all120": 4.661248207092285,
+        "R17_won_each_of_3_blocks": true,
+        "batch": 1,
+        "case_id": "seed17-b1-ctx128",
+        "context": 128,
+        "native_and_cross_hidden_kv": {
+          "different_elements_sum": 0,
+          "max_bf16_ulp": 0,
+          "shape_finite_ulp1": true
+        },
+        "samples_per_arm": 120
+      },
+      {
+        "R13_median_ms_all120": 8.479743957519531,
+        "R17_latency_change_percent": 0.0,
+        "R17_median_ms_all120": 8.479743957519531,
+        "R17_won_each_of_3_blocks": false,
+        "batch": 2,
+        "case_id": "seed17-b2-ctx32",
+        "context": 32,
+        "native_and_cross_hidden_kv": {
+          "different_elements_sum": 0,
+          "max_bf16_ulp": 0,
+          "shape_finite_ulp1": true
+        },
+        "samples_per_arm": 120
+      },
+      {
+        "R13_median_ms_all120": 8.721407890319824,
+        "R17_latency_change_percent": 0.058709298649683994,
+        "R17_median_ms_all120": 8.72652816772461,
+        "R17_won_each_of_3_blocks": false,
+        "batch": 2,
+        "case_id": "seed17-b2-ctx128",
+        "context": 128,
+        "native_and_cross_hidden_kv": {
+          "different_elements_sum": 0,
+          "max_bf16_ulp": 0,
+          "shape_finite_ulp1": true
+        },
+        "samples_per_arm": 120
+      }
+    ],
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "guard": {
+      "elapsed_seconds": 12.064182173009613,
+      "minimum_available_bytes": 8173199360,
+      "peak_cgroup_bytes": 1620070400,
+      "peak_gpu_mib": 1401,
+      "peak_swap_bytes": 0,
+      "returncode": 0
+    },
+    "interpretation": "B1 latency fell 13.74% at ctx32 and 13.46% at ctx128; R17 beat R13 in all 3 blocks for both B1 cases. B2 was neutral. Decoder-only component measurement; no serving, full-model, or RL speed claim.",
+    "operator_summary_sha256": "b8eff63f5e7a416bafd17de538543c3522097a38f2c4920264a062a10fd5a1fc",
+    "raw_bench_results_sha256": "efda37b4ee81a8b64d27c21cc2fa0c6534f53755ecb0239b6270f4eb0432bfa4",
+    "samples_per_arm_per_block": 20,
+    "samples_per_arm_per_case": 120,
+    "scope": "direct decoder-only CUDA-event ABBA; LM head excluded",
+    "warmups_per_candidate_per_case": 3
+  },
+  "not_claimed": [
+    "complete 46-case acceptance",
+    "vLLM or serving speed",
+    "multi-step behavior",
+    "training/reward/quality gain"
+  ],
+  "numerical_validation": {
+    "initial4": {
+      "passed": 4,
+      "status": "passed"
+    },
+    "original_heldout30": {
+      "failed": 0,
+      "passed": 30,
+      "status": "passed"
+    },
+    "wide12": {
+      "failed": 6,
+      "failed_cases": [
+        "seed777-b1-ctx255",
+        "seed777-b1-ctx2048",
+        "seed777-b1-ctx8000",
+        "seed777-b2-ctx511",
+        "seed777-b2-ctx2048",
+        "seed777-b2-ctx8000"
+      ],
+      "passed": 6,
+      "same_failure_set_as_R13": true,
+      "status": "failed"
+    }
+  },
+  "schema_version": 1,
+  "source_scope": "R17 B1-only lookahead candidate; B2 arithmetic path is unchanged from R13"
+}
