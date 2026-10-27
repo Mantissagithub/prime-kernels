@@ -1,0 +1,236 @@
+{
+  "candidate": {
+    "acc_tree": 0,
+    "accumulators": 1,
+    "assignment": 0,
+    "chunk": 64,
+    "use_fma": 1,
+    "y_tree": 2,
+    "ygroups": 8
+  },
+  "control_note": "R21 is a fixed non-FMA, four-accumulator schedule control; it is not another sweep arm.",
+  "corpus_case": "seed777-b2-ctx8000",
+  "corpus_files": [
+    {
+      "file": "layer-00.pt",
+      "layer": 0,
+      "sha256": "609e12b19355b904e0b731bc60f194008219896acb4d62a5833a5e821be87236"
+    },
+    {
+      "file": "layer-01.pt",
+      "layer": 1,
+      "sha256": "16cfb42a7f00a43cba62e8523e2efd92db2bb6cf4c6af0b82eb9b0b7456f3091"
+    },
+    {
+      "file": "layer-02.pt",
+      "layer": 2,
+      "sha256": "9f27f73e887b316be2ba55b9f2ab3f7f030b82d866f1d1ac185c446b3fe7c55c"
+    },
+    {
+      "file": "layer-03.pt",
+      "layer": 3,
+      "sha256": "056321a0b0163dbb3eef94302314186637007125d9ee62f9446459f23092b641"
+    },
+    {
+      "file": "layer-04.pt",
+      "layer": 4,
+      "sha256": "6859792a7f3a938c3b68d4ab5e7ef180b0227c7eed7eb1f4058797335a9acc07"
+    },
+    {
+      "file": "layer-05.pt",
+      "layer": 5,
+      "sha256": "0ef2e103f2ecaa7570aa21826b6f5c8176cba456b8eb84ab7c053f51e647ee27"
+    },
+    {
+      "file": "layer-06.pt",
+      "layer": 6,
+      "sha256": "9e6b9e0f8774b30d48dfd6c9a4ab38a9b9c59e213bdb29886f165cb8abfc4edd"
+    },
+    {
+      "file": "layer-07.pt",
+      "layer": 7,
+      "sha256": "e58d2c23361da071ccc90c6e0aef16b41b669d9e8fa915d5bd9f72da0b93e781"
+    },
+    {
+      "file": "layer-08.pt",
+      "layer": 8,
+      "sha256": "4783675d24d751a6c64c66124d9eb950319b717909d5a0a1a30861231c42359d"
+    },
+    {
+      "file": "layer-09.pt",
+      "layer": 9,
+      "sha256": "5f572d7f3fcbe311acb60acce04cdacc7f1507257a8d356b8d9d10c9efe68e09"
+    },
+    {
+      "file": "layer-10.pt",
+      "layer": 10,
+      "sha256": "acc7d65d6599a6d2e7b0c6fe001557b6b3c7d9281d86000653d1f5412c34d7d5"
+    },
+    {
+      "file": "layer-11.pt",
+      "layer": 11,
+      "sha256": "06519aae5445c0ff727508c33dc8feac6f3b273f997eed9f4b22d3cfe44608a7"
+    },
+    {
+      "file": "layer-12.pt",
+      "layer": 12,
+      "sha256": "aa285aafd5e12bdab95ff9ee980d8cd9ed70408f0fe791a0fd88834dae0d6c84"
+    },
+    {
+      "file": "layer-13.pt",
+      "layer": 13,
+      "sha256": "596676f6d921dc799ba4d055790ae9b0d3be27c4a0fe21d1c5f529efb35a1893"
+    },
+    {
+      "file": "layer-14.pt",
+      "layer": 14,
+      "sha256": "dbd8ce293e1140bd47f3fc2a41052c2e69814b191dc514e77a9e1f3a315739c6"
+    },
+    {
+      "file": "layer-15.pt",
+      "layer": 15,
+      "sha256": "a80e3cadae84c16a800df558fb8adb9c851f7cdb17d36089c9455d6863f4ea2b"
+    },
+    {
+      "file": "layer-16.pt",
+      "layer": 16,
+      "sha256": "641a74c069293df1943cc6ff23207ec8bd3bbc3dcf0ddafb2eefa9eacddc8061"
+    },
+    {
+      "file": "layer-17.pt",
+      "layer": 17,
+      "sha256": "5bea02af40acea9b5aa6fdf3613da0d6f0ee696fbd4265ca0aee81a80d9cd460"
+    },
+    {
+      "file": "layer-18.pt",
+      "layer": 18,
+      "sha256": "11bc2dd0dea035d714dec85a55ddd1c95b9697f07c630ebd393ee0c7122c41d3"
+    },
+    {
+      "file": "layer-19.pt",
+      "layer": 19,
+      "sha256": "4e93df212ea16ca2a9526ed57169d4cbd6c3aaa9c100dd5aaf4478181c8fa354"
+    },
+    {
+      "file": "layer-20.pt",
+      "layer": 20,
+      "sha256": "bf710f2b04178f06dc6f2009965e81dabae87d2457719eb2a3604552cd24c35f"
+    },
+    {
+      "file": "layer-21.pt",
+      "layer": 21,
+      "sha256": "7d88d1c7ba73c6d6bb28000a89c2c0225f93524bba8d431e3dfc5663b7f85f5e"
+    },
+    {
+      "file": "layer-22.pt",
+      "layer": 22,
+      "sha256": "595c9946665f282c881b0522db0488797867a8c238d0127bc5a52d4d61584213"
+    },
+    {
+      "file": "layer-23.pt",
+      "layer": 23,
+      "sha256": "679f5bc94862e5a53e07cb21ca5cbbf46c22214cae93957e1873f8b68dc20cd3"
+    },
+    {
+      "file": "layer-24.pt",
+      "layer": 24,
+      "sha256": "4d38ddcde5f416b8609453040c46ee2b1deeb9b7d842b8ec44916c8e9ea3420c"
+    },
+    {
+      "file": "layer-25.pt",
+      "layer": 25,
+      "sha256": "8227faf4b828849710b67b4a30203d1efcd14dc0dc3d862dafa490e62a4b43fa"
+    },
+    {
+      "file": "layer-26.pt",
+      "layer": 26,
+      "sha256": "5db576033fe23ec8557fb506bf48027f15ff3e633bd153ab4c2fd3d167227946"
+    },
+    {
+      "file": "layer-27.pt",
+      "layer": 27,
+      "sha256": "39e024ae0a1a72ac8c5b2f2a55160e54441908465066f60df0acdf437c2df09c"
+    },
+    {
+      "file": "layer-28.pt",
+      "layer": 28,
+      "sha256": "9f0d7317eaae73f43fd5237dc634ace94e895a06bd5659d66ce93c749bc6de89"
+    },
+    {
+      "file": "layer-29.pt",
+      "layer": 29,
+      "sha256": "8568eb8fea097f3fbeb2f4e6b601a3e70bc91a282600e6ee2010e5be13360c1b"
+    },
+    {
+      "file": "layer-30.pt",
+      "layer": 30,
+      "sha256": "a8cb0bc369c4275ca79775194e81d74265aa16f87b260458ad1cbb466b92eeb5"
+    },
+    {
+      "file": "layer-31.pt",
+      "layer": 31,
+      "sha256": "d0bf0225df0ab8634ce9e1aa1d052abfadeee43be5bcadb6f796b12b09ae8db7"
+    }
+  ],
+  "corpus_layer_count": 32,
+  "cuda_api_called_by_script": false,
+  "gpu_touched": false,
+  "native_parameter_map": {
+    "base_status": "cross-checked inference from pointer-pair and six shape/stride fields; cubin nv.info not yet independently decoded",
+    "candidate_c0_formal_base": 352,
+    "field_map": {
+      "0x178": {
+        "captured": 8001,
+        "expected": 8001,
+        "raw_offset": 24
+      },
+      "0x1a0": {
+        "captured": 64,
+        "expected": 64,
+        "raw_offset": 64
+      },
+      "0x1a4": {
+        "captured": 8001,
+        "expected": 8001,
+        "raw_offset": 68
+      },
+      "0x1a8": {
+        "captured": 64,
+        "expected": 64,
+        "raw_offset": 72
+      },
+      "0x1ec": {
+        "captured": 64,
+        "expected": 64,
+        "raw_offset": 140
+      },
+      "0x1f0": {
+        "captured": 1,
+        "expected": 1,
+        "raw_offset": 144
+      }
+    },
+    "formal_argument_offset": 0,
+    "formal_argument_size": 152,
+    "native_pv_exact_elements": 1920,
+    "status": "capture_validation_ok",
+    "tile_span": 512
+  },
+  "new_native_justified_chunk": 64,
+  "prior_chunk_max": 32,
+  "r21_control": {
+    "acc_tree": 0,
+    "accumulators": 4,
+    "assignment": 0,
+    "chunk": 8,
+    "use_fma": 0,
+    "y_tree": 2,
+    "ygroups": 8
+  },
+  "r21_source_sha256": "4c1a684303d0329238ab5f3058c7f4058ae0fe36c9b13a44adc3dbb649d8be55",
+  "r3_cuda_source_sha256": "4e43e6aa0fc869d58ec65c89e25ac5f02b1a053fe3764d9e3c4c3aa71ca2b68c",
+  "r3_library_sha256": "bafc1717c3eab4a2798cad750d0f2ba7df0de6ed3e9f1d0d106889b3f27fdeca",
+  "r3_probe_abi_arg_count": 14,
+  "r3_winner_report_sha256": "777c850183b732af162e6bbf22aea0716992c5bb8328fe92ed6bc6874930f5d1",
+  "status": "cpu_preflight_ok"
+}

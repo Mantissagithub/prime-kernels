@@ -1,0 +1,46 @@
+{
+  "candidate_schedule": {
+    "acc_tree": 0,
+    "accumulators": 1,
+    "assignment": 0,
+    "chunk": 64,
+    "use_fma": 1,
+    "y_tree": 2,
+    "ygroups": 8
+  },
+  "evidence_scope": "Targeted 32-layer native PV corpus replay; this is not full decoder validation.",
+  "launch_capture": {
+    "block": [
+      32,
+      8,
+      1
+    ],
+    "dynamic_shared_bytes": 2176,
+    "formal_argument_bytes": 152,
+    "formal_argument_count": 1,
+    "grid": [
+      2,
+      1,
+      30
+    ],
+    "matching_target_launches": 1,
+    "native_pv_bitwise_exact": true,
+    "native_pv_output_elements": 1920,
+    "parameter_query_api": "cuKernelGetParamInfo",
+    "raw_argument_bytes_archived": false
+  },
+  "limits": [
+    "The inferred chunk-64 candidate replay matches all 32 saved layers.",
+    "Exact native per-K traversal and full SASS parameter mapping remain inferred, not proven.",
+    "A saved-corpus PV replay does not establish full decoder correctness or performance."
+  ],
+  "raw_replay_sha256": "746510b835917d64dbcb62ee9f232c6fe2537ea95ff2f3503c85476288c6852d",
+  "results": {
+    "chunk64_candidate_exact_layers": 32,
+    "fresh_torch_exact_layers": 32,
+    "layers": 32,
+    "r21_fixed_control_exact_layers": 21
+  },
+  "source_artifact_sha256": "9e2c83b33f4c176baafaf43d6db197604759fd705834464b48411c774762ffdc",
+  "tile_advance_k_positions": 512
+}

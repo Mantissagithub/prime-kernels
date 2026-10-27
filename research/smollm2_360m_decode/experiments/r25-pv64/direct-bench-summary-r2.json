@@ -1,0 +1,88 @@
+{
+  "cases": [
+    {
+      "batch": 1,
+      "block_both_beat_both": {
+        "0": false,
+        "1": true,
+        "2": false
+      },
+      "case_id": "seed17-b1-ctx32",
+      "context": 32,
+      "median_of_six_upper_placement_medians_ms": {
+        "R23-control": 3.64956796169281,
+        "R25-long-pv64": 3.6480000019073486
+      },
+      "r23_native_gate_passed_diagnostic": true,
+      "r25_hidden_max_bf16_ulp": 0,
+      "r25_kv_max_bf16_ulp": 0,
+      "r25_native_gate_passed": true,
+      "r25_vs_r23_percent": -0.04296288771491463
+    },
+    {
+      "batch": 2,
+      "block_both_beat_both": {
+        "0": true,
+        "1": true,
+        "2": true
+      },
+      "case_id": "seed777-b2-ctx2048",
+      "context": 2048,
+      "median_of_six_upper_placement_medians_ms": {
+        "R23-control": 12.654096126556396,
+        "R25-long-pv64": 11.65004825592041
+      },
+      "r23_native_gate_passed_diagnostic": true,
+      "r25_hidden_max_bf16_ulp": 0,
+      "r25_kv_max_bf16_ulp": 0,
+      "r25_native_gate_passed": true,
+      "r25_vs_r23_percent": -7.934568068665538
+    },
+    {
+      "batch": 2,
+      "block_both_beat_both": {
+        "0": true,
+        "1": true,
+        "2": true
+      },
+      "case_id": "seed777-b2-ctx8000",
+      "context": 8000,
+      "median_of_six_upper_placement_medians_ms": {
+        "R23-control": 26.344016075134277,
+        "R25-long-pv64": 22.657536506652832
+      },
+      "r23_native_gate_passed_diagnostic": false,
+      "r25_hidden_max_bf16_ulp": 0,
+      "r25_kv_max_bf16_ulp": 0,
+      "r25_native_gate_passed": true,
+      "r25_vs_r23_percent": -13.993612659388932
+    }
+  ],
+  "design": {
+    "arm_statistic": "conventional median of the six placement statistics",
+    "block_both_beat_both": "both R25 placement statistics are below both R23 placement statistics within the block",
+    "blocks_per_case": 3,
+    "events_per_placement": 20,
+    "placement_statistic": "upper median of 20 CUDA-event samples (sorted index 10)",
+    "warmups_per_arm_case": 3
+  },
+  "guard_result": {
+    "elapsed_seconds": 30.861087285971735,
+    "minimum_available_bytes": 5065224192,
+    "minimum_disk_free_bytes": 8781426688,
+    "path": "outputs/megakernel-20261025/r25-long-direct-bench-r1/results-r2/guard-r1/result.json",
+    "peak_cgroup_bytes": 1928347648,
+    "peak_cgroup_gib": 1.7959136962890625,
+    "peak_gpu_mib": 6687,
+    "peak_swap_bytes": 0,
+    "returncode": 0,
+    "sha256": "30678823451e097d643552883bdae31d8fd7fe7cd712b5f3d86fc9dbd2f706c4",
+    "stop_reason": null
+  },
+  "interpretation": "Decoder-only timings; no serving or end-to-end latency claim. R23 is a timing control. Its context-8000 numerical failure makes that timing comparison diagnostic only; R25 acceptance comes from the independent full 46-case validation and required native hidden/KV gates.",
+  "raw_result": {
+    "path": "outputs/megakernel-20261025/r25-long-direct-bench-r1/results-r2/direct-bench-r2.json",
+    "sha256": "67e6aacb2c76895517259dc95b3ccb0c5248304e2282e18053603d140d85fe6a"
+  },
+  "schema_version": 1
+}
