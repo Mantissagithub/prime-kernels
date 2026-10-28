@@ -115,3 +115,9 @@ description = "SM 8.9 cooperative batched decode step for SmolLM2-135M (BF16, B 
 python-only = true
 requires = ["torch.utils.cpp_extension", "ninja"]
 arch = ["8.9"]
+
+[decode_megakernel_360m]
+description = "Experimental SM 8.9 cooperative decode step for SmolLM2-360M (BF16, B 1..2), built at first use"
+python-only = true
+requires = ["torch.utils.cpp_extension", "ninja"]
+arch = ["8.9"]
