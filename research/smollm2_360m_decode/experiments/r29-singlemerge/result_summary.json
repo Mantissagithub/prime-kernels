@@ -11,10 +11,29 @@
   "build": {
     "library": "build/libdecode360_r29_singlemerge.so",
     "library_sha256": "4e3b300f90b8ab1d9899806ab8916ac9a53b3b33dc0cd68f1c7a2880d84a142e",
-    "envelope": {"common_gpu_lock": "/home/pradheep/tiny-prl/outputs/tiny-kernel-20261020/triton/gpu.lock", "cuda_visible_devices": "", "memory_max": "2G", "memory_swap_max": "0", "cpu_quota": "100%", "runtime_max_sec": 120},
+    "envelope": {
+      "common_gpu_lock": "/home/pradheep/tiny-prl/outputs/tiny-kernel-20261020/triton/gpu.lock",
+      "cuda_visible_devices": "",
+      "memory_max": "2G",
+      "memory_swap_max": "0",
+      "cpu_quota": "100%",
+      "runtime_max_sec": 120
+    },
     "ptxas_sm_89": {
-      "B1": {"registers": 249, "static_smem_bytes": 36644, "spill_stores": 0, "spill_loads": 0, "stack_bytes": 0},
-      "B2": {"registers": 245, "static_smem_bytes": 43056, "spill_stores": 0, "spill_loads": 0, "stack_bytes": 0}
+      "B1": {
+        "registers": 249,
+        "static_smem_bytes": 36644,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "stack_bytes": 0
+      },
+      "B2": {
+        "registers": 245,
+        "static_smem_bytes": 43056,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "stack_bytes": 0
+      }
     }
   },
   "bench": {
@@ -22,14 +41,112 @@
     "case_processes": 6,
     "samples_per_arm_per_case": 120,
     "gpu_memory_cap_mib": 3072,
-    "exact_parity": {"cases_passed": 6, "final_hidden_bitwise_equal": true, "all_32_layers_keys_and_values_bitwise_equal": true, "max_kv_abs_difference": 0.0},
+    "exact_parity": {
+      "cases_passed": 6,
+      "final_hidden_bitwise_equal": true,
+      "all_32_layers_keys_and_values_bitwise_equal": true,
+      "max_kv_abs_difference": 0.0
+    },
     "cases": [
-      {"case_id":"seed17-b1-ctx32","source":"frozen","batch":1,"context":32,"r28_median_ms":2.9854720831,"r29_median_ms":2.9834240675,"change_percent":-0.0686,"both_beat_both_blocks":"3/3","guard_peak_gpu_mib":1315,"cap_monitor_peak_gpu_mib":1315,"minimum_host_available_bytes":9347977216,"peak_cgroup_bytes":1225883648,"peak_swap_bytes":0,"guard_returncode":0},
-      {"case_id":"seed17-b1-ctx128","source":"frozen","batch":1,"context":128,"r28_median_ms":3.0351359844,"r29_median_ms":3.0382080078,"change_percent":0.1012,"both_beat_both_blocks":"0/3","guard_peak_gpu_mib":1339,"cap_monitor_peak_gpu_mib":1343,"minimum_host_available_bytes":9355513856,"peak_cgroup_bytes":1224605696,"peak_swap_bytes":0,"guard_returncode":0},
-      {"case_id":"seed17-b2-ctx32","source":"frozen","batch":2,"context":32,"r28_median_ms":3.1550559998,"r29_median_ms":3.1560000181,"change_percent":0.0299,"both_beat_both_blocks":"0/3","guard_peak_gpu_mib":1331,"cap_monitor_peak_gpu_mib":1325,"minimum_host_available_bytes":9325506560,"peak_cgroup_bytes":1229795328,"peak_swap_bytes":0,"guard_returncode":0},
-      {"case_id":"seed17-b2-ctx128","source":"frozen","batch":2,"context":128,"r28_median_ms":3.2409919500,"r29_median_ms":3.2433599234,"change_percent":0.0731,"both_beat_both_blocks":"0/3","guard_peak_gpu_mib":1383,"cap_monitor_peak_gpu_mib":1383,"minimum_host_available_bytes":9331855360,"peak_cgroup_bytes":1211711488,"peak_swap_bytes":0,"guard_returncode":0},
-      {"case_id":"synthetic-b1-ctx1024","source":"seeded_synthetic","batch":1,"context":1024,"sequence_length":1025,"r28_median_ms":3.3408479691,"r29_median_ms":3.3516319990,"change_percent":0.3222,"both_beat_both_blocks":"0/3","guard_peak_gpu_mib":1555,"cap_monitor_peak_gpu_mib":1555,"minimum_host_available_bytes":9407426560,"peak_cgroup_bytes":1219543040,"peak_swap_bytes":0,"guard_returncode":0},
-      {"case_id":"synthetic-b2-ctx1024","source":"seeded_synthetic","batch":2,"context":1024,"sequence_length":1025,"r28_median_ms":3.6863999367,"r29_median_ms":3.7089281082,"change_percent":0.6112,"both_beat_both_blocks":"0/3","guard_peak_gpu_mib":1869,"cap_monitor_peak_gpu_mib":1869,"minimum_host_available_bytes":9429970944,"peak_cgroup_bytes":1217372160,"peak_swap_bytes":0,"guard_returncode":0}
-    ]
+      {
+        "case_id": "seed17-b1-ctx32",
+        "source": "frozen",
+        "batch": 1,
+        "context": 32,
+        "r28_median_ms": 2.98598408699,
+        "r29_median_ms": 2.9839360714,
+        "change_percent": -0.0686,
+        "both_beat_both_blocks": "3/3",
+        "guard_peak_gpu_mib": 1315,
+        "cap_monitor_peak_gpu_mib": 1315,
+        "minimum_host_available_bytes": 9347977216,
+        "peak_cgroup_bytes": 1225883648,
+        "peak_swap_bytes": 0,
+        "guard_returncode": 0
+      },
+      {
+        "case_id": "seed17-b1-ctx128",
+        "source": "frozen",
+        "batch": 1,
+        "context": 128,
+        "r28_median_ms": 3.03513598442,
+        "r29_median_ms": 3.03820800781,
+        "change_percent": 0.1012,
+        "both_beat_both_blocks": "0/3",
+        "guard_peak_gpu_mib": 1339,
+        "cap_monitor_peak_gpu_mib": 1343,
+        "minimum_host_available_bytes": 9355513856,
+        "peak_cgroup_bytes": 1224605696,
+        "peak_swap_bytes": 0,
+        "guard_returncode": 0
+      },
+      {
+        "case_id": "seed17-b2-ctx32",
+        "source": "frozen",
+        "batch": 2,
+        "context": 32,
+        "r28_median_ms": 3.15494394302,
+        "r29_median_ms": 3.15596795082,
+        "change_percent": 0.0324,
+        "both_beat_both_blocks": "0/3",
+        "guard_peak_gpu_mib": 1331,
+        "cap_monitor_peak_gpu_mib": 1325,
+        "minimum_host_available_bytes": 9325506560,
+        "peak_cgroup_bytes": 1229795328,
+        "peak_swap_bytes": 0,
+        "guard_returncode": 0
+      },
+      {
+        "case_id": "seed17-b2-ctx128",
+        "source": "frozen",
+        "batch": 2,
+        "context": 128,
+        "r28_median_ms": 3.24164795876,
+        "r29_median_ms": 3.24300789833,
+        "change_percent": 0.0419,
+        "both_beat_both_blocks": "0/3",
+        "guard_peak_gpu_mib": 1383,
+        "cap_monitor_peak_gpu_mib": 1383,
+        "minimum_host_available_bytes": 9331855360,
+        "peak_cgroup_bytes": 1211711488,
+        "peak_swap_bytes": 0,
+        "guard_returncode": 0
+      },
+      {
+        "case_id": "synthetic-b1-ctx1024",
+        "source": "seeded_synthetic",
+        "batch": 1,
+        "context": 1024,
+        "sequence_length": 1025,
+        "r28_median_ms": 3.34127998352,
+        "r29_median_ms": 3.35257601738,
+        "change_percent": 0.338,
+        "both_beat_both_blocks": "0/3",
+        "guard_peak_gpu_mib": 1555,
+        "cap_monitor_peak_gpu_mib": 1555,
+        "minimum_host_available_bytes": 9407426560,
+        "peak_cgroup_bytes": 1219543040,
+        "peak_swap_bytes": 0,
+        "guard_returncode": 0
+      },
+      {
+        "case_id": "synthetic-b2-ctx1024",
+        "source": "seeded_synthetic",
+        "batch": 2,
+        "context": 1024,
+        "sequence_length": 1025,
+        "r28_median_ms": 3.68639993668,
+        "r29_median_ms": 3.70892810822,
+        "change_percent": 0.6112,
+        "both_beat_both_blocks": "0/3",
+        "guard_peak_gpu_mib": 1869,
+        "cap_monitor_peak_gpu_mib": 1869,
+        "minimum_host_available_bytes": 9429970944,
+        "peak_cgroup_bytes": 1217372160,
+        "peak_swap_bytes": 0,
+        "guard_returncode": 0
+      }
+    ],
+    "reported_median_definition": "median of all 120 raw CUDA-event samples per arm and case; both_beat_both_blocks is computed from paired placement medians"
   }
 }

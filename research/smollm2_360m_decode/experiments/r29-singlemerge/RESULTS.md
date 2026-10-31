@@ -2,16 +2,16 @@
 
 The candidate compiled under the shared GPU lock with CUDA hidden, a 2 GiB systemd memory limit, zero swap, and a 120-second runtime limit. `ptxas` reports B1 at 249 registers and 36,644 bytes static shared memory, no spills; B2 at 245 registers and 43,056 bytes, no spills. Relative to FAST R28, B2 uses nine more registers.
 
-Six separate guarded direct-decoder runs compared FAST R28 (A) with the candidate (B), under the canonical GPU runner and a 3,072 MiB cap monitor. Each arm has 120 CUDA-event samples per case. Pooled placement medians:
+Six separate guarded direct-decoder runs compared FAST R28 (A) with the candidate (B), under the canonical GPU runner and a 3,072 MiB cap monitor. Each arm has 120 CUDA-event samples per case. The table reports the canonical median over all 120 raw CUDA-event samples per arm; the paired-block comparison remains based on placement medians:
 
 | Batch/context | R28 ms | R29 ms | Change | Blocks where both R29 placements beat both R28 placements |
 |---|---:|---:|---:|---:|
-| B1 / 32 | 2.98547 | 2.98342 | −0.07% | 3/3 |
-| B1 / 128 | 3.03514 | 3.03821 | +0.10% | 0/3 |
-| B1 / 1024* | 3.34085 | 3.35163 | +0.32% | 0/3 |
-| B2 / 32 | 3.15506 | 3.15600 | +0.03% | 0/3 |
-| B2 / 128 | 3.24099 | 3.24336 | +0.07% | 0/3 |
-| B2 / 1024* | 3.68640 | 3.70893 | +0.61% | 0/3 |
+| B1 / 32 | 2.985984 | 2.983936 | −0.0686% | 3/3 |
+| B1 / 128 | 3.035136 | 3.038208 | +0.1012% | 0/3 |
+| B1 / 1024* | 3.341280 | 3.352576 | +0.3380% | 0/3 |
+| B2 / 32 | 3.154944 | 3.155968 | +0.0324% | 0/3 |
+| B2 / 128 | 3.241648 | 3.243008 | +0.0419% | 0/3 |
+| B2 / 1024* | 3.686400 | 3.708928 | +0.6112% | 0/3 |
 
 *Seeded synthetic context; its sequence length is 1025, so it exercises the single-merge path.
 
