@@ -1,0 +1,1013 @@
+{
+  "tag": "opus-r30-serving-20261101",
+  "arms_order": [
+    "A1",
+    "B1",
+    "B2",
+    "A2"
+  ],
+  "measurement": "pooled per-request ITL reconstructed from RequestOutput first/last token timestamps",
+  "shapes": [
+    {
+      "shape": "32/1",
+      "per_arm_request_itl_median_ms": {
+        "A1": 3.494065793694019,
+        "B1": 3.399081492037993,
+        "B2": 3.3976646348795234,
+        "A2": 3.498001634960972
+      },
+      "r28_pooled_request_itl_median_ms": 3.4953785078768203,
+      "r30_pooled_request_itl_median_ms": 3.3984351587331196,
+      "r30_vs_r28_pooled_pct": -2.77347214114978,
+      "r30_both_beat_both_r28": true,
+      "r28_control_spread_pct": 0.11264359343365893,
+      "request_counts": {
+        "A1": 7,
+        "B1": 7,
+        "B2": 7,
+        "A2": 7
+      }
+    },
+    {
+      "shape": "32/2",
+      "per_arm_request_itl_median_ms": {
+        "A1": 3.6677467143153843,
+        "B1": 3.644939841280344,
+        "B2": 3.6447855397007456,
+        "A2": 3.6684604921093626
+      },
+      "r28_pooled_request_itl_median_ms": 3.6679032857050298,
+      "r30_pooled_request_itl_median_ms": 3.6448626904905446,
+      "r30_vs_r28_pooled_pct": -0.6281680137063983,
+      "r30_both_beat_both_r28": true,
+      "r28_control_spread_pct": 0.019460934725734624,
+      "request_counts": {
+        "A1": 14,
+        "B1": 14,
+        "B2": 14,
+        "A2": 14
+      }
+    },
+    {
+      "shape": "128/1",
+      "per_arm_request_itl_median_ms": {
+        "A1": 3.5391526031335596,
+        "B1": 3.4390959206373535,
+        "B2": 3.4403663968467817,
+        "A2": 3.5353943015844194
+      },
+      "r28_pooled_request_itl_median_ms": 3.5371302539484564,
+      "r30_pooled_request_itl_median_ms": 3.4397311587420676,
+      "r30_vs_r28_pooled_pct": -2.753619126625695,
+      "r30_both_beat_both_r28": true,
+      "r28_control_spread_pct": -0.10619213044988918,
+      "request_counts": {
+        "A1": 7,
+        "B1": 7,
+        "B2": 7,
+        "A2": 7
+      }
+    },
+    {
+      "shape": "128/2",
+      "per_arm_request_itl_median_ms": {
+        "A1": 3.728456714256142,
+        "B1": 3.706794857053966,
+        "B2": 3.7071234920793876,
+        "A2": 3.7297983015176013
+      },
+      "r28_pooled_request_itl_median_ms": 3.7292974682511866,
+      "r30_pooled_request_itl_median_ms": 3.7068931110658765,
+      "r30_vs_r28_pooled_pct": -0.6007661597404401,
+      "r30_both_beat_both_r28": true,
+      "r28_control_spread_pct": 0.03598237459294662,
+      "request_counts": {
+        "A1": 14,
+        "B1": 14,
+        "B2": 14,
+        "A2": 14
+      }
+    },
+    {
+      "shape": "1024/1",
+      "per_arm_request_itl_median_ms": {
+        "A1": 3.8038715237422682,
+        "B1": 3.705901698493916,
+        "B2": 3.7078646190431237,
+        "A2": 3.805941206380902
+      },
+      "r28_pooled_request_itl_median_ms": 3.804575960303838,
+      "r30_pooled_request_itl_median_ms": 3.7071693095351783,
+      "r30_vs_r28_pooled_pct": -2.5602498618763514,
+      "r30_both_beat_both_r28": true,
+      "r28_control_spread_pct": 0.054409898591889494,
+      "request_counts": {
+        "A1": 7,
+        "B1": 7,
+        "B2": 7,
+        "A2": 7
+      }
+    },
+    {
+      "shape": "1024/2",
+      "per_arm_request_itl_median_ms": {
+        "A1": 4.138733682454571,
+        "B1": 4.128336079399257,
+        "B2": 4.126260555552555,
+        "A2": 4.146320317453328
+      },
+      "r28_pooled_request_itl_median_ms": 4.141632896789815,
+      "r30_pooled_request_itl_median_ms": 4.1271397539175165,
+      "r30_vs_r28_pooled_pct": -0.349937892456198,
+      "r30_both_beat_both_r28": true,
+      "r28_control_spread_pct": 0.1833081222625932,
+      "request_counts": {
+        "A1": 14,
+        "B1": 14,
+        "B2": 14,
+        "A2": 14
+      }
+    }
+  ],
+  "both_r30_arms_beat_both_r28_per_shape": true,
+  "parity": {
+    "R28_noise_A1_vs_A2": {
+      "32/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "32/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "128/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "128/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "1024/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "1024/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      }
+    },
+    "R30_self_B1_vs_B2": {
+      "32/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "32/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "128/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "128/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "1024/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "1024/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      }
+    },
+    "B1_R30_vs_A1_R28": {
+      "32/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "32/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "128/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "128/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "1024/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "1024/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      }
+    },
+    "B1_R30_vs_A2_R28": {
+      "32/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "32/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "128/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "128/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "1024/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "1024/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      }
+    },
+    "B2_R30_vs_A1_R28": {
+      "32/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "32/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "128/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "128/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "1024/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "1024/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      }
+    },
+    "B2_R30_vs_A2_R28": {
+      "32/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "32/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "128/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "128/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "1024/1": {
+        "sequences": 7,
+        "identical_sequences": 7,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 7,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 448,
+        "top5_steps_compared": 448,
+        "top5_candidate_set_diff_steps": 0
+      },
+      "1024/2": {
+        "sequences": 14,
+        "identical_sequences": 14,
+        "greedy_token_agreement": 1.0,
+        "first_mismatch_steps": [],
+        "sampled_logprob_max_abs_before_mismatch": 0.0,
+        "sampled_logprob_exact_sequences": 14,
+        "top5_logprob_max_abs_through_mismatch": 0.0,
+        "top5_exact_steps_through_mismatch": 896,
+        "top5_steps_compared": 896,
+        "top5_candidate_set_diff_steps": 0
+      }
+    }
+  },
+  "route_and_hashes": {
+    "A1": {
+      "worker_before": [
+        {
+          "arm": "r28",
+          "worker_pid": 117139,
+          "model_class": "LlamaModel",
+          "forward_patched": true,
+          "decode_backend_source": "/home/pradheep/tiny-prl/prime-rl/src/prime_rl/inference/vllm/decode_backend.py",
+          "decode_backend_sha256": "391b80e01c61519a16a1baec417fc9c2a0dd71ad00d46e8b3ceaec3386953461",
+          "selected_model_kernel": "decode_megakernel_360m",
+          "stats": {
+            "stock_not_pure_decode": 2,
+            "backend_decode": 11
+          },
+          "prime_kernels_source": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/__init__.py",
+          "kernel_module": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/decode_megakernel_360m/__init__.py",
+          "kernel_source": "/home/pradheep/tiny-prl/prime-kernels/research/smollm2_360m_decode/experiments/r28-flash-decode/block360.cu",
+          "kernel_source_sha256": "1d121b7f89561a955b1fcc665daa7535a13816821920fe4030c4040e7bf61313",
+          "kernel_include": "/home/pradheep/tiny-prl/prime-kernels/research/smollm2_360m_decode/experiments/r28-flash-decode/block360_kernel.inc",
+          "kernel_include_sha256": "0ac2ba97ed2bfc4684c476987635e98e06affe2323349e4f9c4d9a27ed1247f0",
+          "kernel_library": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r28-flash-decode/build/libdecode360_r28_flash.so",
+          "kernel_library_sha256": "df3f03f7d680719b2f282fe7ad0a41cc24ff20f04d14809756b9b5e63a7f6603",
+          "runtime_devices_built": [
+            "cuda:0"
+          ],
+          "route_is_module_decode_step": true
+        }
+      ],
+      "worker_after": [
+        {
+          "arm": "r28",
+          "worker_pid": 117139,
+          "model_class": "LlamaModel",
+          "forward_patched": true,
+          "decode_backend_source": "/home/pradheep/tiny-prl/prime-rl/src/prime_rl/inference/vllm/decode_backend.py",
+          "decode_backend_sha256": "391b80e01c61519a16a1baec417fc9c2a0dd71ad00d46e8b3ceaec3386953461",
+          "selected_model_kernel": "decode_megakernel_360m",
+          "stats": {
+            "stock_not_pure_decode": 62,
+            "backend_decode": 11
+          },
+          "prime_kernels_source": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/__init__.py",
+          "kernel_module": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/decode_megakernel_360m/__init__.py",
+          "kernel_source": "/home/pradheep/tiny-prl/prime-kernels/research/smollm2_360m_decode/experiments/r28-flash-decode/block360.cu",
+          "kernel_source_sha256": "1d121b7f89561a955b1fcc665daa7535a13816821920fe4030c4040e7bf61313",
+          "kernel_include": "/home/pradheep/tiny-prl/prime-kernels/research/smollm2_360m_decode/experiments/r28-flash-decode/block360_kernel.inc",
+          "kernel_include_sha256": "0ac2ba97ed2bfc4684c476987635e98e06affe2323349e4f9c4d9a27ed1247f0",
+          "kernel_library": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r28-flash-decode/build/libdecode360_r28_flash.so",
+          "kernel_library_sha256": "df3f03f7d680719b2f282fe7ad0a41cc24ff20f04d14809756b9b5e63a7f6603",
+          "runtime_devices_built": [
+            "cuda:0"
+          ],
+          "route_is_module_decode_step": true
+        }
+      ],
+      "candidate": {
+        "source_sha256": "1d121b7f89561a955b1fcc665daa7535a13816821920fe4030c4040e7bf61313",
+        "include_sha256": "0ac2ba97ed2bfc4684c476987635e98e06affe2323349e4f9c4d9a27ed1247f0",
+        "library_sha256": "df3f03f7d680719b2f282fe7ad0a41cc24ff20f04d14809756b9b5e63a7f6603"
+      }
+    },
+    "B1": {
+      "worker_before": [
+        {
+          "arm": "r30",
+          "worker_pid": 117281,
+          "model_class": "LlamaModel",
+          "forward_patched": true,
+          "decode_backend_source": "/home/pradheep/tiny-prl/prime-rl/src/prime_rl/inference/vllm/decode_backend.py",
+          "decode_backend_sha256": "391b80e01c61519a16a1baec417fc9c2a0dd71ad00d46e8b3ceaec3386953461",
+          "selected_model_kernel": "decode_megakernel_360m",
+          "stats": {
+            "stock_not_pure_decode": 2,
+            "backend_decode": 11
+          },
+          "prime_kernels_source": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/__init__.py",
+          "kernel_module": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/decode_megakernel_360m/__init__.py",
+          "kernel_source": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/candidate/block360.cu",
+          "kernel_source_sha256": "5e853d1e6b207f199c0cfd27a4d34394f7fa81ab4748ea0e51d3240dd7286638",
+          "kernel_include": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/candidate/block360_kernel.inc",
+          "kernel_include_sha256": "60b234e7ab6bbd49ff5a7444fb0ff171a97ee37fe31234a72b8f045b3b495e83",
+          "kernel_library": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/build/libdecode360_r30_phase_prefetch.so",
+          "kernel_library_sha256": "625f39f978e76a3e0ff01ed469bcd0de0cf65e51929a9597668af9cdff6c4db2",
+          "runtime_devices_built": [
+            "cuda:0"
+          ],
+          "route_is_module_decode_step": true
+        }
+      ],
+      "worker_after": [
+        {
+          "arm": "r30",
+          "worker_pid": 117281,
+          "model_class": "LlamaModel",
+          "forward_patched": true,
+          "decode_backend_source": "/home/pradheep/tiny-prl/prime-rl/src/prime_rl/inference/vllm/decode_backend.py",
+          "decode_backend_sha256": "391b80e01c61519a16a1baec417fc9c2a0dd71ad00d46e8b3ceaec3386953461",
+          "selected_model_kernel": "decode_megakernel_360m",
+          "stats": {
+            "stock_not_pure_decode": 62,
+            "backend_decode": 11
+          },
+          "prime_kernels_source": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/__init__.py",
+          "kernel_module": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/decode_megakernel_360m/__init__.py",
+          "kernel_source": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/candidate/block360.cu",
+          "kernel_source_sha256": "5e853d1e6b207f199c0cfd27a4d34394f7fa81ab4748ea0e51d3240dd7286638",
+          "kernel_include": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/candidate/block360_kernel.inc",
+          "kernel_include_sha256": "60b234e7ab6bbd49ff5a7444fb0ff171a97ee37fe31234a72b8f045b3b495e83",
+          "kernel_library": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/build/libdecode360_r30_phase_prefetch.so",
+          "kernel_library_sha256": "625f39f978e76a3e0ff01ed469bcd0de0cf65e51929a9597668af9cdff6c4db2",
+          "runtime_devices_built": [
+            "cuda:0"
+          ],
+          "route_is_module_decode_step": true
+        }
+      ],
+      "candidate": {
+        "source_sha256": "5e853d1e6b207f199c0cfd27a4d34394f7fa81ab4748ea0e51d3240dd7286638",
+        "include_sha256": "60b234e7ab6bbd49ff5a7444fb0ff171a97ee37fe31234a72b8f045b3b495e83",
+        "library_sha256": "625f39f978e76a3e0ff01ed469bcd0de0cf65e51929a9597668af9cdff6c4db2"
+      }
+    },
+    "B2": {
+      "worker_before": [
+        {
+          "arm": "r30",
+          "worker_pid": 117464,
+          "model_class": "LlamaModel",
+          "forward_patched": true,
+          "decode_backend_source": "/home/pradheep/tiny-prl/prime-rl/src/prime_rl/inference/vllm/decode_backend.py",
+          "decode_backend_sha256": "391b80e01c61519a16a1baec417fc9c2a0dd71ad00d46e8b3ceaec3386953461",
+          "selected_model_kernel": "decode_megakernel_360m",
+          "stats": {
+            "stock_not_pure_decode": 2,
+            "backend_decode": 11
+          },
+          "prime_kernels_source": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/__init__.py",
+          "kernel_module": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/decode_megakernel_360m/__init__.py",
+          "kernel_source": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/candidate/block360.cu",
+          "kernel_source_sha256": "5e853d1e6b207f199c0cfd27a4d34394f7fa81ab4748ea0e51d3240dd7286638",
+          "kernel_include": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/candidate/block360_kernel.inc",
+          "kernel_include_sha256": "60b234e7ab6bbd49ff5a7444fb0ff171a97ee37fe31234a72b8f045b3b495e83",
+          "kernel_library": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/build/libdecode360_r30_phase_prefetch.so",
+          "kernel_library_sha256": "625f39f978e76a3e0ff01ed469bcd0de0cf65e51929a9597668af9cdff6c4db2",
+          "runtime_devices_built": [
+            "cuda:0"
+          ],
+          "route_is_module_decode_step": true
+        }
+      ],
+      "worker_after": [
+        {
+          "arm": "r30",
+          "worker_pid": 117464,
+          "model_class": "LlamaModel",
+          "forward_patched": true,
+          "decode_backend_source": "/home/pradheep/tiny-prl/prime-rl/src/prime_rl/inference/vllm/decode_backend.py",
+          "decode_backend_sha256": "391b80e01c61519a16a1baec417fc9c2a0dd71ad00d46e8b3ceaec3386953461",
+          "selected_model_kernel": "decode_megakernel_360m",
+          "stats": {
+            "stock_not_pure_decode": 62,
+            "backend_decode": 11
+          },
+          "prime_kernels_source": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/__init__.py",
+          "kernel_module": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/decode_megakernel_360m/__init__.py",
+          "kernel_source": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/candidate/block360.cu",
+          "kernel_source_sha256": "5e853d1e6b207f199c0cfd27a4d34394f7fa81ab4748ea0e51d3240dd7286638",
+          "kernel_include": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/candidate/block360_kernel.inc",
+          "kernel_include_sha256": "60b234e7ab6bbd49ff5a7444fb0ff171a97ee37fe31234a72b8f045b3b495e83",
+          "kernel_library": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/build/libdecode360_r30_phase_prefetch.so",
+          "kernel_library_sha256": "625f39f978e76a3e0ff01ed469bcd0de0cf65e51929a9597668af9cdff6c4db2",
+          "runtime_devices_built": [
+            "cuda:0"
+          ],
+          "route_is_module_decode_step": true
+        }
+      ],
+      "candidate": {
+        "source_sha256": "5e853d1e6b207f199c0cfd27a4d34394f7fa81ab4748ea0e51d3240dd7286638",
+        "include_sha256": "60b234e7ab6bbd49ff5a7444fb0ff171a97ee37fe31234a72b8f045b3b495e83",
+        "library_sha256": "625f39f978e76a3e0ff01ed469bcd0de0cf65e51929a9597668af9cdff6c4db2"
+      }
+    },
+    "A2": {
+      "worker_before": [
+        {
+          "arm": "r28",
+          "worker_pid": 117615,
+          "model_class": "LlamaModel",
+          "forward_patched": true,
+          "decode_backend_source": "/home/pradheep/tiny-prl/prime-rl/src/prime_rl/inference/vllm/decode_backend.py",
+          "decode_backend_sha256": "391b80e01c61519a16a1baec417fc9c2a0dd71ad00d46e8b3ceaec3386953461",
+          "selected_model_kernel": "decode_megakernel_360m",
+          "stats": {
+            "stock_not_pure_decode": 2,
+            "backend_decode": 11
+          },
+          "prime_kernels_source": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/__init__.py",
+          "kernel_module": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/decode_megakernel_360m/__init__.py",
+          "kernel_source": "/home/pradheep/tiny-prl/prime-kernels/research/smollm2_360m_decode/experiments/r28-flash-decode/block360.cu",
+          "kernel_source_sha256": "1d121b7f89561a955b1fcc665daa7535a13816821920fe4030c4040e7bf61313",
+          "kernel_include": "/home/pradheep/tiny-prl/prime-kernels/research/smollm2_360m_decode/experiments/r28-flash-decode/block360_kernel.inc",
+          "kernel_include_sha256": "0ac2ba97ed2bfc4684c476987635e98e06affe2323349e4f9c4d9a27ed1247f0",
+          "kernel_library": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r28-flash-decode/build/libdecode360_r28_flash.so",
+          "kernel_library_sha256": "df3f03f7d680719b2f282fe7ad0a41cc24ff20f04d14809756b9b5e63a7f6603",
+          "runtime_devices_built": [
+            "cuda:0"
+          ],
+          "route_is_module_decode_step": true
+        }
+      ],
+      "worker_after": [
+        {
+          "arm": "r28",
+          "worker_pid": 117615,
+          "model_class": "LlamaModel",
+          "forward_patched": true,
+          "decode_backend_source": "/home/pradheep/tiny-prl/prime-rl/src/prime_rl/inference/vllm/decode_backend.py",
+          "decode_backend_sha256": "391b80e01c61519a16a1baec417fc9c2a0dd71ad00d46e8b3ceaec3386953461",
+          "selected_model_kernel": "decode_megakernel_360m",
+          "stats": {
+            "stock_not_pure_decode": 62,
+            "backend_decode": 11
+          },
+          "prime_kernels_source": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/__init__.py",
+          "kernel_module": "/home/pradheep/tiny-prl/prime-kernels/prime_kernels/decode_megakernel_360m/__init__.py",
+          "kernel_source": "/home/pradheep/tiny-prl/prime-kernels/research/smollm2_360m_decode/experiments/r28-flash-decode/block360.cu",
+          "kernel_source_sha256": "1d121b7f89561a955b1fcc665daa7535a13816821920fe4030c4040e7bf61313",
+          "kernel_include": "/home/pradheep/tiny-prl/prime-kernels/research/smollm2_360m_decode/experiments/r28-flash-decode/block360_kernel.inc",
+          "kernel_include_sha256": "0ac2ba97ed2bfc4684c476987635e98e06affe2323349e4f9c4d9a27ed1247f0",
+          "kernel_library": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r28-flash-decode/build/libdecode360_r28_flash.so",
+          "kernel_library_sha256": "df3f03f7d680719b2f282fe7ad0a41cc24ff20f04d14809756b9b5e63a7f6603",
+          "runtime_devices_built": [
+            "cuda:0"
+          ],
+          "route_is_module_decode_step": true
+        }
+      ],
+      "candidate": {
+        "source_sha256": "1d121b7f89561a955b1fcc665daa7535a13816821920fe4030c4040e7bf61313",
+        "include_sha256": "0ac2ba97ed2bfc4684c476987635e98e06affe2323349e4f9c4d9a27ed1247f0",
+        "library_sha256": "df3f03f7d680719b2f282fe7ad0a41cc24ff20f04d14809756b9b5e63a7f6603"
+      }
+    }
+  },
+  "clocks": {
+    "A1": {
+      "sm_clock_mhz_median": 2610.0,
+      "sm_clock_mhz_min": 2250,
+      "sm_clock_mhz_max": 2625,
+      "temp_c_median": 60.0,
+      "throttle_reasons": [
+        "0x0000000000000001",
+        "0x0000000000000004"
+      ]
+    },
+    "B1": {
+      "sm_clock_mhz_median": 2610,
+      "sm_clock_mhz_min": 2250,
+      "sm_clock_mhz_max": 2610,
+      "temp_c_median": 65.0,
+      "throttle_reasons": [
+        "0x0000000000000001",
+        "0x0000000000000004"
+      ]
+    },
+    "B2": {
+      "sm_clock_mhz_median": 2610,
+      "sm_clock_mhz_min": 2250,
+      "sm_clock_mhz_max": 2610,
+      "temp_c_median": 67.0,
+      "throttle_reasons": [
+        "0x0000000000000001",
+        "0x0000000000000004"
+      ]
+    },
+    "A2": {
+      "sm_clock_mhz_median": 2610,
+      "sm_clock_mhz_min": 2250,
+      "sm_clock_mhz_max": 2610,
+      "temp_c_median": 68.0,
+      "throttle_reasons": [
+        "0x0000000000000001",
+        "0x0000000000000004"
+      ]
+    }
+  },
+  "guards": {
+    "outer_A1": {
+      "command": [
+        "/home/pradheep/.venv/bin/python",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/guard_3gb.py",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/guard-3gb-A1-r28-opus-r30-serving-20261101",
+        "/home/pradheep/.venv/bin/python",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/bench_serving_r28_r30.py",
+        "--arm",
+        "r28",
+        "--out",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/A1-r28-opus-r30-serving-20261101.json"
+      ],
+      "returncode": 0,
+      "stop_reason": null,
+      "elapsed_seconds": 29.2890244490045,
+      "minimum_available_bytes": 7645089792,
+      "peak_cgroup_bytes": 1908477952,
+      "peak_swap_bytes": 0,
+      "peak_gpu_mib": 2475,
+      "disk_free_before_bytes": 39686619136,
+      "minimum_disk_free_bytes": 39684595712
+    },
+    "3gb_A1": {
+      "command": [
+        "/home/pradheep/.venv/bin/python",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/bench_serving_r28_r30.py",
+        "--arm",
+        "r28",
+        "--out",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/A1-r28-opus-r30-serving-20261101.json"
+      ],
+      "returncode": 0,
+      "stop_reason": null,
+      "gpu_memory_limit_mib": 3072,
+      "peak_sampled_gpu_memory_mib": 2475
+    },
+    "outer_B1": {
+      "command": [
+        "/home/pradheep/.venv/bin/python",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/guard_3gb.py",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/guard-3gb-B1-r30-opus-r30-serving-20261101",
+        "/home/pradheep/.venv/bin/python",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/bench_serving_r28_r30.py",
+        "--arm",
+        "r30",
+        "--out",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/B1-r30-opus-r30-serving-20261101.json"
+      ],
+      "returncode": 0,
+      "stop_reason": null,
+      "elapsed_seconds": 29.07932841299771,
+      "minimum_available_bytes": 7586783232,
+      "peak_cgroup_bytes": 1855111168,
+      "peak_swap_bytes": 0,
+      "peak_gpu_mib": 2475,
+      "disk_free_before_bytes": 39684579328,
+      "minimum_disk_free_bytes": 39682416640
+    },
+    "3gb_B1": {
+      "command": [
+        "/home/pradheep/.venv/bin/python",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/bench_serving_r28_r30.py",
+        "--arm",
+        "r30",
+        "--out",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/B1-r30-opus-r30-serving-20261101.json"
+      ],
+      "returncode": 0,
+      "stop_reason": null,
+      "gpu_memory_limit_mib": 3072,
+      "peak_sampled_gpu_memory_mib": 2475
+    },
+    "outer_B2": {
+      "command": [
+        "/home/pradheep/.venv/bin/python",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/guard_3gb.py",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/guard-3gb-B2-r30-opus-r30-serving-20261101",
+        "/home/pradheep/.venv/bin/python",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/bench_serving_r28_r30.py",
+        "--arm",
+        "r30",
+        "--out",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/B2-r30-opus-r30-serving-20261101.json"
+      ],
+      "returncode": 0,
+      "stop_reason": null,
+      "elapsed_seconds": 29.078049539995845,
+      "minimum_available_bytes": 7520575488,
+      "peak_cgroup_bytes": 1860206592,
+      "peak_swap_bytes": 0,
+      "peak_gpu_mib": 2475,
+      "disk_free_before_bytes": 39682400256,
+      "minimum_disk_free_bytes": 39680303104
+    },
+    "3gb_B2": {
+      "command": [
+        "/home/pradheep/.venv/bin/python",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/bench_serving_r28_r30.py",
+        "--arm",
+        "r30",
+        "--out",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/B2-r30-opus-r30-serving-20261101.json"
+      ],
+      "returncode": 0,
+      "stop_reason": null,
+      "gpu_memory_limit_mib": 3072,
+      "peak_sampled_gpu_memory_mib": 2475
+    },
+    "outer_A2": {
+      "command": [
+        "/home/pradheep/.venv/bin/python",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/guard_3gb.py",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/guard-3gb-A2-r28-opus-r30-serving-20261101",
+        "/home/pradheep/.venv/bin/python",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/bench_serving_r28_r30.py",
+        "--arm",
+        "r28",
+        "--out",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/A2-r28-opus-r30-serving-20261101.json"
+      ],
+      "returncode": 0,
+      "stop_reason": null,
+      "elapsed_seconds": 29.48410899999726,
+      "minimum_available_bytes": 7445352448,
+      "peak_cgroup_bytes": 1886060544,
+      "peak_swap_bytes": 0,
+      "peak_gpu_mib": 2475,
+      "disk_free_before_bytes": 39680282624,
+      "minimum_disk_free_bytes": 39678189568
+    },
+    "3gb_A2": {
+      "command": [
+        "/home/pradheep/.venv/bin/python",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/bench_serving_r28_r30.py",
+        "--arm",
+        "r28",
+        "--out",
+        "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/serving/A2-r28-opus-r30-serving-20261101.json"
+      ],
+      "returncode": 0,
+      "stop_reason": null,
+      "gpu_memory_limit_mib": 3072,
+      "peak_sampled_gpu_memory_mib": 2475
+    }
+  }
+}
