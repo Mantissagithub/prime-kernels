@@ -1,0 +1,13 @@
+{
+  "RESULTS.md": "9c9ff0e5d5e54b724a476167b07f5afb0ee6635725dd85426d5fc2c9e239b8da",
+  "block360.cu": "d0ca239a9ff28ffbaf30ebf69dac09223c055ab9b51a258ddaa40217a4e52a81",
+  "block360_kernel.inc": "0e2fad4ffce4e42099e40891825f055e85b7a311c2cd3e0753bcf0e1ec3a202a",
+  "build.sh": "fc9ec0df1c8cfd6bfd4fde69727bec1ef20922298a10e5edbf97fa39a9afbdb3",
+  "result_summary.json": "0bef3108a7151db5516c151d192896fac9ce6c9c36bb85c2ab1c0e0533e3c7f6",
+  "results/seed17-b1-ctx128.json": "aad9597fc08bcff4b5f408317ea8ce1ec152d5ce833927b8e9001e0fbee4c252",
+  "results/seed17-b1-ctx32.json": "115c7129a3e13362196bb92abf6193d6f1152fe2c10fede70c6c006fa5d32c4f",
+  "results/seed17-b2-ctx128.json": "ec9c24d2bf8b2e8e1fd4bb1d2210c9df642a67ddea56a5e42f4a7c8b01c0b3ed",
+  "results/seed17-b2-ctx32.json": "d93d1c3ab775627d88e53fc0c88e88208723d3d299c437a8c47f5d8a6ec63034",
+  "results/synthetic-b1-ctx1024.json": "e36cd29574061a14c604a3e7451b6e6601ca09c1d9d03d9a99b6b69ed365811d",
+  "results/synthetic-b2-ctx1024.json": "78be35bf84cb674812f8bc2b5b48a405ced3703e01abba4b20abd97b0b82a16a"
+}

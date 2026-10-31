@@ -1,0 +1,36 @@
+{
+  "schema": "r29-proj-prefetch-results-r1",
+  "status": "compiled_and_interleaved_benchmarked_no_promotion",
+  "source": {
+    "candidate_block360_cu_sha256": "d0ca239a9ff28ffbaf30ebf69dac09223c055ab9b51a258ddaa40217a4e52a81",
+    "candidate_kernel_include_sha256": "0e2fad4ffce4e42099e40891825f055e85b7a311c2cd3e0753bcf0e1ec3a202a",
+    "base_source_sha256": "1d121b7f89561a955b1fcc665daa7535a13816821920fe4030c4040e7bf61313",
+    "base_include_sha256": "0ac2ba97ed2bfc4684c476987635e98e06affe2323349e4f9c4d9a27ed1247f0",
+    "preflight": "passed"
+  },
+  "build": {
+    "library": "build/libdecode360_r29_proj_prefetch.so",
+    "library_sha256": "74c7121409dba08aab1d4a06ecc84ebd165b43cc10a09296c6e3ef621d3f731c",
+    "envelope": {"common_gpu_lock": "/home/pradheep/tiny-prl/outputs/tiny-kernel-20261020/triton/gpu.lock", "cuda_visible_devices": "", "memory_max": "2G", "memory_swap_max": "0", "cpu_quota": "100%", "runtime_max_sec": 120},
+    "ptxas_sm_89": {
+      "B1": {"registers": 242, "static_smem_bytes": 36644, "stack_bytes": 48, "spill_stores": 0, "spill_loads": 0},
+      "B2": {"registers": 254, "static_smem_bytes": 43056, "stack_bytes": 48, "spill_stores": 0, "spill_loads": 0}
+    }
+  },
+  "bench": {
+    "runner": "outputs/megakernel-20261025/runtime/run_gpu.sh",
+    "case_processes": 6,
+    "samples_per_arm_per_case": 120,
+    "median_definition": "median across all 120 raw CUDA-event samples per arm and case",
+    "gpu_memory_cap_mib": 3072,
+    "exact_parity": {"cases_passed": 6, "final_hidden_bitwise_equal": true, "all_32_layers_keys_and_values_bitwise_equal": true, "max_kv_abs_difference": 0.0},
+    "cases": [
+      {"case_id":"seed17-b1-ctx32","batch":1,"context":32,"source":"frozen","r28_median_ms":2.9880321026,"r29_median_ms":3.0177280903,"change_percent":0.9938,"both_beat_both_blocks":"0/3","guard_peak_gpu_mib":1317,"cap_monitor_peak_gpu_mib":1315,"minimum_host_available_bytes":8856190976,"peak_cgroup_bytes":1224949760,"peak_swap_bytes":0,"guard_returncode":0},
+      {"case_id":"seed17-b1-ctx128","batch":1,"context":128,"source":"frozen","r28_median_ms":3.0382080078,"r29_median_ms":3.0718719959,"change_percent":1.1082,"both_beat_both_blocks":"0/3","guard_peak_gpu_mib":1339,"cap_monitor_peak_gpu_mib":1339,"minimum_host_available_bytes":8845139968,"peak_cgroup_bytes":1224937472,"peak_swap_bytes":0,"guard_returncode":0},
+      {"case_id":"seed17-b2-ctx32","batch":2,"context":32,"source":"frozen","r28_median_ms":3.1559679508,"r29_median_ms":3.1600639820,"change_percent":0.1298,"both_beat_both_blocks":"0/3","guard_peak_gpu_mib":1325,"cap_monitor_peak_gpu_mib":1325,"minimum_host_available_bytes":8844320768,"peak_cgroup_bytes":1224753152,"peak_swap_bytes":0,"guard_returncode":0},
+      {"case_id":"seed17-b2-ctx128","batch":2,"context":128,"source":"frozen","r28_median_ms":3.2419838905,"r29_median_ms":3.2450559139,"change_percent":0.0948,"both_beat_both_blocks":"0/3","guard_peak_gpu_mib":1383,"cap_monitor_peak_gpu_mib":1383,"minimum_host_available_bytes":8778174464,"peak_cgroup_bytes":1208557568,"peak_swap_bytes":0,"guard_returncode":0},
+      {"case_id":"synthetic-b1-ctx1024","batch":1,"context":1024,"source":"seeded_synthetic","r28_median_ms":3.3433599472,"r29_median_ms":3.3679358959,"change_percent":0.7349,"both_beat_both_blocks":"0/3","guard_peak_gpu_mib":1641,"cap_monitor_peak_gpu_mib":1617,"minimum_host_available_bytes":8927952896,"peak_cgroup_bytes":1442562048,"peak_swap_bytes":0,"guard_returncode":0},
+      {"case_id":"synthetic-b2-ctx1024","batch":2,"context":1024,"source":"seeded_synthetic","r28_median_ms":3.6904959679,"r29_median_ms":3.6863999367,"change_percent":-0.1110,"both_beat_both_blocks":"3/3","guard_peak_gpu_mib":1911,"cap_monitor_peak_gpu_mib":1891,"minimum_host_available_bytes":8821542912,"peak_cgroup_bytes":1209159680,"peak_swap_bytes":0,"guard_returncode":0}
+    ]
+  }
+}
