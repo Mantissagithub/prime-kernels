@@ -1,0 +1,3671 @@
+{
+  "schema": "r28-fast-stage-profile-summary-r1",
+  "inputs": [
+    "prime-rl/outputs/megakernel-20261025/r28-fast-stage-profile-r1/results/seed17-b1-ctx32.json",
+    "prime-rl/outputs/megakernel-20261025/r28-fast-stage-profile-r1/results/seed17-b1-ctx128.json",
+    "prime-rl/outputs/megakernel-20261025/r28-fast-stage-profile-r1/results/seed17-b2-ctx32.json",
+    "prime-rl/outputs/megakernel-20261025/r28-fast-stage-profile-r1/results/seed17-b2-ctx128.json",
+    "prime-rl/outputs/megakernel-20261025/r28-fast-stage-profile-r1/results/synthetic-b1-ctx1024.json",
+    "prime-rl/outputs/megakernel-20261025/r28-fast-stage-profile-r1/results/synthetic-b2-ctx1024.json"
+  ],
+  "interpretation": [
+    "Cycle deltas are local to one CTA; no cross-CTA timestamps are subtracted.",
+    "Per-CTA stage totals sum serial layer intervals on that CTA only; distributions do not sum across CTAs.",
+    "Same-CTA stage-cycle sum is checked against the full-kernel event by its implied clock64 rate; clocks.sm samples are taken outside the event and are not used for cycle conversion.",
+    "Work includes memory/local synchronization stalls; grid wait is arrival skew and wait at an existing grid barrier.",
+    "Fractions are diagnostic shares of same-CTA cycle totals, not kernel wall-time or hardware-counter attribution.",
+    "Event overhead compares instrumented and uninstrumented R28; it is not a speed result."
+  ],
+  "instrumentation_overhead": {
+    "seed17-b1-ctx32": {
+      "A-R28-uninstrumented": {
+        "samples": 30,
+        "median_ms": 3.3480639457702637,
+        "p90_ms": 3.4109439849853516,
+        "block_medians_ms": [
+          3.405695915222168,
+          3.407871961593628,
+          3.3476479053497314,
+          3.34335994720459,
+          3.3454079627990723,
+          3.344383955001831
+        ]
+      },
+      "B-R28-profiled": {
+        "samples": 30,
+        "median_ms": 3.4016480445861816,
+        "p90_ms": 3.427328109741211,
+        "block_medians_ms": [
+          3.423232078552246,
+          3.4263041019439697,
+          3.4263360500335693,
+          3.3567678928375244,
+          3.3616960048675537,
+          3.357696056365967
+        ]
+      },
+      "instrumented_overhead_percent": 1.6004502806349574
+    },
+    "seed17-b1-ctx128": {
+      "A-R28-uninstrumented": {
+        "samples": 30,
+        "median_ms": 3.035647988319397,
+        "p90_ms": 3.071743965148926,
+        "block_medians_ms": [
+          3.0606400966644287,
+          3.0351359844207764,
+          3.0361599922180176,
+          3.0382080078125,
+          3.034111976623535,
+          3.0351359844207764
+        ]
+      },
+      "B-R28-profiled": {
+        "samples": 30,
+        "median_ms": 3.0562559366226196,
+        "p90_ms": 3.083264112472534,
+        "block_medians_ms": [
+          3.082240104675293,
+          3.082911968231201,
+          3.0556159019470215,
+          3.0545918941497803,
+          3.0534400939941406,
+          3.0545918941497803
+        ]
+      },
+      "instrumented_overhead_percent": 0.6788648875797998
+    },
+    "seed17-b2-ctx32": {
+      "A-R28-uninstrumented": {
+        "samples": 30,
+        "median_ms": 3.1564799547195435,
+        "p90_ms": 3.232640027999878,
+        "block_medians_ms": [
+          3.232640027999878,
+          3.2306880950927734,
+          3.1549439430236816,
+          3.1549439430236816,
+          3.155967950820923,
+          3.1539199352264404
+        ]
+      },
+      "B-R28-profiled": {
+        "samples": 30,
+        "median_ms": 3.169792056083679,
+        "p90_ms": 3.251199960708618,
+        "block_medians_ms": [
+          3.2471039295196533,
+          3.247999906539917,
+          3.168992042541504,
+          3.1682560443878174,
+          3.1682560443878174,
+          3.166208028793335
+        ]
+      },
+      "instrumented_overhead_percent": 0.4217388215702611
+    },
+    "seed17-b2-ctx128": {
+      "A-R28-uninstrumented": {
+        "samples": 30,
+        "median_ms": 3.2434719800949097,
+        "p90_ms": 3.333120107650757,
+        "block_medians_ms": [
+          3.333120107650757,
+          3.3310720920562744,
+          3.240959882736206,
+          3.240959882736206,
+          3.243936061859131,
+          3.239936113357544
+        ]
+      },
+      "B-R28-profiled": {
+        "samples": 30,
+        "median_ms": 3.257215976715088,
+        "p90_ms": 3.3505280017852783,
+        "block_medians_ms": [
+          3.3505280017852783,
+          3.3493759632110596,
+          3.256319999694824,
+          3.2570879459381104,
+          3.256063938140869,
+          3.254271984100342
+        ]
+      },
+      "instrumented_overhead_percent": 0.4237433436923288
+    },
+    "synthetic-b1-ctx1024": {
+      "A-R28-uninstrumented": {
+        "samples": 30,
+        "median_ms": 3.3425920009613037,
+        "p90_ms": 3.3566720485687256,
+        "block_medians_ms": [
+          3.357696056365967,
+          3.344383955001831,
+          3.340287923812866,
+          3.3423359394073486,
+          3.3425281047821045,
+          3.34118390083313
+        ]
+      },
+      "B-R28-profiled": {
+        "samples": 30,
+        "median_ms": 3.3601760864257812,
+        "p90_ms": 3.374239921569824,
+        "block_medians_ms": [
+          3.3720319271087646,
+          3.374079942703247,
+          3.357696056365967,
+          3.358720064163208,
+          3.358720064163208,
+          3.355776071548462
+        ]
+      },
+      "instrumented_overhead_percent": 0.5260613757054555
+    },
+    "synthetic-b2-ctx1024": {
+      "A-R28-uninstrumented": {
+        "samples": 30,
+        "median_ms": 3.691632032394409,
+        "p90_ms": 3.69868803024292,
+        "block_medians_ms": [
+          3.699712038040161,
+          3.694591999053955,
+          3.688447952270508,
+          3.689471960067749,
+          3.6925439834594727,
+          3.6915199756622314
+        ]
+      },
+      "B-R28-profiled": {
+        "samples": 30,
+        "median_ms": 3.69868803024292,
+        "p90_ms": 3.703808069229126,
+        "block_medians_ms": [
+          3.7027840614318848,
+          3.6976640224456787,
+          3.69868803024292,
+          3.699615955352783,
+          3.69868803024292,
+          3.6986238956451416
+        ]
+      },
+      "instrumented_overhead_percent": 0.19113491774351843
+    }
+  },
+  "per_case_stage_cycles": [
+    {
+      "case_id": "seed17-b1-ctx32",
+      "batch": 1,
+      "context": 32,
+      "phase_cycles": {
+        "norm1": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 132676.5,
+            "p90": 133385,
+            "max": 133822
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 132676.5,
+            "p90": 133385,
+            "max": 133822
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "qkv": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 967500.0,
+            "p90": 1046339,
+            "max": 1062810
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 152671.5,
+            "p90": 169661,
+            "max": 171131
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1119849.5,
+            "p90": 1122573,
+            "max": 1122768
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "rope_cache": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 95043.0,
+            "p90": 98595,
+            "max": 133370
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 77422.5,
+            "p90": 81214,
+            "max": 83909
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 172031.0,
+            "p90": 172945,
+            "max": 174260
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "split_kv": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3681.5,
+            "p90": 192777,
+            "max": 195675
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 234064.0,
+            "p90": 235310,
+            "max": 236397
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 238179.0,
+            "p90": 240051,
+            "max": 240635
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "merge": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 95660.5,
+            "p90": 100032,
+            "max": 102821
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 95660.5,
+            "p90": 100032,
+            "max": 102821
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "o_residual": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 599720.0,
+            "p90": 615869,
+            "max": 633188
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 89809.5,
+            "p90": 125502,
+            "max": 137759
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 691531.0,
+            "p90": 697816,
+            "max": 698575
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "norm2": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 131818.0,
+            "p90": 132623,
+            "max": 133129
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 131818.0,
+            "p90": 132623,
+            "max": 133129
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "gate_up_silu": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3264550.5,
+            "p90": 3360260,
+            "max": 3370333
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 166947.5,
+            "p90": 227728,
+            "max": 254069
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3438930.5,
+            "p90": 3444683,
+            "max": 3445405
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "down_residual": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1606449.0,
+            "p90": 1690965,
+            "max": 1723617
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 187742.5,
+            "p90": 240400,
+            "max": 258475
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1797501.0,
+            "p90": 1799993,
+            "max": 1800797
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "layer_capture": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "final_norm": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 5635,
+            "p90": 5635,
+            "max": 5635
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 5635,
+            "p90": 5635,
+            "max": 5635
+          },
+          "cta_coverage": [
+            0
+          ]
+        }
+      },
+      "per_cta_phase_fractions": {
+        "norm1": {
+          "median_fraction_per_cta": 0.016972024130225888,
+          "p90_fraction_per_cta": 0.017093726358175652,
+          "max_fraction_per_cta": 0.01712482215271667
+        },
+        "qkv": {
+          "median_fraction_per_cta": 0.14322512500097367,
+          "p90_fraction_per_cta": 0.14335369908944076,
+          "max_fraction_per_cta": 0.14358908512806687
+        },
+        "rope_cache": {
+          "median_fraction_per_cta": 0.02199440380227309,
+          "p90_fraction_per_cta": 0.022137806283964504,
+          "max_fraction_per_cta": 0.022285845316589833
+        },
+        "split_kv": {
+          "median_fraction_per_cta": 0.030524511866665723,
+          "p90_fraction_per_cta": 0.03072976122068664,
+          "max_fraction_per_cta": 0.030773244298815297
+        },
+        "merge": {
+          "median_fraction_per_cta": 0.01222492456406278,
+          "p90_fraction_per_cta": 0.012774712118174261,
+          "max_fraction_per_cta": 0.01314875467849165
+        },
+        "o_residual": {
+          "median_fraction_per_cta": 0.08851971628917052,
+          "p90_fraction_per_cta": 0.08916745119533563,
+          "max_fraction_per_cta": 0.08920845541511893
+        },
+        "norm2": {
+          "median_fraction_per_cta": 0.01688402648648318,
+          "p90_fraction_per_cta": 0.016973815363415835,
+          "max_fraction_per_cta": 0.017024713066274497
+        },
+        "gate_up_silu": {
+          "median_fraction_per_cta": 0.43979717061529267,
+          "p90_fraction_per_cta": 0.4400634547545988,
+          "max_fraction_per_cta": 0.4403802482391995
+        },
+        "down_residual": {
+          "median_fraction_per_cta": 0.22983893613398448,
+          "p90_fraction_per_cta": 0.22997966594657954,
+          "max_fraction_per_cta": 0.230045818411359
+        }
+      },
+      "per_cta_family_fractions": {
+        "projections": {
+          "median_fraction_per_cta": 0.9015158135953667,
+          "p90_fraction_per_cta": 0.9020708709171985,
+          "max_fraction_per_cta": 0.9022490121080613
+        },
+        "attention": {
+          "median_fraction_per_cta": 0.04273665098699868,
+          "p90_fraction_per_cta": 0.04353296985674356,
+          "max_fraction_per_cta": 0.043703263038522074
+        },
+        "normalizations": {
+          "median_fraction_per_cta": 0.033852251203094756,
+          "p90_fraction_per_cta": 0.03399495872672545,
+          "max_fraction_per_cta": 0.03403232410225913
+        },
+        "rope_and_kv_cache": {
+          "median_fraction_per_cta": 0.02199440380227309,
+          "p90_fraction_per_cta": 0.022137806283964504,
+          "max_fraction_per_cta": 0.022285845316589833
+        },
+        "all_grid_waits": {
+          "median_fraction_per_cta": 0.11521693656695925,
+          "p90_fraction_per_cta": 0.13513125579760782,
+          "max_fraction_per_cta": 0.1379675029405391
+        }
+      },
+      "same_cta_step_cycles_vs_full_event": {
+        "event_ms": 3.0740480422973633,
+        "sm_clock_mhz_sample_before": 2250.0,
+        "sm_clock_mhz_sample_after": 2250.0,
+        "sample_drift_percent": 0.0,
+        "implied_clock64_mhz_from_max_same_cta_stage_sum": 2547.470596506206,
+        "same_cta_step_cycle_distribution": {
+          "n": 24,
+          "median": 7819789.0,
+          "p90": 7830792,
+          "max": 7831047
+        },
+        "interpretation": "consistency diagnostic only: derives an implied clock64 rate from one CTA's own accumulated stage intervals and a separate full-kernel event; outside-kernel clocks.sm samples are not used to convert cycles"
+      },
+      "fraction_denominator": "same-CTA sum across layers for named active stages; capture and final norm excluded"
+    },
+    {
+      "case_id": "seed17-b1-ctx128",
+      "batch": 1,
+      "context": 128,
+      "phase_cycles": {
+        "norm1": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 132506.5,
+            "p90": 133537,
+            "max": 133979
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 132506.5,
+            "p90": 133537,
+            "max": 133979
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "qkv": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 977943.5,
+            "p90": 1061689,
+            "max": 1067187
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 154898.0,
+            "p90": 173180,
+            "max": 185481
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1133219.5,
+            "p90": 1134735,
+            "max": 1136097
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "rope_cache": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 96211.5,
+            "p90": 99012,
+            "max": 133269
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 75759.5,
+            "p90": 79974,
+            "max": 83778
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 172313.0,
+            "p90": 173343,
+            "max": 174157
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "split_kv": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3711.5,
+            "p90": 237679,
+            "max": 247951
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 287923.5,
+            "p90": 288660,
+            "max": 288794
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 292194.5,
+            "p90": 292740,
+            "max": 294312
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "merge": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 139265.5,
+            "p90": 142661,
+            "max": 143882
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 139265.5,
+            "p90": 142661,
+            "max": 143882
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "o_residual": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 601086.0,
+            "p90": 621365,
+            "max": 644490
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 96248.5,
+            "p90": 124411,
+            "max": 133849
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 698852.0,
+            "p90": 701998,
+            "max": 704600
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "norm2": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 130025.5,
+            "p90": 130563,
+            "max": 131106
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 130025.5,
+            "p90": 130563,
+            "max": 131106
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "gate_up_silu": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3266509.5,
+            "p90": 3382492,
+            "max": 3391529
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 195382.5,
+            "p90": 222031,
+            "max": 264277
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3461983.5,
+            "p90": 3465020,
+            "max": 3466585
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "down_residual": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1630116.0,
+            "p90": 1723748,
+            "max": 1742643
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 185250.0,
+            "p90": 259337,
+            "max": 266712
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1818975.5,
+            "p90": 1820865,
+            "max": 1821080
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "layer_capture": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "final_norm": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 5333,
+            "p90": 5333,
+            "max": 5333
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 5333,
+            "p90": 5333,
+            "max": 5333
+          },
+          "cta_coverage": [
+            0
+          ]
+        }
+      },
+      "per_cta_phase_fractions": {
+        "norm1": {
+          "median_fraction_per_cta": 0.016597382926203795,
+          "p90_fraction_per_cta": 0.0167754570830601,
+          "max_fraction_per_cta": 0.01680645667012373
+        },
+        "qkv": {
+          "median_fraction_per_cta": 0.14198921024580247,
+          "p90_fraction_per_cta": 0.1421340217309437,
+          "max_fraction_per_cta": 0.14237125649450738
+        },
+        "rope_cache": {
+          "median_fraction_per_cta": 0.021583670078046235,
+          "p90_fraction_per_cta": 0.021756069582139607,
+          "max_fraction_per_cta": 0.021824677749623426
+        },
+        "split_kv": {
+          "median_fraction_per_cta": 0.03662007226884256,
+          "p90_fraction_per_cta": 0.036723150357395616,
+          "max_fraction_per_cta": 0.03697149128096283
+        },
+        "merge": {
+          "median_fraction_per_cta": 0.017451504618404903,
+          "p90_fraction_per_cta": 0.01792192322269749,
+          "max_fraction_per_cta": 0.018030624065460733
+        },
+        "o_residual": {
+          "median_fraction_per_cta": 0.08759071534243967,
+          "p90_fraction_per_cta": 0.08791551470297246,
+          "max_fraction_per_cta": 0.08824063870893652
+        },
+        "norm2": {
+          "median_fraction_per_cta": 0.016309726996372252,
+          "p90_fraction_per_cta": 0.016401321672951642,
+          "max_fraction_per_cta": 0.016428973317611027
+        },
+        "gate_up_silu": {
+          "median_fraction_per_cta": 0.43378281833741716,
+          "p90_fraction_per_cta": 0.4340388738585769,
+          "max_fraction_per_cta": 0.4344189467932861
+        },
+        "down_residual": {
+          "median_fraction_per_cta": 0.22799201777059894,
+          "p90_fraction_per_cta": 0.2281421679763391,
+          "max_fraction_per_cta": 0.2281569862546331
+        }
+      },
+      "per_cta_family_fractions": {
+        "projections": {
+          "median_fraction_per_cta": 0.8914267904392383,
+          "p90_fraction_per_cta": 0.8918591263571807,
+          "max_fraction_per_cta": 0.8922467336499026
+        },
+        "attention": {
+          "median_fraction_per_cta": 0.05403362180284138,
+          "p90_fraction_per_cta": 0.0545150028159056,
+          "max_fraction_per_cta": 0.05475791004397707
+        },
+        "normalizations": {
+          "median_fraction_per_cta": 0.03292599399323283,
+          "p90_fraction_per_cta": 0.0330869421464348,
+          "max_fraction_per_cta": 0.033127626315185
+        },
+        "rope_and_kv_cache": {
+          "median_fraction_per_cta": 0.021583670078046235,
+          "p90_fraction_per_cta": 0.021756069582139607,
+          "max_fraction_per_cta": 0.021824677749623426
+        },
+        "all_grid_waits": {
+          "median_fraction_per_cta": 0.11565483467107462,
+          "p90_fraction_per_cta": 0.14237901320516275,
+          "max_fraction_per_cta": 0.15032468719771128
+        }
+      },
+      "same_cta_step_cycles_vs_full_event": {
+        "event_ms": 3.1373119354248047,
+        "sm_clock_mhz_sample_before": 2460.0,
+        "sm_clock_mhz_sample_after": 2460.0,
+        "sample_drift_percent": 0.0,
+        "implied_clock64_mhz_from_max_same_cta_stage_sum": 2545.2212481124475,
+        "same_cta_step_cycle_distribution": {
+          "n": 24,
+          "median": 7980133.5,
+          "p90": 7984916,
+          "max": 7985153
+        },
+        "interpretation": "consistency diagnostic only: derives an implied clock64 rate from one CTA's own accumulated stage intervals and a separate full-kernel event; outside-kernel clocks.sm samples are not used to convert cycles"
+      },
+      "fraction_denominator": "same-CTA sum across layers for named active stages; capture and final norm excluded"
+    },
+    {
+      "case_id": "seed17-b2-ctx32",
+      "batch": 2,
+      "context": 32,
+      "phase_cycles": {
+        "norm1": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 190123.0,
+            "p90": 191619,
+            "max": 192154
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 190123.0,
+            "p90": 191619,
+            "max": 192154
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "qkv": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1081627.5,
+            "p90": 1104098,
+            "max": 1116098
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 95918.0,
+            "p90": 112491,
+            "max": 123142
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1173789.5,
+            "p90": 1178972,
+            "max": 1179726
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "rope_cache": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 143783.0,
+            "p90": 148819,
+            "max": 196296
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 90038.0,
+            "p90": 94754,
+            "max": 96534
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 233962.5,
+            "p90": 234932,
+            "max": 238637
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "split_kv": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 4257.0,
+            "p90": 211175,
+            "max": 213485
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 251610.5,
+            "p90": 252339,
+            "max": 252739
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 256060.0,
+            "p90": 256847,
+            "max": 256994
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "merge": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 146162.5,
+            "p90": 152050,
+            "max": 154411
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 146162.5,
+            "p90": 152050,
+            "max": 154411
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "o_residual": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 665117.0,
+            "p90": 688008,
+            "max": 694708
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 89815.5,
+            "p90": 121806,
+            "max": 127027
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 755157.5,
+            "p90": 763352,
+            "max": 765439
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "norm2": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 193900.5,
+            "p90": 195368,
+            "max": 196960
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 193900.5,
+            "p90": 195368,
+            "max": 196960
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "gate_up_silu": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3361087.0,
+            "p90": 3381572,
+            "max": 3386270
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 81188.5,
+            "p90": 103936,
+            "max": 108996
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3443964.5,
+            "p90": 3450996,
+            "max": 3451349
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "down_residual": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1661219.0,
+            "p90": 1757124,
+            "max": 1766166
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 183645.5,
+            "p90": 247029,
+            "max": 282375
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1847526.0,
+            "p90": 1849484,
+            "max": 1849995
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "layer_capture": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "final_norm": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 5494,
+            "p90": 5494,
+            "max": 5494
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 5494,
+            "p90": 5494,
+            "max": 5494
+          },
+          "cta_coverage": [
+            0
+          ]
+        }
+      },
+      "per_cta_phase_fractions": {
+        "norm1": {
+          "median_fraction_per_cta": 0.023057970948412995,
+          "p90_fraction_per_cta": 0.023262870374571705,
+          "max_fraction_per_cta": 0.023314654899937136
+        },
+        "qkv": {
+          "median_fraction_per_cta": 0.14256907423928822,
+          "p90_fraction_per_cta": 0.1429313726417279,
+          "max_fraction_per_cta": 0.14301629843135297
+        },
+        "rope_cache": {
+          "median_fraction_per_cta": 0.028399995025765574,
+          "p90_fraction_per_cta": 0.028534897728187524,
+          "max_fraction_per_cta": 0.028953819024465824
+        },
+        "split_kv": {
+          "median_fraction_per_cta": 0.031093312671290514,
+          "p90_fraction_per_cta": 0.03121300135839336,
+          "max_fraction_per_cta": 0.03126197060357327
+        },
+        "merge": {
+          "median_fraction_per_cta": 0.01772655561978538,
+          "p90_fraction_per_cta": 0.018448212331219484,
+          "max_fraction_per_cta": 0.01873517687768245
+        },
+        "o_residual": {
+          "median_fraction_per_cta": 0.09163002827595743,
+          "p90_fraction_per_cta": 0.0925409420009182,
+          "max_fraction_per_cta": 0.09279294722248758
+        },
+        "norm2": {
+          "median_fraction_per_cta": 0.02351648849171115,
+          "p90_fraction_per_cta": 0.02376701782489841,
+          "max_fraction_per_cta": 0.023897782138761713
+        },
+        "gate_up_silu": {
+          "median_fraction_per_cta": 0.41794483027759954,
+          "p90_fraction_per_cta": 0.4183592715761665,
+          "max_fraction_per_cta": 0.41840604024608175
+        },
+        "down_residual": {
+          "median_fraction_per_cta": 0.22415798176270046,
+          "p90_fraction_per_cta": 0.22426854680011693,
+          "max_fraction_per_cta": 0.22432916997846758
+        }
+      },
+      "per_cta_family_fractions": {
+        "projections": {
+          "median_fraction_per_cta": 0.8762748006285628,
+          "p90_fraction_per_cta": 0.8779510190751313,
+          "max_fraction_per_cta": 0.8784399165366694
+        },
+        "attention": {
+          "median_fraction_per_cta": 0.04868215630346405,
+          "p90_fraction_per_cta": 0.04957540886362889,
+          "max_fraction_per_cta": 0.049792465670901474
+        },
+        "normalizations": {
+          "median_fraction_per_cta": 0.04653211842828908,
+          "p90_fraction_per_cta": 0.04700448462352228,
+          "max_fraction_per_cta": 0.04721243703869885
+        },
+        "rope_and_kv_cache": {
+          "median_fraction_per_cta": 0.028399995025765574,
+          "p90_fraction_per_cta": 0.028534897728187524,
+          "max_fraction_per_cta": 0.028953819024465824
+        },
+        "all_grid_waits": {
+          "median_fraction_per_cta": 0.08624025780833582,
+          "p90_fraction_per_cta": 0.1089868083014015,
+          "max_fraction_per_cta": 0.11893645837525815
+        }
+      },
+      "same_cta_step_cycles_vs_full_event": {
+        "event_ms": 3.2305281162261963,
+        "sm_clock_mhz_sample_before": 2295.0,
+        "sm_clock_mhz_sample_after": 2295.0,
+        "sample_drift_percent": 0.0,
+        "implied_clock64_mhz_from_max_same_cta_stage_sum": 2553.4190396200925,
+        "same_cta_step_cycle_distribution": {
+          "n": 24,
+          "median": 8242303.5,
+          "p90": 8248803,
+          "max": 8248892
+        },
+        "interpretation": "consistency diagnostic only: derives an implied clock64 rate from one CTA's own accumulated stage intervals and a separate full-kernel event; outside-kernel clocks.sm samples are not used to convert cycles"
+      },
+      "fraction_denominator": "same-CTA sum across layers for named active stages; capture and final norm excluded"
+    },
+    {
+      "case_id": "seed17-b2-ctx128",
+      "batch": 2,
+      "context": 128,
+      "phase_cycles": {
+        "norm1": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 191507.0,
+            "p90": 192929,
+            "max": 193443
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 191507.0,
+            "p90": 192929,
+            "max": 193443
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "qkv": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1093307.5,
+            "p90": 1118785,
+            "max": 1132113
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 100396.5,
+            "p90": 123907,
+            "max": 134029
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1193004.5,
+            "p90": 1198045,
+            "max": 1199483
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "rope_cache": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 143877.0,
+            "p90": 148418,
+            "max": 196377
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 89148.0,
+            "p90": 93570,
+            "max": 95348
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 232737.0,
+            "p90": 234173,
+            "max": 238185
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "split_kv": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 283343.5,
+            "p90": 287934,
+            "max": 290691
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 50286.0,
+            "p90": 329991,
+            "max": 331037
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 333661.5,
+            "p90": 334854,
+            "max": 335945
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "merge": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 209665.0,
+            "p90": 217147,
+            "max": 218416
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 209665.0,
+            "p90": 217147,
+            "max": 218416
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "o_residual": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 676003.5,
+            "p90": 694300,
+            "max": 701689
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 86152.5,
+            "p90": 120510,
+            "max": 141167
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 763054.0,
+            "p90": 770592,
+            "max": 773781
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "norm2": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 191543.0,
+            "p90": 192901,
+            "max": 194338
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 191543.0,
+            "p90": 192901,
+            "max": 194338
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "gate_up_silu": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3398022.0,
+            "p90": 3416555,
+            "max": 3425137
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 85604.5,
+            "p90": 109516,
+            "max": 115026
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3483369.0,
+            "p90": 3490887,
+            "max": 3491228
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "down_residual": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1659650.0,
+            "p90": 1753778,
+            "max": 1791049
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 209570.0,
+            "p90": 270440,
+            "max": 320596
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1870629.5,
+            "p90": 1872822,
+            "max": 1873293
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "layer_capture": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "final_norm": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 5708,
+            "p90": 5708,
+            "max": 5708
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 5708,
+            "p90": 5708,
+            "max": 5708
+          },
+          "cta_coverage": [
+            0
+          ]
+        }
+      },
+      "per_cta_phase_fractions": {
+        "norm1": {
+          "median_fraction_per_cta": 0.022586153156228195,
+          "p90_fraction_per_cta": 0.02278060942883602,
+          "max_fraction_per_cta": 0.022839011316611275
+        },
+        "qkv": {
+          "median_fraction_per_cta": 0.14096670370987469,
+          "p90_fraction_per_cta": 0.14128637235627217,
+          "max_fraction_per_cta": 0.14145140276496304
+        },
+        "rope_cache": {
+          "median_fraction_per_cta": 0.027506166892995815,
+          "p90_fraction_per_cta": 0.02764672339109276,
+          "max_fraction_per_cta": 0.0281215266487726
+        },
+        "split_kv": {
+          "median_fraction_per_cta": 0.039405467924867627,
+          "p90_fraction_per_cta": 0.039566881026281586,
+          "max_fraction_per_cta": 0.03966304036752879
+        },
+        "merge": {
+          "median_fraction_per_cta": 0.02472769021442052,
+          "p90_fraction_per_cta": 0.025637262726600406,
+          "max_fraction_per_cta": 0.025787481850319358
+        },
+        "o_residual": {
+          "median_fraction_per_cta": 0.09000424179523035,
+          "p90_fraction_per_cta": 0.09087504162889012,
+          "max_fraction_per_cta": 0.09124965329469102
+        },
+        "norm2": {
+          "median_fraction_per_cta": 0.022638141356704264,
+          "p90_fraction_per_cta": 0.022794509734418204,
+          "max_fraction_per_cta": 0.022944680248174407
+        },
+        "gate_up_silu": {
+          "median_fraction_per_cta": 0.4113640916689024,
+          "p90_fraction_per_cta": 0.41166974691927566,
+          "max_fraction_per_cta": 0.41171656315656896
+        },
+        "down_residual": {
+          "median_fraction_per_cta": 0.22084087019486404,
+          "p90_fraction_per_cta": 0.22092574282180297,
+          "max_fraction_per_cta": 0.22096244418340272
+        }
+      },
+      "per_cta_family_fractions": {
+        "projections": {
+          "median_fraction_per_cta": 0.8632905400523223,
+          "p90_fraction_per_cta": 0.8646594072800792,
+          "max_fraction_per_cta": 0.8652270377309718
+        },
+        "attention": {
+          "median_fraction_per_cta": 0.06413153965549762,
+          "p90_fraction_per_cta": 0.06502063200647001,
+          "max_fraction_per_cta": 0.0653003030941292
+        },
+        "normalizations": {
+          "median_fraction_per_cta": 0.045175665662879796,
+          "p90_fraction_per_cta": 0.0455821834678162,
+          "max_fraction_per_cta": 0.04578369156478568
+        },
+        "rope_and_kv_cache": {
+          "median_fraction_per_cta": 0.027506166892995815,
+          "p90_fraction_per_cta": 0.02764672339109276,
+          "max_fraction_per_cta": 0.0281215266487726
+        },
+        "all_grid_waits": {
+          "median_fraction_per_cta": 0.08714150653898321,
+          "p90_fraction_per_cta": 0.1157304630988443,
+          "max_fraction_per_cta": 0.12436666782631872
+        }
+      },
+      "same_cta_step_cycles_vs_full_event": {
+        "event_ms": 3.329024076461792,
+        "sm_clock_mhz_sample_before": 2610.0,
+        "sm_clock_mhz_sample_after": 2610.0,
+        "sample_drift_percent": 0.0,
+        "implied_clock64_mhz_from_max_same_cta_stage_sum": 2547.24021371833,
+        "same_cta_step_cycle_distribution": {
+          "n": 24,
+          "median": 8470233.5,
+          "p90": 8479555,
+          "max": 8479824
+        },
+        "interpretation": "consistency diagnostic only: derives an implied clock64 rate from one CTA's own accumulated stage intervals and a separate full-kernel event; outside-kernel clocks.sm samples are not used to convert cycles"
+      },
+      "fraction_denominator": "same-CTA sum across layers for named active stages; capture and final norm excluded"
+    },
+    {
+      "case_id": "synthetic-b1-ctx1024",
+      "batch": 1,
+      "context": 1024,
+      "phase_cycles": {
+        "norm1": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 131592.5,
+            "p90": 132319,
+            "max": 133115
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 131592.5,
+            "p90": 132319,
+            "max": 133115
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "qkv": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 982865.5,
+            "p90": 1073609,
+            "max": 1080884
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 161967.5,
+            "p90": 186286,
+            "max": 186450
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1144416.0,
+            "p90": 1145933,
+            "max": 1147423
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "rope_cache": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 96728.0,
+            "p90": 101427,
+            "max": 134243
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 76481.5,
+            "p90": 81611,
+            "max": 82462
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 173187.0,
+            "p90": 174329,
+            "max": 175479
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "split_kv": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 707190.5,
+            "p90": 717247,
+            "max": 720141
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 72972.5,
+            "p90": 80884,
+            "max": 103082
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 779623.5,
+            "p90": 781037,
+            "max": 781168
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "merge": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 332786.0,
+            "p90": 339593,
+            "max": 344512
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 332786.0,
+            "p90": 339593,
+            "max": 344512
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "o_residual": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 591306.0,
+            "p90": 618942,
+            "max": 633258
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 106485.5,
+            "p90": 133056,
+            "max": 135323
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 698851.0,
+            "p90": 705621,
+            "max": 711013
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "norm2": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 132734.5,
+            "p90": 133272,
+            "max": 133366
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 132734.5,
+            "p90": 133272,
+            "max": 133366
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "gate_up_silu": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3282199.5,
+            "p90": 3389678,
+            "max": 3407732
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 194014.5,
+            "p90": 224921,
+            "max": 262270
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3478905.5,
+            "p90": 3483325,
+            "max": 3484382
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "down_residual": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1615778.0,
+            "p90": 1694221,
+            "max": 1735858
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 191475.0,
+            "p90": 247990,
+            "max": 266346
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1808255.0,
+            "p90": 1809743,
+            "max": 1810129
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "layer_capture": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "final_norm": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 5890,
+            "p90": 5890,
+            "max": 5890
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 5890,
+            "p90": 5890,
+            "max": 5890
+          },
+          "cta_coverage": [
+            0
+          ]
+        }
+      },
+      "per_cta_phase_fractions": {
+        "norm1": {
+          "median_fraction_per_cta": 0.015169548368935207,
+          "p90_fraction_per_cta": 0.015247799327335809,
+          "max_fraction_per_cta": 0.015366692113319296
+        },
+        "qkv": {
+          "median_fraction_per_cta": 0.1318576002546124,
+          "p90_fraction_per_cta": 0.13193469878341443,
+          "max_fraction_per_cta": 0.13220442953157777
+        },
+        "rope_cache": {
+          "median_fraction_per_cta": 0.019955102635740615,
+          "p90_fraction_per_cta": 0.02012388386144835,
+          "max_fraction_per_cta": 0.020216980078879853
+        },
+        "split_kv": {
+          "median_fraction_per_cta": 0.08983908024844586,
+          "p90_fraction_per_cta": 0.08991404169916553,
+          "max_fraction_per_cta": 0.08998084800569951
+        },
+        "merge": {
+          "median_fraction_per_cta": 0.038303978611737816,
+          "p90_fraction_per_cta": 0.039123455248342286,
+          "max_fraction_per_cta": 0.039694177671863756
+        },
+        "o_residual": {
+          "median_fraction_per_cta": 0.08048583626031874,
+          "p90_fraction_per_cta": 0.0812147645336839,
+          "max_fraction_per_cta": 0.0818307329436681
+        },
+        "norm2": {
+          "median_fraction_per_cta": 0.015283515972233687,
+          "p90_fraction_per_cta": 0.015356879779400263,
+          "max_fraction_per_cta": 0.015361212980426
+        },
+        "gate_up_silu": {
+          "median_fraction_per_cta": 0.40082554969388284,
+          "p90_fraction_per_cta": 0.4010219141246505,
+          "max_fraction_per_cta": 0.4014654879500394
+        },
+        "down_residual": {
+          "median_fraction_per_cta": 0.20832636846631414,
+          "p90_fraction_per_cta": 0.20840565981432782,
+          "max_fraction_per_cta": 0.20844056611984968
+        }
+      },
+      "per_cta_family_fractions": {
+        "projections": {
+          "median_fraction_per_cta": 0.8214486879652828,
+          "p90_fraction_per_cta": 0.8222633704382966,
+          "max_fraction_per_cta": 0.8228600733862089
+        },
+        "attention": {
+          "median_fraction_per_cta": 0.12813939220524756,
+          "p90_fraction_per_cta": 0.1291043032540418,
+          "max_fraction_per_cta": 0.1291753602333697
+        },
+        "normalizations": {
+          "median_fraction_per_cta": 0.030448305401051385,
+          "p90_fraction_per_cta": 0.030587332914448078,
+          "max_fraction_per_cta": 0.03072357189271956
+        },
+        "rope_and_kv_cache": {
+          "median_fraction_per_cta": 0.019955102635740615,
+          "p90_fraction_per_cta": 0.02012388386144835,
+          "max_fraction_per_cta": 0.020216980078879853
+        },
+        "all_grid_waits": {
+          "median_fraction_per_cta": 0.0887977768188761,
+          "p90_fraction_per_cta": 0.1089325065081522,
+          "max_fraction_per_cta": 0.11389464013781053
+        }
+      },
+      "same_cta_step_cycles_vs_full_event": {
+        "event_ms": 3.402751922607422,
+        "sm_clock_mhz_sample_before": 2520.0,
+        "sm_clock_mhz_sample_after": 2520.0,
+        "sample_drift_percent": 0.0,
+        "implied_clock64_mhz_from_max_same_cta_stage_sum": 2553.470308038802,
+        "same_cta_step_cycle_distribution": {
+          "n": 24,
+          "median": 8680040.5,
+          "p90": 8688334,
+          "max": 8688826
+        },
+        "interpretation": "consistency diagnostic only: derives an implied clock64 rate from one CTA's own accumulated stage intervals and a separate full-kernel event; outside-kernel clocks.sm samples are not used to convert cycles"
+      },
+      "fraction_denominator": "same-CTA sum across layers for named active stages; capture and final norm excluded"
+    },
+    {
+      "case_id": "synthetic-b2-ctx1024",
+      "batch": 2,
+      "context": 1024,
+      "phase_cycles": {
+        "norm1": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 189855.5,
+            "p90": 190833,
+            "max": 191206
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 189855.5,
+            "p90": 190833,
+            "max": 191206
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "qkv": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1099896.0,
+            "p90": 1121220,
+            "max": 1142656
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 103428.5,
+            "p90": 119715,
+            "max": 131850
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1201833.5,
+            "p90": 1206071,
+            "max": 1206967
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "rope_cache": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 144810.5,
+            "p90": 149754,
+            "max": 197831
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 89888.0,
+            "p90": 93988,
+            "max": 96415
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 234620.5,
+            "p90": 235639,
+            "max": 239429
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "split_kv": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1179554.5,
+            "p90": 1250264,
+            "max": 1259843
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 141560.0,
+            "p90": 168436,
+            "max": 185994
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1325195.5,
+            "p90": 1327182,
+            "max": 1327313
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "merge": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 327372.5,
+            "p90": 337552,
+            "max": 340402
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 327372.5,
+            "p90": 337552,
+            "max": 340402
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "o_residual": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 663020.5,
+            "p90": 683270,
+            "max": 687648
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 88788.0,
+            "p90": 108773,
+            "max": 132589
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 751533.5,
+            "p90": 760696,
+            "max": 767956
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "norm2": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 192106.0,
+            "p90": 193773,
+            "max": 194899
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 192106.0,
+            "p90": 193773,
+            "max": 194899
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "gate_up_silu": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3401239.0,
+            "p90": 3421196,
+            "max": 3433088
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 86420.0,
+            "p90": 104525,
+            "max": 121101
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 3488497.0,
+            "p90": 3495423,
+            "max": 3495626
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "down_residual": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1655735.0,
+            "p90": 1764388,
+            "max": 1779314
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 197643.5,
+            "p90": 277502,
+            "max": 303626
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 1858429.5,
+            "p90": 1860132,
+            "max": 1860859
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "layer_capture": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 24,
+            "median": 0.0,
+            "p90": 0,
+            "max": 0
+          },
+          "cta_coverage": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ]
+        },
+        "final_norm": {
+          "work_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 5748,
+            "p90": 5748,
+            "max": 5748
+          },
+          "grid_wait_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "work_plus_wait_cycles_per_cta_summed_over_layers": {
+            "n": 1,
+            "median": 5748,
+            "p90": 5748,
+            "max": 5748
+          },
+          "cta_coverage": [
+            0
+          ]
+        }
+      },
+      "per_cta_phase_fractions": {
+        "norm1": {
+          "median_fraction_per_cta": 0.01984279705754028,
+          "p90_fraction_per_cta": 0.01998535656451177,
+          "max_fraction_per_cta": 0.01998951255811459
+        },
+        "qkv": {
+          "median_fraction_per_cta": 0.12563900677690767,
+          "p90_fraction_per_cta": 0.12588868421294352,
+          "max_fraction_per_cta": 0.1259770796858649
+        },
+        "rope_cache": {
+          "median_fraction_per_cta": 0.024498591325405522,
+          "p90_fraction_per_cta": 0.024637280237331062,
+          "max_fraction_per_cta": 0.025014762564059916
+        },
+        "split_kv": {
+          "median_fraction_per_cta": 0.13844974027224846,
+          "p90_fraction_per_cta": 0.1385317539460938,
+          "max_fraction_per_cta": 0.13855031629935136
+        },
+        "merge": {
+          "median_fraction_per_cta": 0.0341848908382688,
+          "p90_fraction_per_cta": 0.03526652211883729,
+          "max_fraction_per_cta": 0.0355640929308109
+        },
+        "o_residual": {
+          "median_fraction_per_cta": 0.07856422466302261,
+          "p90_fraction_per_cta": 0.07943661127996633,
+          "max_fraction_per_cta": 0.08015482457403829
+        },
+        "norm2": {
+          "median_fraction_per_cta": 0.020061840896470763,
+          "p90_fraction_per_cta": 0.020285542592830986,
+          "max_fraction_per_cta": 0.020362521609823877
+        },
+        "gate_up_silu": {
+          "median_fraction_per_cta": 0.36457942246611,
+          "p90_fraction_per_cta": 0.3648493349377107,
+          "max_fraction_per_cta": 0.36485331035430046
+        },
+        "down_residual": {
+          "median_fraction_per_cta": 0.1941359920348831,
+          "p90_fraction_per_cta": 0.19422700250061425,
+          "max_fraction_per_cta": 0.19427189529591365
+        }
+      },
+      "per_cta_family_fractions": {
+        "projections": {
+          "median_fraction_per_cta": 0.7629478587268923,
+          "p90_fraction_per_cta": 0.764221148054291,
+          "max_fraction_per_cta": 0.7650693441581946
+        },
+        "attention": {
+          "median_fraction_per_cta": 0.17262834853301642,
+          "p90_fraction_per_cta": 0.17358842514680028,
+          "max_fraction_per_cta": 0.17390127401345004
+        },
+        "normalizations": {
+          "median_fraction_per_cta": 0.0398557278784645,
+          "p90_fraction_per_cta": 0.04022346427232181,
+          "max_fraction_per_cta": 0.0403392085447388
+        },
+        "rope_and_kv_cache": {
+          "median_fraction_per_cta": 0.024498591325405522,
+          "p90_fraction_per_cta": 0.024637280237331062,
+          "max_fraction_per_cta": 0.025014762564059916
+        },
+        "all_grid_waits": {
+          "median_fraction_per_cta": 0.0709898564564192,
+          "p90_fraction_per_cta": 0.0903669046816857,
+          "max_fraction_per_cta": 0.09267553199372999
+        }
+      },
+      "same_cta_step_cycles_vs_full_event": {
+        "event_ms": 3.7406721115112305,
+        "sm_clock_mhz_sample_before": 2535.0,
+        "sm_clock_mhz_sample_after": 2535.0,
+        "sample_drift_percent": 0.0,
+        "implied_clock64_mhz_from_max_same_cta_stage_sum": 2561.279822018219,
+        "same_cta_step_cycle_distribution": {
+          "n": 24,
+          "median": 9571997.0,
+          "p90": 9580749,
+          "max": 9580908
+        },
+        "interpretation": "consistency diagnostic only: derives an implied clock64 rate from one CTA's own accumulated stage intervals and a separate full-kernel event; outside-kernel clocks.sm samples are not used to convert cycles"
+      },
+      "fraction_denominator": "same-CTA sum across layers for named active stages; capture and final norm excluded"
+    }
+  ]
+}

@@ -1,0 +1,339 @@
+{
+  "status": "complete-private-diagnostic-no-promotion",
+  "canonical_target": "FAST R28 r28-flash-decode",
+  "build": {
+    "command": "build.sh under canonical GPU lock; CUDA_VISIBLE_DEVICES empty; systemd MemoryMax=2G, MemorySwapMax=0, RuntimeMaxSec=120s; offline pinned uv preflight",
+    "instrumented_dso_sha256": "97da2f8eba6e3531fa89d39c6c82a3e61b4b61041ca348c0ffa7b6c4fea7d107",
+    "source_sha256": "46b2c58d16adf13b43c85daf33d8e5b8d55bd72f5a13fbf2d674893aa2462b40",
+    "include_sha256": "1c569dc50c6e88f0ae43c27a1842c1dcd880fe78fb837cce7dab86c6188b0b02",
+    "build_script_sha256": "f7f69e8954ee711b16c999ce08c2c98f3d12f7aa1b3b03cc5613762897898b60",
+    "ptxas": {
+      "B1": {
+        "registers": 250,
+        "shared_bytes": 36824,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "stack_bytes": 0
+      },
+      "B2": {
+        "registers": 244,
+        "shared_bytes": 43232,
+        "spill_stores": 0,
+        "spill_loads": 0,
+        "stack_bytes": 0
+      }
+    },
+    "uninstrumented_fast_r28_ptxas": {
+      "B1": {
+        "registers": 249,
+        "shared_bytes": 36644
+      },
+      "B2": {
+        "registers": 236,
+        "shared_bytes": 43056
+      }
+    },
+    "instrumentation_delta": {
+      "B1": {
+        "registers": 1,
+        "shared_bytes": 180
+      },
+      "B2": {
+        "registers": 8,
+        "shared_bytes": 176
+      }
+    }
+  },
+  "method": {
+    "cases": 6,
+    "warmups_per_arm": 2,
+    "repeats_per_placement": 5,
+    "blocks": 3,
+    "samples_per_arm_case": 30,
+    "ab_ba_order": "alternating ABBA/BAAB",
+    "same_cta_cycles_only": true,
+    "cross_cta_subtraction": false,
+    "gpu_cap_mib": 3072,
+    "serial_canonical_lock": true,
+    "parity": "final hidden and all layer K/V bitwise equality between uninstrumented and instrumented R28"
+  },
+  "cases": [
+    {
+      "case_id": "seed17-b1-ctx32",
+      "event_medians_ms": {
+        "uninstrumented_r28": 3.3480639457702637,
+        "instrumented_r28": 3.4016480445861816
+      },
+      "instrumentation_overhead_percent": 1.6004502806349574,
+      "all_hidden_and_kv_bitwise_equal": true,
+      "guard": {
+        "outer_returncode": 0,
+        "inner_returncode": 0,
+        "outer_stop_reason": null,
+        "inner_stop_reason": null,
+        "outer_peak_gpu_mib": 1315,
+        "inner_peak_gpu_mib": 1315,
+        "minimum_available_ram_bytes": 7914299392,
+        "peak_cgroup_bytes": 1351237632,
+        "peak_swap_bytes": 0
+      },
+      "median_same_cta_phase_fraction": {
+        "norm1": 0.016972024130225888,
+        "qkv": 0.14322512500097367,
+        "rope_cache": 0.02199440380227309,
+        "split_kv": 0.030524511866665723,
+        "merge": 0.01222492456406278,
+        "o_residual": 0.08851971628917052,
+        "norm2": 0.01688402648648318,
+        "gate_up_silu": 0.43979717061529267,
+        "down_residual": 0.22983893613398448
+      },
+      "event_clock_coverage_crosscheck_only": {
+        "event_ms": 3.0740480422973633,
+        "sm_clock_mhz_before": 2250.0,
+        "sm_clock_mhz_after": 2250.0,
+        "clock_drift_percent": 0.0,
+        "event_cycles_estimate": 6916608.095169067,
+        "same_cta_step_cycle_distribution": {
+          "n": 24,
+          "median": 7819789.0,
+          "p90": 7830792,
+          "max": 7831047
+        },
+        "max_same_cta_stage_sum_over_estimated_event_cycles": 1.1322091540027583,
+        "interpretation": "approximate cross-check only: clock samples bracket one kernel, stage intervals omit instrumentation gaps; no cross-CTA timestamps or sums"
+      }
+    },
+    {
+      "case_id": "seed17-b1-ctx128",
+      "event_medians_ms": {
+        "uninstrumented_r28": 3.035647988319397,
+        "instrumented_r28": 3.0562559366226196
+      },
+      "instrumentation_overhead_percent": 0.6788648875797998,
+      "all_hidden_and_kv_bitwise_equal": true,
+      "guard": {
+        "outer_returncode": 0,
+        "inner_returncode": 0,
+        "outer_stop_reason": null,
+        "inner_stop_reason": null,
+        "outer_peak_gpu_mib": 1339,
+        "inner_peak_gpu_mib": 1349,
+        "minimum_available_ram_bytes": 7806193664,
+        "peak_cgroup_bytes": 1261826048,
+        "peak_swap_bytes": 0
+      },
+      "median_same_cta_phase_fraction": {
+        "norm1": 0.016597382926203795,
+        "qkv": 0.14198921024580247,
+        "rope_cache": 0.021583670078046235,
+        "split_kv": 0.03662007226884256,
+        "merge": 0.017451504618404903,
+        "o_residual": 0.08759071534243967,
+        "norm2": 0.016309726996372252,
+        "gate_up_silu": 0.43378281833741716,
+        "down_residual": 0.22799201777059894
+      },
+      "event_clock_coverage_crosscheck_only": {
+        "event_ms": 3.1373119354248047,
+        "sm_clock_mhz_before": 2460.0,
+        "sm_clock_mhz_after": 2460.0,
+        "clock_drift_percent": 0.0,
+        "event_cycles_estimate": 7717787.3611450195,
+        "same_cta_step_cycle_distribution": {
+          "n": 24,
+          "median": 7980133.5,
+          "p90": 7984916,
+          "max": 7985153
+        },
+        "max_same_cta_stage_sum_over_estimated_event_cycles": 1.0346427837855479,
+        "interpretation": "approximate cross-check only: clock samples bracket one kernel, stage intervals omit instrumentation gaps; no cross-CTA timestamps or sums"
+      }
+    },
+    {
+      "case_id": "seed17-b2-ctx32",
+      "event_medians_ms": {
+        "uninstrumented_r28": 3.1564799547195435,
+        "instrumented_r28": 3.169792056083679
+      },
+      "instrumentation_overhead_percent": 0.4217388215702611,
+      "all_hidden_and_kv_bitwise_equal": true,
+      "guard": {
+        "outer_returncode": 0,
+        "inner_returncode": 0,
+        "outer_stop_reason": null,
+        "inner_stop_reason": null,
+        "outer_peak_gpu_mib": 1325,
+        "inner_peak_gpu_mib": 1325,
+        "minimum_available_ram_bytes": 7770284032,
+        "peak_cgroup_bytes": 1260965888,
+        "peak_swap_bytes": 0
+      },
+      "median_same_cta_phase_fraction": {
+        "norm1": 0.023057970948412995,
+        "qkv": 0.14256907423928822,
+        "rope_cache": 0.028399995025765574,
+        "split_kv": 0.031093312671290514,
+        "merge": 0.01772655561978538,
+        "o_residual": 0.09163002827595743,
+        "norm2": 0.02351648849171115,
+        "gate_up_silu": 0.41794483027759954,
+        "down_residual": 0.22415798176270046
+      },
+      "event_clock_coverage_crosscheck_only": {
+        "event_ms": 3.2305281162261963,
+        "sm_clock_mhz_before": 2295.0,
+        "sm_clock_mhz_after": 2295.0,
+        "clock_drift_percent": 0.0,
+        "event_cycles_estimate": 7414062.0267391205,
+        "same_cta_step_cycle_distribution": {
+          "n": 24,
+          "median": 8242303.5,
+          "p90": 8248803,
+          "max": 8248892
+        },
+        "max_same_cta_stage_sum_over_estimated_event_cycles": 1.1126008887233518,
+        "interpretation": "approximate cross-check only: clock samples bracket one kernel, stage intervals omit instrumentation gaps; no cross-CTA timestamps or sums"
+      }
+    },
+    {
+      "case_id": "seed17-b2-ctx128",
+      "event_medians_ms": {
+        "uninstrumented_r28": 3.2434719800949097,
+        "instrumented_r28": 3.257215976715088
+      },
+      "instrumentation_overhead_percent": 0.4237433436923288,
+      "all_hidden_and_kv_bitwise_equal": true,
+      "guard": {
+        "outer_returncode": 0,
+        "inner_returncode": 0,
+        "outer_stop_reason": null,
+        "inner_stop_reason": null,
+        "outer_peak_gpu_mib": 1383,
+        "inner_peak_gpu_mib": 1383,
+        "minimum_available_ram_bytes": 7821398016,
+        "peak_cgroup_bytes": 1233637376,
+        "peak_swap_bytes": 0
+      },
+      "median_same_cta_phase_fraction": {
+        "norm1": 0.022586153156228195,
+        "qkv": 0.14096670370987469,
+        "rope_cache": 0.027506166892995815,
+        "split_kv": 0.039405467924867627,
+        "merge": 0.02472769021442052,
+        "o_residual": 0.09000424179523035,
+        "norm2": 0.022638141356704264,
+        "gate_up_silu": 0.4113640916689024,
+        "down_residual": 0.22084087019486404
+      },
+      "event_clock_coverage_crosscheck_only": {
+        "event_ms": 3.329024076461792,
+        "sm_clock_mhz_before": 2610.0,
+        "sm_clock_mhz_after": 2610.0,
+        "clock_drift_percent": 0.0,
+        "event_cycles_estimate": 8688752.839565277,
+        "same_cta_step_cycle_distribution": {
+          "n": 24,
+          "median": 8470233.5,
+          "p90": 8479555,
+          "max": 8479824
+        },
+        "max_same_cta_stage_sum_over_estimated_event_cycles": 0.9759541048729232,
+        "interpretation": "approximate cross-check only: clock samples bracket one kernel, stage intervals omit instrumentation gaps; no cross-CTA timestamps or sums"
+      }
+    },
+    {
+      "case_id": "synthetic-b1-ctx1024",
+      "event_medians_ms": {
+        "uninstrumented_r28": 3.3425920009613037,
+        "instrumented_r28": 3.3601760864257812
+      },
+      "instrumentation_overhead_percent": 0.5260613757054555,
+      "all_hidden_and_kv_bitwise_equal": true,
+      "guard": {
+        "outer_returncode": 0,
+        "inner_returncode": 0,
+        "outer_stop_reason": null,
+        "inner_stop_reason": null,
+        "outer_peak_gpu_mib": 1619,
+        "inner_peak_gpu_mib": 1619,
+        "minimum_available_ram_bytes": 7822462976,
+        "peak_cgroup_bytes": 1234391040,
+        "peak_swap_bytes": 0
+      },
+      "median_same_cta_phase_fraction": {
+        "norm1": 0.015169548368935207,
+        "qkv": 0.1318576002546124,
+        "rope_cache": 0.019955102635740615,
+        "split_kv": 0.08983908024844586,
+        "merge": 0.038303978611737816,
+        "o_residual": 0.08048583626031874,
+        "norm2": 0.015283515972233687,
+        "gate_up_silu": 0.40082554969388284,
+        "down_residual": 0.20832636846631414
+      },
+      "event_clock_coverage_crosscheck_only": {
+        "event_ms": 3.402751922607422,
+        "sm_clock_mhz_before": 2520.0,
+        "sm_clock_mhz_after": 2520.0,
+        "clock_drift_percent": 0.0,
+        "event_cycles_estimate": 8574934.844970703,
+        "same_cta_step_cycle_distribution": {
+          "n": 24,
+          "median": 8680040.5,
+          "p90": 8688334,
+          "max": 8688826
+        },
+        "max_same_cta_stage_sum_over_estimated_event_cycles": 1.013281868269366,
+        "interpretation": "approximate cross-check only: clock samples bracket one kernel, stage intervals omit instrumentation gaps; no cross-CTA timestamps or sums"
+      }
+    },
+    {
+      "case_id": "synthetic-b2-ctx1024",
+      "event_medians_ms": {
+        "uninstrumented_r28": 3.691632032394409,
+        "instrumented_r28": 3.69868803024292
+      },
+      "instrumentation_overhead_percent": 0.19113491774351843,
+      "all_hidden_and_kv_bitwise_equal": true,
+      "guard": {
+        "outer_returncode": 0,
+        "inner_returncode": 0,
+        "outer_stop_reason": null,
+        "inner_stop_reason": null,
+        "outer_peak_gpu_mib": 1891,
+        "inner_peak_gpu_mib": 1991,
+        "minimum_available_ram_bytes": 7896743936,
+        "peak_cgroup_bytes": 1234419712,
+        "peak_swap_bytes": 0
+      },
+      "median_same_cta_phase_fraction": {
+        "norm1": 0.01984279705754028,
+        "qkv": 0.12563900677690767,
+        "rope_cache": 0.024498591325405522,
+        "split_kv": 0.13844974027224846,
+        "merge": 0.0341848908382688,
+        "o_residual": 0.07856422466302261,
+        "norm2": 0.020061840896470763,
+        "gate_up_silu": 0.36457942246611,
+        "down_residual": 0.1941359920348831
+      },
+      "event_clock_coverage_crosscheck_only": {
+        "event_ms": 3.7406721115112305,
+        "sm_clock_mhz_before": 2535.0,
+        "sm_clock_mhz_after": 2535.0,
+        "clock_drift_percent": 0.0,
+        "event_cycles_estimate": 9482603.80268097,
+        "same_cta_step_cycle_distribution": {
+          "n": 24,
+          "median": 9571997.0,
+          "p90": 9580749,
+          "max": 9580908
+        },
+        "max_same_cta_stage_sum_over_estimated_event_cycles": 1.0103667936955498,
+        "interpretation": "approximate cross-check only: clock samples bracket one kernel, stage intervals omit instrumentation gaps; no cross-CTA timestamps or sums"
+      }
+    }
+  ],
+  "interpretation": "Stage fractions are CTA-local cycle diagnostics with stalls and synchronization. Grid-wait includes CTA arrival skew. Clock-event coverage is approximate; no speed or numerical-quality claim."
+}

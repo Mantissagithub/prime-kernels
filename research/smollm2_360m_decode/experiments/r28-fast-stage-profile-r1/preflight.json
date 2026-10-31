@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "mode": "CPU-only source/hash/ABI inspection; no CUDA calls, compile, or GPU launch",
+  "hashes": {
+    "canonical_source": "1d121b7f89561a955b1fcc665daa7535a13816821920fe4030c4040e7bf61313",
+    "canonical_include": "0ac2ba97ed2bfc4684c476987635e98e06affe2323349e4f9c4d9a27ed1247f0",
+    "canonical_r28_library": "df3f03f7d680719b2f282fe7ad0a41cc24ff20f04d14809756b9b5e63a7f6603",
+    "instrumented_source": "46b2c58d16adf13b43c85daf33d8e5b8d55bd72f5a13fbf2d674893aa2462b40",
+    "instrumented_include": "1c569dc50c6e88f0ae43c27a1842c1dcd880fe78fb837cce7dab86c6188b0b02"
+  },
+  "abi_parameter_count": 28,
+  "abi_status": "instrumented decoder remains the canonical 28-argument ABI",
+  "profile": {
+    "slots": [
+      "Norm1",
+      "Qkv",
+      "RopeCache",
+      "SplitKv",
+      "Merge",
+      "OResidual",
+      "Norm2",
+      "GateUpSilu",
+      "DownResidual",
+      "LayerCapture",
+      "FinalNorm"
+    ],
+    "buffer_bytes": 135168,
+    "clock_reads_in_source": 29,
+    "per_decoder_layer": 27,
+    "final_norm": 2,
+    "storage": "separate private device-global buffer; one thread per CTA holds slot deltas in 176 shared bytes and flushes once per layer"
+  },
+  "checks": [
+    "canonical FAST R28 hashes pinned",
+    "private source hashes pinned",
+    "28-argument ABI validated",
+    "profile slot names and fixed buffer geometry validated",
+    "no instrumentation uses debug/workspace tensors"
+  ]
+}
