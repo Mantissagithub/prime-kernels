@@ -18,8 +18,8 @@ import torch
 from torch.utils import cpp_extension
 
 SOURCE = Path(__file__).resolve().parent / "csrc" / "block360.cu"
-SOURCE_SHA256 = "0f24bb3a9502310e1e25fcd7c40f0ec299dd2a0a018a5b2cd4850f231e709f66"
-INCLUDE_SHA256 = "5c7b651550e07f57affd81f90c814bd561e12ea7d838e50b0e7878777fb2ad7d"
+SOURCE_SHA256 = "cff9f0f0ac3d2dcdcd8fe9026346cf01313c1247588ba8f213d4005a33b15298"
+INCLUDE_SHA256 = "48423f3f430d886e18aa3300a322ba74c9659c3efa9c5dd1f896c85f33f3150a"
 CACHE_ROOT = Path.home() / ".cache" / "prime_kernels" / "decode_megakernel_360m"
 NVCC_FLAGS = ["-O3", "-arch=sm_89", "-std=c++17", "-lineinfo"]
 
@@ -55,15 +55,15 @@ def _library():
     if _lib is None:
         include = SOURCE.with_name("block360_kernel.inc")
         if hashlib.sha256(SOURCE.read_bytes()).hexdigest() != SOURCE_SHA256:
-            raise RuntimeError(f"{SOURCE} does not match archived R9 source")
+            raise RuntimeError(f"{SOURCE} does not match archived R25 source")
         if hashlib.sha256(include.read_bytes()).hexdigest() != INCLUDE_SHA256:
-            raise RuntimeError(f"{include} does not match archived R9 include")
+            raise RuntimeError(f"{include} does not match archived R25 include")
         if shutil.which("ninja") is None:
             os.environ["PATH"] = os.path.dirname(sys.executable) + os.pathsep + os.environ["PATH"]
-        build_dir = CACHE_ROOT / f"r9-{SOURCE_SHA256[:16]}-{INCLUDE_SHA256[:8]}"
+        build_dir = CACHE_ROOT / f"r25-{SOURCE_SHA256[:16]}-{INCLUDE_SHA256[:8]}"
         build_dir.mkdir(parents=True, exist_ok=True)
         library = cpp_extension.load(
-            name="prime_decode_megakernel_360m_r9",
+            name="prime_decode_megakernel_360m_r25",
             sources=[str(SOURCE)],
             extra_cuda_cflags=NVCC_FLAGS,
             build_directory=str(build_dir),

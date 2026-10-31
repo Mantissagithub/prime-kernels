@@ -22,7 +22,9 @@ constexpr size_t kDebugBf16 = kDbgAttnPv + size_t(kMaxB) * kH;
 template <int B>
 constexpr size_t dynamic_smem_bytes() {
   constexpr size_t vectors = size_t(kMaxB) * kI * sizeof(float);
-  constexpr size_t wmma_per_warp = size_t(16) * 16 * (2 * sizeof(bf16) + sizeof(float));
+  constexpr size_t wmma_weight_buffers = B == 2 ? 2 : 1;
+  constexpr size_t wmma_per_warp = size_t(16) * 16 *
+      ((1 + wmma_weight_buffers) * sizeof(bf16) + sizeof(float));
   return vectors + size_t(kWarps) * wmma_per_warp;
 }
 
@@ -32,13 +34,14 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
 
   cg::grid_group grid = cg::this_grid();
   const int t = threadIdx.x, lane = t & 31, warp = t >> 5;
-  const int gw = blockIdx.x * kWarps + warp;
+  const int gw = B == 2 ? warp * kCTAs + blockIdx.x : blockIdx.x * kWarps + warp;
 
   extern __shared__ __align__(32) unsigned char dynamic_smem[];
   float* vec_s = reinterpret_cast<float*>(dynamic_smem);
   bf16* wmma_a = reinterpret_cast<bf16*>(dynamic_smem + size_t(kMaxB) * kI * sizeof(float));
   bf16* wmma_b = wmma_a + size_t(kWarps) * 16 * 16;
-  float* wmma_c = reinterpret_cast<float*>(wmma_b + size_t(kWarps) * 16 * 16);
+  bf16* wmma_b_next = B == 2 ? wmma_b + size_t(kWarps) * 16 * 16 : wmma_b;
+  float* wmma_c = reinterpret_cast<float*>(wmma_b_next + size_t(kWarps) * 16 * 16);
 
   __shared__ __align__(16) float q_s[B * kQH * kD];
   __shared__ __align__(16) float k_s[B * kKVH * kD];
@@ -84,7 +87,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
   } else {
 #pragma unroll 1
     for (int tile = gw; tile < 1600 / 16; tile += kGlobalWarps) {
-      wmma_project_tile<kH>(L.qkv, vec_s, tile, warp, wmma_a, wmma_c);
+      wmma_project_tile<kH>(L.qkv, vec_s, tile, warp, wmma_a, wmma_b, wmma_b_next, wmma_c);
       const int b = lane / 16, j = lane & 15;
       const int r = tile * 16 + j;
       ws[kOffQKV + b * 1600 + r] = __float2bfloat16_rn(wmma_c[warp * 256 + lane]);
@@ -138,6 +141,65 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
   constexpr unsigned kFullMask = 0xffffffffu;
   const int pages = (p.max_seq_len + 15) / 16;
 
+  // Use the profiled native GEMM-like shapes only for homogeneous B1/K256 and
+  // B2/K512. All other shapes retain the original four-lane RN reduction.
+  const bool qk_use_wmma = (B == 1 && seq_s[0] == 256) ||
+                           (B == 2 && seq_s[0] == 512 && seq_s[1] == 512);
+  if (qk_use_wmma) {
+    const int pages_per_batch = seq_s[0] / 16;
+    const int qk_tasks = B * kKVH * pages_per_batch;
+    for (int task = gw; task < qk_tasks; task += kGlobalWarps) {
+      const int b = task / (kKVH * pages_per_batch);
+      const int rem = task % (kKVH * pages_per_batch);
+      const int kvh = rem / pages_per_batch;
+      const int page = rem % pages_per_batch;
+      const int seqb = seq_s[b];
+      bf16* a_tile = wmma_a + warp * 256;
+      bf16* b_tile = wmma_b + warp * 256;
+      float* c_tile = wmma_c + warp * 256;
+      wmma::fragment<wmma::matrix_a, 16, 16, 16, bf16, wmma::row_major> a_frag;
+      wmma::fragment<wmma::matrix_b, 16, 16, 16, bf16, wmma::col_major> b_frag;
+      wmma::fragment<wmma::accumulator, 16, 16, 16, float> c_frag;
+      wmma::fill_fragment(c_frag, 0.f);
+      for (int d0 = 0; d0 < kD; d0 += 16) {
+        for (int idx = lane; idx < 256; idx += 32) {
+          const int row = idx / 16;
+          const int d = idx & 15;
+          a_tile[idx] = row < 3
+              ? __float2bfloat16_rn(q_s[(b * kQH + kvh * 3 + row) * kD + d0 + d])
+              : __float2bfloat16_rn(0.f);
+          const int col = idx / 16;
+          const int pos = page * 16 + col;
+          b_tile[col * 16 + d] = pos < seqb
+              ? kvw[p.k_off + static_cast<long long>(p.block_table[b * p.bt_stride + page]) * p.block_stride +
+                    (pos & 15) * p.token_stride + kvh * p.head_stride + d0 + d]
+              : __float2bfloat16_rn(0.f);
+        }
+        __syncwarp(kFullMask);
+        wmma::load_matrix_sync(a_frag, a_tile, 16);
+        wmma::load_matrix_sync(b_frag, b_tile, 16);
+        wmma::mma_sync(c_frag, a_frag, b_frag, c_frag);
+      }
+      wmma::store_matrix_sync(c_tile, c_frag, 16, wmma::mem_row_major);
+      __syncwarp(kFullMask);
+      for (int idx = lane; idx < 256; idx += 32) {
+        const int row = idx / 16;
+        const int pos = page * 16 + (idx & 15);
+        if (row < 3 && pos < seqb) {
+          const int hq = kvh * 3 + row;
+          const int score_index = (b * kQH + hq) * kMaxSeq + pos;
+          const bf16 dot_bf16 = __float2bfloat16_rn(c_tile[idx]);
+          const float scaled = mul_rn(bf2f(dot_bf16), kAttnScale);
+          scores[score_index] = __float2bfloat16_rn(scaled);
+          if (p.debug && layer_index == p.debug_layer_index) {
+            bf16* attn_debug = p.debug + kDebugStagesBf16;
+            attn_debug[kDbgAttnQK - kDebugStagesBf16 + score_index] = dot_bf16;
+            attn_debug[kDbgAttnScores - kDebugStagesBf16 + score_index] = scores[score_index];
+          }
+        }
+      }
+    }
+  } else {
   // QK SIMT path: each four-lane group computes one query-token dot product.
   // Each lane accumulates strided K dimensions in increasing order, then the
   // group reduces offsets 2 and 1 with explicit FP32 RN adds.
@@ -184,39 +246,109 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
       }
     }
   }
+  }
   sync_grid();
 
   // Softmax is row-wise FP32 and writes BF16 probabilities over the score buffer.
-  // The warp processes next-power-of-two rows in the persistent-softmax lane order.
-  for (int row = gw; row < B * kQH; row += kGlobalWarps) {
-    const int b = row / kQH;
-    const int seqb = seq_s[b];
-    int padded = 1;
-    while (padded < seqb) padded <<= 1;
-    const int warp_width = min(padded, 32);
-    const int iterations = padded / warp_width;
-    float local_max = -INFINITY;
-    for (int i = 0; i < iterations; ++i) {
-      const int pos = lane + i * warp_width;
-      if (pos < seqb) local_max = fmaxf(local_max, bf2f(scores[row * kMaxSeq + pos]));
-    }
-    for (int offset = warp_width / 2; offset > 0; offset >>= 1)
-      local_max = fmaxf(local_max, __shfl_xor_sync(kFullMask, local_max, offset));
-    float local_sum = 0.f;
-    for (int i = 0; i < iterations; ++i) {
-      const int pos = lane + i * warp_width;
-      if (pos < seqb) local_sum += expf(bf2f(scores[row * kMaxSeq + pos]) - local_max);
-    }
-    for (int offset = warp_width / 2; offset > 0; offset >>= 1)
-      local_sum += __shfl_xor_sync(kFullMask, local_sum, offset);
-    for (int i = 0; i < iterations; ++i) {
-      const int pos = lane + i * warp_width;
-      if (pos < seqb) {
-        const float probability = expf(bf2f(scores[row * kMaxSeq + pos]) - local_max) / local_sum;
+  int softmax_k = seq_s[0];
+  for (int b = 1; b < B; ++b) softmax_k = max(softmax_k, seq_s[b]);
+  if (softmax_k > 2048) {
+    // Four logical 256-thread groups preserve the native 1024-thread register order.
+    for (int row = blockIdx.x; row < B * kQH; row += kCTAs) {
+      const int b = row / kQH;
+      const int seqb = seq_s[b];
+      for (int group = 0; group < 4; ++group) {
+        const int virtual_tid = t + group * kThreads;
+        float local_max = -FLT_MAX;
+        for (int pos = virtual_tid; pos < softmax_k; pos += 1024) {
+          if (pos < seqb) {
+            const float value = bf2f(scores[row * kMaxSeq + pos]);
+            if (local_max < value) local_max = value;
+          }
+        }
+        for (int offset = 16; offset > 0; offset >>= 1) {
+          const float other = __shfl_down_sync(kFullMask, local_max, offset);
+          if (local_max < other) local_max = other;
+        }
+        if (lane == 0) red[warp + group * kWarps] = local_max;
+      }
+      __syncthreads();
+
+      float block_max = t < 32 ? red[lane] : -FLT_MAX;
+      if (warp == 0) {
+        for (int offset = 16; offset > 0; offset >>= 1) {
+          const float other = __shfl_down_sync(kFullMask, block_max, offset);
+          if (block_max < other) block_max = other;
+        }
+      }
+      if (t == 0) red[32] = block_max;
+      __syncthreads();
+      block_max = red[32];
+
+      for (int group = 0; group < 4; ++group) {
+        const int virtual_tid = t + group * kThreads;
+        float local_sum = 0.f;
+        for (int pos = virtual_tid; pos < softmax_k; pos += 1024) {
+          if (pos < seqb)
+            local_sum += expf(bf2f(scores[row * kMaxSeq + pos]) - block_max);
+        }
+        for (int offset = 16; offset > 0; offset >>= 1)
+          local_sum += __shfl_down_sync(kFullMask, local_sum, offset);
+        if (lane == 0) red[warp + group * kWarps] = local_sum;
+      }
+      __syncthreads();
+
+      float block_sum = t < 32 ? red[lane] : 0.f;
+      if (warp == 0) {
+        for (int offset = 16; offset > 0; offset >>= 1)
+          block_sum += __shfl_down_sync(kFullMask, block_sum, offset);
+      }
+      if (t == 0) red[33] = block_sum;
+      __syncthreads();
+      block_sum = red[33];
+
+      for (int pos = t; pos < seqb; pos += kThreads) {
+        const float probability = expf(bf2f(scores[row * kMaxSeq + pos]) - block_max) / block_sum;
         scores[row * kMaxSeq + pos] = __float2bfloat16_rn(probability);
         if (p.debug && layer_index == p.debug_layer_index) {
           bf16* attn_debug = p.debug + kDebugStagesBf16;
           attn_debug[kDbgAttnProbs - kDebugStagesBf16 + row * kMaxSeq + pos] = scores[row * kMaxSeq + pos];
+        }
+      }
+      __syncthreads();
+    }
+  } else {
+    // Keep the short-context persistent warp path byte-for-byte from R11.
+    for (int row = gw; row < B * kQH; row += kGlobalWarps) {
+      const int b = row / kQH;
+      const int seqb = seq_s[b];
+      int padded = 1;
+      while (padded < seqb) padded <<= 1;
+      const int warp_width = min(padded, 32);
+      const int iterations = padded / warp_width;
+      float local_max = -INFINITY;
+      for (int i = 0; i < iterations; ++i) {
+        const int pos = lane + i * warp_width;
+        if (pos < seqb) local_max = fmaxf(local_max, bf2f(scores[row * kMaxSeq + pos]));
+      }
+      for (int offset = warp_width / 2; offset > 0; offset >>= 1)
+        local_max = fmaxf(local_max, __shfl_xor_sync(kFullMask, local_max, offset));
+      float local_sum = 0.f;
+      for (int i = 0; i < iterations; ++i) {
+        const int pos = lane + i * warp_width;
+        if (pos < seqb) local_sum += expf(bf2f(scores[row * kMaxSeq + pos]) - local_max);
+      }
+      for (int offset = warp_width / 2; offset > 0; offset >>= 1)
+        local_sum += __shfl_xor_sync(kFullMask, local_sum, offset);
+      for (int i = 0; i < iterations; ++i) {
+        const int pos = lane + i * warp_width;
+        if (pos < seqb) {
+          const float probability = expf(bf2f(scores[row * kMaxSeq + pos]) - local_max) / local_sum;
+          scores[row * kMaxSeq + pos] = __float2bfloat16_rn(probability);
+          if (p.debug && layer_index == p.debug_layer_index) {
+            bf16* attn_debug = p.debug + kDebugStagesBf16;
+            attn_debug[kDbgAttnProbs - kDebugStagesBf16 + row * kMaxSeq + pos] = scores[row * kMaxSeq + pos];
+          }
         }
       }
     }
@@ -225,7 +357,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
 
   // Keep short-context B1 WMMA and reuse two y-partitions for B2.
   if constexpr (B == 1) {
-    if (seq_s[0] <= 16) {
+    if (seq_s[0] <= 16 || seq_s[0] == 256) {
       constexpr int kDimTiles = kD / 16;
       const int pv_tasks = B * kKVH * kDimTiles;
       for (int task = gw; task < pv_tasks; task += kGlobalWarps) {
@@ -284,7 +416,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
       constexpr int kDimTiles = kD / 32;
       constexpr int kPvTasks = B * kQH * kDimTiles;
       const int seqb = seq_s[0];
-      const int ygroups = seqb <= 32 ? 2 : 4;
+      const int ygroups = seqb > 2048 ? 8 : (seqb <= 32 ? 2 : 4);
       const int chunk = ygroups == 2 ? 16 : 32;
       const int accumulators = ygroups == 2 ? 2 : 1;
       const int group_width = ygroups * 32;
@@ -292,84 +424,263 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
       const int group_lane = t % group_width;
       const int y = group_lane >> 5;
       const int x = group_lane & 31;
-      const int task = blockIdx.x + group * kCTAs;
-      float acc[2] = {0.f, 0.f};
-      if (task < kPvTasks) {
-        const int dtile = task % kDimTiles;
-        const int qh = (task / kDimTiles) % kQH;
-        const int b = task / (kDimTiles * kQH);
-        const int kvh = qh / 3;
-        for (int base = 0; base < seqb; base += ygroups * chunk) {
-          const int start = base + y * chunk;
-          for (int j = 0; j < chunk && start + j < seqb; ++j) {
-            const int pos = start + j;
-            const int physical_block = p.block_table[b * p.bt_stride + pos / 16];
-            const int token_off = pos & 15;
-            const long long e = static_cast<long long>(physical_block) * p.block_stride +
-                                token_off * p.token_stride + kvh * p.head_stride + dtile * 32 + x;
-            const float prob = bf2f(scores[(b * kQH + qh) * kMaxSeq + pos]);
-            const float value = bf2f(kvw[p.v_off + e]);
-            const int accumulator = j % accumulators;
-            acc[accumulator] = add_rn(acc[accumulator], mul_rn(prob, value));
+      const int groups_per_cta = kThreads / group_width;
+      const int tasks_per_cta = kCTAs * groups_per_cta;
+      const int task_iterations = (kPvTasks + tasks_per_cta - 1) / tasks_per_cta;
+      for (int task_iter = 0; task_iter < task_iterations; ++task_iter) {
+        const int task = blockIdx.x + group * kCTAs + task_iter * tasks_per_cta;
+        const bool task_valid = task < kPvTasks;
+        float acc[2] = {0.f, 0.f};
+        if (task_valid) {
+          const int dtile = task % kDimTiles;
+          const int qh = (task / kDimTiles) % kQH;
+          const int b = task / (kDimTiles * kQH);
+          const int kvh = qh / 3;
+          for (int base = 0; base < seqb; base += ygroups * chunk) {
+            const int start = base + y * chunk;
+            for (int j = 0; j < chunk && start + j < seqb; ++j) {
+              const int pos = start + j;
+              const int physical_block = p.block_table[b * p.bt_stride + pos / 16];
+              const int token_off = pos & 15;
+              const long long e = static_cast<long long>(physical_block) * p.block_stride +
+                                  token_off * p.token_stride + kvh * p.head_stride + dtile * 32 + x;
+              const float prob = bf2f(scores[(b * kQH + qh) * kMaxSeq + pos]);
+              const float value = bf2f(kvw[p.v_off + e]);
+              const int accumulator = j % accumulators;
+              acc[accumulator] = add_rn(acc[accumulator], mul_rn(prob, value));
+            }
           }
         }
+        const float partial = accumulators == 2 ? add_rn(acc[0], acc[1]) : acc[0];
+        float* pv_partials = wmma_c + group * ygroups * 32;
+        pv_partials[y * 32 + x] = partial;
+        __syncthreads();
+        if (task_valid && y == 0) {
+          const int dtile = task % kDimTiles;
+          const int qh = (task / kDimTiles) % kQH;
+          const int b = task / (kDimTiles * kQH);
+          float result = pv_partials[x];
+          for (int part = 1; part < ygroups; ++part)
+            result = add_rn(result, pv_partials[part * 32 + x]);
+          attn_out[b * kH + qh * kD + dtile * 32 + x] = __float2bfloat16_rn(result);
+        }
+        __syncthreads();
       }
-      const float partial = accumulators == 2 ? add_rn(acc[0], acc[1]) : acc[0];
-      float* pv_partials = wmma_c + group * ygroups * 32;
-      pv_partials[y * 32 + x] = partial;
-      __syncthreads();
-      if (task < kPvTasks && y == 0) {
-        const int dtile = task % kDimTiles;
-        const int qh = (task / kDimTiles) % kQH;
-        const int b = task / (kDimTiles * kQH);
-        float result = pv_partials[x];
-        for (int part = 1; part < ygroups; ++part)
-          result = add_rn(result, pv_partials[part * 32 + x]);
-        attn_out[b * kH + qh * kD + dtile * 32 + x] = __float2bfloat16_rn(result);
+    }
+  } else if (seq_s[0] == 256 && seq_s[1] == 256) {
+    constexpr int kDimTiles = kD / 16;
+    constexpr int kPvTasks = B * kKVH * kDimTiles;
+    for (int task = gw; task < kPvTasks; task += kGlobalWarps) {
+      const int dtile = task % kDimTiles;
+      const int head_item = task / kDimTiles;
+      const int kvh = head_item % kKVH;
+      const int b = head_item / kKVH;
+      const int seqb = seq_s[b];
+      bf16* a_tile = wmma_a + warp * 256;
+      bf16* b_tile = wmma_b + warp * 256;
+      float* c_tile = wmma_c + warp * 256;
+      wmma::fragment<wmma::matrix_a, 16, 16, 16, bf16, wmma::row_major> a_frag;
+      wmma::fragment<wmma::matrix_b, 16, 16, 16, bf16, wmma::row_major> b_frag;
+      wmma::fragment<wmma::accumulator, 16, 16, 16, float> c_frag;
+      wmma::fill_fragment(c_frag, 0.f);
+      for (int k0 = 0; k0 < seqb; k0 += 16) {
+        for (int idx = lane; idx < 256; idx += 32) {
+          const int qrow = idx / 16;
+          const int token = idx & 15;
+          const int pos = k0 + token;
+          if (qrow < 3 && pos < seqb) {
+            const int hq = kvh * 3 + qrow;
+            a_tile[idx] = scores[(b * kQH + hq) * kMaxSeq + pos];
+          } else {
+            a_tile[idx] = __float2bfloat16_rn(0.f);
+          }
+          const int vpos = k0 + idx / 16;
+          const int d = dtile * 16 + (idx & 15);
+          if (vpos < seqb) {
+            const int physical_block = p.block_table[b * p.bt_stride + vpos / 16];
+            const int token_off = vpos & 15;
+            const long long e = static_cast<long long>(physical_block) * p.block_stride +
+                                token_off * p.token_stride + kvh * p.head_stride + d;
+            b_tile[idx] = kvw[p.v_off + e];
+          } else {
+            b_tile[idx] = __float2bfloat16_rn(0.f);
+          }
+        }
+        __syncwarp(kFullMask);
+        wmma::load_matrix_sync(a_frag, a_tile, 16);
+        wmma::load_matrix_sync(b_frag, b_tile, 16);
+        wmma::mma_sync(c_frag, a_frag, b_frag, c_frag);
       }
-      __syncthreads();
+      wmma::store_matrix_sync(c_tile, c_frag, 16, wmma::mem_row_major);
+      __syncwarp(kFullMask);
+      for (int idx = lane; idx < 256; idx += 32) {
+        const int qrow = idx / 16;
+        if (qrow < 3) {
+          const int hq = kvh * 3 + qrow;
+          const int d = dtile * 16 + (idx & 15);
+          attn_out[b * kH + hq * kD + d] = __float2bfloat16_rn(c_tile[idx]);
+        }
+      }
     }
   } else {
     constexpr int kDimTiles = kD / 32;
     constexpr int kPvTasks = B * kQH * kDimTiles;
-    const int group = t >> 6;
-    const int group_lane = t & 63;
+    const int max_seq = max(seq_s[0], seq_s[1]);
+    const bool use_long_b2_schedule = seq_s[0] == 512 && seq_s[1] == 512;
+    const bool use_long_pv64_schedule = max_seq > 2048 && !use_long_b2_schedule;
+    const bool use_r21_schedule = use_long_b2_schedule;
+    const int ygroups = (use_long_pv64_schedule || use_r21_schedule) ? 8 : 2;
+    const int group_width = ygroups * 32;
+    const int groups_per_cta = kThreads / group_width;
+    const int tasks_per_cta = kCTAs * groups_per_cta;
+    const int group = t / group_width;
+    const int group_lane = t % group_width;
     const int y = group_lane >> 5;
     const int x = group_lane & 31;
-    const int task = blockIdx.x + group * kCTAs;
-    float partial = 0.f;
-    if (task < kPvTasks) {
-      const int dtile = task % kDimTiles;
-      const int qh = (task / kDimTiles) % kQH;
-      const int b = task / (kDimTiles * kQH);
-      const int kvh = qh / 3;
-      const int seqb = seq_s[b];
-      const int y_chunk = seqb > 32 ? 32 : 16;
-      for (int base = 0; base < seqb; base += 2 * y_chunk) {
-        const int start = base + y * y_chunk;
-        for (int j = 0; j < y_chunk && start + j < seqb; ++j) {
-          const int pos = start + j;
-          const int physical_block = p.block_table[b * p.bt_stride + pos / 16];
-          const int token_off = pos & 15;
-          const long long e = static_cast<long long>(physical_block) * p.block_stride +
-                              token_off * p.token_stride + kvh * p.head_stride + dtile * 32 + x;
-          const float prob = bf2f(scores[(b * kQH + qh) * kMaxSeq + pos]);
-          const float value = bf2f(kvw[p.v_off + e]);
-          partial = add_rn(partial, mul_rn(prob, value));
+    const int task_iterations = (kPvTasks + tasks_per_cta - 1) / tasks_per_cta;
+    if (use_r21_schedule) {
+      for (int task_iter = 0; task_iter < task_iterations; ++task_iter) {
+        const int task = blockIdx.x + group * kCTAs + task_iter * tasks_per_cta;
+        const bool task_valid = task < kPvTasks;
+        float acc0 = 0.f, acc1 = 0.f, acc2 = 0.f, acc3 = 0.f;
+        if (task_valid) {
+          const int dtile = task % kDimTiles;
+          const int qh = (task / kDimTiles) % kQH;
+          const int b = task / (kDimTiles * kQH);
+          const int kvh = qh / 3;
+          const int seqb = seq_s[b];
+          constexpr int y_chunk = 8;
+          for (int base = 0; base < seqb; base += ygroups * y_chunk) {
+            const int start = base + y * y_chunk;
+            for (int j = 0; j < y_chunk && start + j < seqb; ++j) {
+              const int pos = start + j;
+              const int physical_block = p.block_table[b * p.bt_stride + pos / 16];
+              const int token_off = pos & 15;
+              const long long e = static_cast<long long>(physical_block) * p.block_stride +
+                                  token_off * p.token_stride + kvh * p.head_stride + dtile * 32 + x;
+              const float prob = bf2f(scores[(b * kQH + qh) * kMaxSeq + pos]);
+              const float value = bf2f(kvw[p.v_off + e]);
+              float& acc = (j & 3) == 0 ? acc0 : (j & 3) == 1 ? acc1 : (j & 3) == 2 ? acc2 : acc3;
+              acc = add_rn(acc, mul_rn(prob, value));
+            }
+          }
         }
+        float partial = 0.f;
+        partial = add_rn(partial, acc0);
+        partial = add_rn(partial, acc1);
+        partial = add_rn(partial, acc2);
+        partial = add_rn(partial, acc3);
+        float* pv_partials = wmma_c + group * ygroups * 32;
+        pv_partials[y * 32 + x] = partial;
+        __syncthreads();
+        if (task_valid && y == 0) {
+          const int dtile = task % kDimTiles;
+          const int qh = (task / kDimTiles) % kQH;
+          const int b = task / (kDimTiles * kQH);
+          const float p0 = pv_partials[x];
+          const float p1 = pv_partials[32 + x];
+          const float p2 = pv_partials[64 + x];
+          const float p3 = pv_partials[96 + x];
+          const float p4 = pv_partials[128 + x];
+          const float p5 = pv_partials[160 + x];
+          const float p6 = pv_partials[192 + x];
+          const float p7 = pv_partials[224 + x];
+          const float left = add_rn(add_rn(p0, p4), add_rn(p2, p6));
+          const float right = add_rn(add_rn(p1, p5), add_rn(p3, p7));
+          const float result = add_rn(left, right);
+          attn_out[b * kH + qh * kD + dtile * 32 + x] = __float2bfloat16_rn(result);
+        }
+        __syncthreads();
+      }
+    } else if (use_long_pv64_schedule) {
+      for (int task_iter = 0; task_iter < task_iterations; ++task_iter) {
+        const int task = blockIdx.x + group * kCTAs + task_iter * tasks_per_cta;
+        const bool task_valid = task < kPvTasks;
+        float acc = 0.f;
+        if (task_valid) {
+          const int dtile = task % kDimTiles;
+          const int qh = (task / kDimTiles) % kQH;
+          const int b = task / (kDimTiles * kQH);
+          const int kvh = qh / 3;
+          const int seqb = seq_s[b];
+          constexpr int y_chunk = 64;
+          for (int base = 0; base < seqb; base += ygroups * y_chunk) {
+            const int start = base + y * y_chunk;
+            for (int j = 0; j < y_chunk && start + j < seqb; ++j) {
+              const int pos = start + j;
+              const int physical_block = p.block_table[b * p.bt_stride + pos / 16];
+              const int token_off = pos & 15;
+              const long long e = static_cast<long long>(physical_block) * p.block_stride +
+                                  token_off * p.token_stride + kvh * p.head_stride + dtile * 32 + x;
+              const float prob = bf2f(scores[(b * kQH + qh) * kMaxSeq + pos]);
+              const float value = bf2f(kvw[p.v_off + e]);
+              acc = __fmaf_rn(prob, value, acc);
+            }
+          }
+        }
+        float* pv_partials = wmma_c + group * ygroups * 32;
+        pv_partials[y * 32 + x] = acc;
+        __syncthreads();
+        if (task_valid && y == 0) {
+          const int dtile = task % kDimTiles;
+          const int qh = (task / kDimTiles) % kQH;
+          const int b = task / (kDimTiles * kQH);
+          const float p0 = pv_partials[x];
+          const float p1 = pv_partials[32 + x];
+          const float p2 = pv_partials[64 + x];
+          const float p3 = pv_partials[96 + x];
+          const float p4 = pv_partials[128 + x];
+          const float p5 = pv_partials[160 + x];
+          const float p6 = pv_partials[192 + x];
+          const float p7 = pv_partials[224 + x];
+          const float left = add_rn(add_rn(p0, p4), add_rn(p2, p6));
+          const float right = add_rn(add_rn(p1, p5), add_rn(p3, p7));
+          const float result = add_rn(left, right);
+          attn_out[b * kH + qh * kD + dtile * 32 + x] = __float2bfloat16_rn(result);
+        }
+        __syncthreads();
+      }
+    } else {
+      for (int task_iter = 0; task_iter < task_iterations; ++task_iter) {
+        const int task = blockIdx.x + group * kCTAs + task_iter * tasks_per_cta;
+        const bool task_valid = task < kPvTasks;
+        float acc0 = 0.f;
+        if (task_valid) {
+          const int dtile = task % kDimTiles;
+          const int qh = (task / kDimTiles) % kQH;
+          const int b = task / (kDimTiles * kQH);
+          const int kvh = qh / 3;
+          const int seqb = seq_s[b];
+          const int y_chunk = seqb > 32 ? 32 : 16;
+          for (int base = 0; base < seqb; base += ygroups * y_chunk) {
+            const int start = base + y * y_chunk;
+            for (int j = 0; j < y_chunk && start + j < seqb; ++j) {
+              const int pos = start + j;
+              const int physical_block = p.block_table[b * p.bt_stride + pos / 16];
+              const int token_off = pos & 15;
+              const long long e = static_cast<long long>(physical_block) * p.block_stride +
+                                  token_off * p.token_stride + kvh * p.head_stride + dtile * 32 + x;
+              const float prob = bf2f(scores[(b * kQH + qh) * kMaxSeq + pos]);
+              const float value = bf2f(kvw[p.v_off + e]);
+              acc0 = add_rn(acc0, mul_rn(prob, value));
+            }
+          }
+        }
+        float* pv_partials = wmma_c + group * ygroups * 32;
+        pv_partials[y * 32 + x] = acc0;
+        __syncthreads();
+        if (task_valid && y == 0) {
+          const int dtile = task % kDimTiles;
+          const int qh = (task / kDimTiles) % kQH;
+          const int b = task / (kDimTiles * kQH);
+          float result = add_rn(pv_partials[x], pv_partials[32 + x]);
+          if (use_long_b2_schedule)
+            result = add_rn(result, add_rn(pv_partials[64 + x], pv_partials[96 + x]));
+          attn_out[b * kH + qh * kD + dtile * 32 + x] = __float2bfloat16_rn(result);
+        }
+        __syncthreads();
       }
     }
-    float* pv_partials = wmma_c + group * 64;
-    pv_partials[y * 32 + x] = partial;
-    __syncthreads();
-    if (task < kPvTasks && y == 0) {
-      const int dtile = task % kDimTiles;
-      const int qh = (task / kDimTiles) % kQH;
-      const int b = task / (kDimTiles * kQH);
-      const float result = add_rn(pv_partials[x], pv_partials[32 + x]);
-      attn_out[b * kH + qh * kD + dtile * 32 + x] = __float2bfloat16_rn(result);
-    }
-    __syncthreads();
   }
   sync_grid();
   if (p.debug && layer_index == p.debug_layer_index && blockIdx.x == 0) {
@@ -404,7 +715,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
   } else {
 #pragma unroll 1
     for (int tile = gw; tile < kH / 16; tile += kGlobalWarps) {
-      wmma_project_tile<kH>(L.o, vec_s, tile, warp, wmma_a, wmma_c);
+      wmma_project_tile<kH>(L.o, vec_s, tile, warp, wmma_a, wmma_b, wmma_b_next, wmma_c);
       const int b = lane / 16, j = lane & 15, r = tile * 16 + j;
       const float h = add_rn(bf2f(layer_index == 0 ? p.embed[static_cast<size_t>(p.input_ids[b]) * kH + r] : hidden[b * kH + r]), rnd(wmma_c[warp * 256 + lane]));
       if (p.debug) debug_layer[kDbgO + b * kH + r] = __float2bfloat16_rn(rnd(wmma_c[warp * 256 + lane]));
@@ -444,11 +755,11 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
 #pragma unroll 1
     for (int tile = gw; tile < kI / 16; tile += kGlobalWarps) {
       const int r0 = tile * 16;
-      wmma_project_tile<kH>(L.gate_up, vec_s, tile, warp, wmma_a, wmma_c);
+      wmma_project_tile<kH>(L.gate_up, vec_s, tile, warp, wmma_a, wmma_b, wmma_b_next, wmma_c);
       const int b = lane / 16, j = lane & 15, r = r0 + j;
       const bf16 g = __float2bfloat16_rn(wmma_c[warp * 256 + lane]);
       ws[kOffQKV + b * kI + r] = g;
-      wmma_project_tile<kH>(L.gate_up + static_cast<size_t>(kI) * kH, vec_s, tile, warp, wmma_a, wmma_c);
+      wmma_project_tile<kH>(L.gate_up + static_cast<size_t>(kI) * kH, vec_s, tile, warp, wmma_a, wmma_b, wmma_b_next, wmma_c);
       const float gf = bf2f(ws[kOffQKV + b * kI + r]);
       const float uf = rnd(wmma_c[warp * 256 + lane]);
       const float silu = rnd(gf / (1.f + expf(-gf)));
@@ -481,7 +792,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
   } else {
 #pragma unroll 1
     for (int tile = gw; tile < kH / 16; tile += kGlobalWarps) {
-      wmma_project_tile<kI>(L.down, vec_s, tile, warp, wmma_a, wmma_c);
+      wmma_project_tile<kI>(L.down, vec_s, tile, warp, wmma_a, wmma_b, wmma_b_next, wmma_c);
       const int b = lane / 16, j = lane & 15, r = tile * 16 + j;
       if (p.debug) debug_layer[kDbgDown + b * kH + r] = __float2bfloat16_rn(rnd(wmma_c[warp * 256 + lane]));
       const float y = add_rn(bf2f(ws[kOffH1 + b * kH + r]), rnd(wmma_c[warp * 256 + lane]));

@@ -1,11 +1,11 @@
 # Experimental SmolLM2-360M decode wrapper
 
-This package copies the archived R9 CUDA source and adds a thin Python wrapper
+This package copies the archived R25 CUDA source (`research/smollm2_360m_decode/experiments/r25-pv64`) and adds a thin Python wrapper
 for its `decode360` ABI. The copied CUDA source and include retain their
-archived SHA-256 hashes. The R9 kernel passed all 30 held-out cases bitwise for
-final hidden state and logits, with exact greedy IDs; the initial four fixtures
-also passed bitwise. This wrapper's serving integration remains unverified, and
-no speed claim follows from those results.
+archived SHA-256 hashes. R25 passed all 46 validation fixtures (initial 4,
+held-out 30, wide 12 up to 8000 tokens) under the strict hidden-state, KV and
+logit gates. This wrapper's serving integration remains unverified, and no
+speed claim follows from those results.
 
 `decode_step` accepts int32 or int64 input IDs; int64 IDs are cast into a
 per-device, graph-stable int32 staging buffer. It accepts the vLLM FLASH_ATTN

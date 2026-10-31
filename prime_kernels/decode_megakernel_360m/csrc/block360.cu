@@ -173,11 +173,60 @@ __device__ __forceinline__ void dots(const bf16* __restrict__ row, const float* 
 #pragma unroll
   for (int b = 0; b < B; ++b) s[b] = 0.f;
   static_assert(K == kH || K == kI, "unsupported projection K");
+  constexpr int kIterations = K / 32;
+  int j = 0;
 #pragma unroll 1
-  for (int j = 0; j < K / 32; ++j) {
-    const float w = bf2f(row[lane + 32 * j]);
+  for (; j + 7 < kIterations; j += 8) {
+    const int idx0 = lane + 32 * (j + 0);
+    const int idx1 = lane + 32 * (j + 1);
+    const int idx2 = lane + 32 * (j + 2);
+    const int idx3 = lane + 32 * (j + 3);
+    const int idx4 = lane + 32 * (j + 4);
+    const int idx5 = lane + 32 * (j + 5);
+    const int idx6 = lane + 32 * (j + 6);
+    const int idx7 = lane + 32 * (j + 7);
+    const float w0 = bf2f(row[idx0]);
+    const float w1 = bf2f(row[idx1]);
+    const float w2 = bf2f(row[idx2]);
+    const float w3 = bf2f(row[idx3]);
+    const float w4 = bf2f(row[idx4]);
+    const float w5 = bf2f(row[idx5]);
+    const float w6 = bf2f(row[idx6]);
+    const float w7 = bf2f(row[idx7]);
 #pragma unroll
-    for (int b = 0; b < B; ++b) s[b] = add_rn(s[b], mul_rn(w, vs[b * K + lane + 32 * j]));
+    for (int b = 0; b < B; ++b) {
+      s[b] = add_rn(s[b], mul_rn(w0, vs[b * K + idx0]));
+      s[b] = add_rn(s[b], mul_rn(w1, vs[b * K + idx1]));
+      s[b] = add_rn(s[b], mul_rn(w2, vs[b * K + idx2]));
+      s[b] = add_rn(s[b], mul_rn(w3, vs[b * K + idx3]));
+      s[b] = add_rn(s[b], mul_rn(w4, vs[b * K + idx4]));
+      s[b] = add_rn(s[b], mul_rn(w5, vs[b * K + idx5]));
+      s[b] = add_rn(s[b], mul_rn(w6, vs[b * K + idx6]));
+      s[b] = add_rn(s[b], mul_rn(w7, vs[b * K + idx7]));
+    }
+  }
+  if constexpr (kIterations % 8 == 6) {
+    const int idx0 = lane + 32 * (j + 0);
+    const int idx1 = lane + 32 * (j + 1);
+    const int idx2 = lane + 32 * (j + 2);
+    const int idx3 = lane + 32 * (j + 3);
+    const int idx4 = lane + 32 * (j + 4);
+    const int idx5 = lane + 32 * (j + 5);
+    const float w0 = bf2f(row[idx0]);
+    const float w1 = bf2f(row[idx1]);
+    const float w2 = bf2f(row[idx2]);
+    const float w3 = bf2f(row[idx3]);
+    const float w4 = bf2f(row[idx4]);
+    const float w5 = bf2f(row[idx5]);
+#pragma unroll
+    for (int b = 0; b < B; ++b) {
+      s[b] = add_rn(s[b], mul_rn(w0, vs[b * K + idx0]));
+      s[b] = add_rn(s[b], mul_rn(w1, vs[b * K + idx1]));
+      s[b] = add_rn(s[b], mul_rn(w2, vs[b * K + idx2]));
+      s[b] = add_rn(s[b], mul_rn(w3, vs[b * K + idx3]));
+      s[b] = add_rn(s[b], mul_rn(w4, vs[b * K + idx4]));
+      s[b] = add_rn(s[b], mul_rn(w5, vs[b * K + idx5]));
+    }
   }
 #pragma unroll
   for (int b = 0; b < B; ++b) out[b] = warp_sum(s[b]);
@@ -188,10 +237,48 @@ template <int K>
 __device__ __forceinline__ float dots16(const bf16* __restrict__ row, const float* vec, int lane16) {
   static_assert(K == kH || K == kI, "unsupported projection K");
   float sum = 0.f;
+  constexpr int kIterations = K / 16;
+  int j = 0;
 #pragma unroll 1
-  for (int j = 0; j < K / 16; ++j) {
-    const int idx = lane16 + 16 * j;
-    sum = add_rn(sum, mul_rn(bf2f(row[idx]), vec[idx]));
+  for (; j + 7 < kIterations; j += 8) {
+    const int idx0 = lane16 + 16 * (j + 0);
+    const int idx1 = lane16 + 16 * (j + 1);
+    const int idx2 = lane16 + 16 * (j + 2);
+    const int idx3 = lane16 + 16 * (j + 3);
+    const int idx4 = lane16 + 16 * (j + 4);
+    const int idx5 = lane16 + 16 * (j + 5);
+    const int idx6 = lane16 + 16 * (j + 6);
+    const int idx7 = lane16 + 16 * (j + 7);
+    const float w0 = bf2f(row[idx0]);
+    const float w1 = bf2f(row[idx1]);
+    const float w2 = bf2f(row[idx2]);
+    const float w3 = bf2f(row[idx3]);
+    const float w4 = bf2f(row[idx4]);
+    const float w5 = bf2f(row[idx5]);
+    const float w6 = bf2f(row[idx6]);
+    const float w7 = bf2f(row[idx7]);
+    sum = add_rn(sum, mul_rn(w0, vec[idx0]));
+    sum = add_rn(sum, mul_rn(w1, vec[idx1]));
+    sum = add_rn(sum, mul_rn(w2, vec[idx2]));
+    sum = add_rn(sum, mul_rn(w3, vec[idx3]));
+    sum = add_rn(sum, mul_rn(w4, vec[idx4]));
+    sum = add_rn(sum, mul_rn(w5, vec[idx5]));
+    sum = add_rn(sum, mul_rn(w6, vec[idx6]));
+    sum = add_rn(sum, mul_rn(w7, vec[idx7]));
+  }
+  if constexpr (kIterations % 8 == 4) {
+    const int idx0 = lane16 + 16 * (j + 0);
+    const int idx1 = lane16 + 16 * (j + 1);
+    const int idx2 = lane16 + 16 * (j + 2);
+    const int idx3 = lane16 + 16 * (j + 3);
+    const float w0 = bf2f(row[idx0]);
+    const float w1 = bf2f(row[idx1]);
+    const float w2 = bf2f(row[idx2]);
+    const float w3 = bf2f(row[idx3]);
+    sum = add_rn(sum, mul_rn(w0, vec[idx0]));
+    sum = add_rn(sum, mul_rn(w1, vec[idx1]));
+    sum = add_rn(sum, mul_rn(w2, vec[idx2]));
+    sum = add_rn(sum, mul_rn(w3, vec[idx3]));
   }
 #pragma unroll
   for (int offset = 8; offset > 0; offset >>= 1) {
@@ -225,27 +312,52 @@ __device__ __forceinline__ float rope_val(const bf16* head, int d, int pos, cons
 template <int K>
 __device__ __forceinline__ void wmma_project_tile(const bf16* weight, const float* vec_s,
                                                    int tile, int warp,
-                                                   bf16* wmma_a, float* wmma_c) {
+                                                   bf16* wmma_a, bf16* wmma_b,
+                                                   bf16* wmma_b_next, float* wmma_c) {
   using namespace nvcuda;
   const int lane = threadIdx.x & 31;
   bf16* a_tile = wmma_a + warp * 16 * 16;
+  bf16* current_b_tile = wmma_b + warp * 16 * 16;
+  bf16* next_b_tile = wmma_b_next + warp * 16 * 16;
   float* c_tile = wmma_c + warp * 16 * 16;
   const int row0 = tile * 16;
   wmma::fragment<wmma::matrix_a, 16, 16, 16, bf16, wmma::row_major> a_frag;
   wmma::fragment<wmma::matrix_b, 16, 16, 16, bf16, wmma::col_major> b_frag;
   wmma::fragment<wmma::accumulator, 16, 16, 16, float> c_frag;
   wmma::fill_fragment(c_frag, 0.f);
+  auto prefetch_weight_tile = [&](bf16* shared_tile, int k0) {
+    const int output_col = lane >> 1;
+    const int k_inner = (lane & 1) * 8;
+    bf16* dst = shared_tile + output_col * 16 + k_inner;
+    const bf16* src = weight + static_cast<size_t>(row0 + output_col) * K + k0 + k_inner;
+    const unsigned int shared_addr = static_cast<unsigned int>(__cvta_generic_to_shared(dst));
+    asm volatile("cp.async.ca.shared.global [%0], [%1], 16;" :: "r"(shared_addr), "l"(src) : "memory");
+    asm volatile("cp.async.commit_group;" ::: "memory");
+  };
+  for (int idx = lane; idx < 16 * 16; idx += 32) {
+    if (idx >= 32) a_tile[idx] = __float2bfloat16_rn(0.f);
+  }
+  prefetch_weight_tile(current_b_tile, 0);
+  asm volatile("cp.async.wait_group 0;" ::: "memory");
+  __syncwarp(0xffffffffu);
   for (int k0 = 0; k0 < K; k0 += 16) {
-    for (int idx = lane; idx < 16 * 16; idx += 32) {
-      const int b = idx / 16;
-      const int d = idx % 16;
-      a_tile[idx] = b < 2 ? __float2bfloat16_rn(vec_s[b * K + k0 + d]) : __float2bfloat16_rn(0.f);
-    }
+    const int next_k0 = k0 + 16;
+    const bool has_next = next_k0 < K;
+    if (has_next) prefetch_weight_tile(next_b_tile, next_k0);
+    const int b = lane >> 4;
+    const int d = lane & 15;
+    a_tile[lane] = __float2bfloat16_rn(vec_s[b * K + k0 + d]);
     __syncwarp(0xffffffffu);
     wmma::load_matrix_sync(a_frag, a_tile, 16);
-    const bf16* b_ptr = weight + static_cast<size_t>(row0) * K + k0;
-    wmma::load_matrix_sync(b_frag, b_ptr, K);
+    wmma::load_matrix_sync(b_frag, current_b_tile, 16);
     wmma::mma_sync(c_frag, a_frag, b_frag, c_frag);
+    if (has_next) {
+      asm volatile("cp.async.wait_group 0;" ::: "memory");
+      __syncwarp(0xffffffffu);
+      bf16* swap_tile = current_b_tile;
+      current_b_tile = next_b_tile;
+      next_b_tile = swap_tile;
+    }
   }
   wmma::store_matrix_sync(c_tile, c_frag, 16, wmma::mem_row_major);
   __syncwarp(0xffffffffu);
