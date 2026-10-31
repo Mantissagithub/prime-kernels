@@ -1,0 +1,26 @@
+{
+  "seed17-b1-ctx128.json": {
+    "uncompressed_sha256": "43a419fa0336f7df46871ba9b484b82a8028094a11ebe1b054e7df03067b70eb",
+    "gzip_sha256": "78987cf712f794b61076b3195513692027e25778bd2c0047d8353a26ce5fc9d2"
+  },
+  "seed17-b1-ctx32.json": {
+    "uncompressed_sha256": "2ce41335766e3805a0e558ee7c0d3a00d880745b5230798910d3309f2f624b9e",
+    "gzip_sha256": "042e82e70e52f6de7fa2b0db27312c468ed52064fcf8a924c2a240cab9186049"
+  },
+  "seed17-b2-ctx128.json": {
+    "uncompressed_sha256": "9f43e7074cc1aeb720111ac78b5d09357accb0e611b017b11cc077f8238047b8",
+    "gzip_sha256": "237e2228657912a4a0d28053b5647c8b8ce40c8bab9b8dc069eb765b7c26b909"
+  },
+  "seed17-b2-ctx32.json": {
+    "uncompressed_sha256": "fa4e3512214e8550dc7f10ce2cae7306e452be725e945fc7590cd8066382ac40",
+    "gzip_sha256": "63e88e685f0039d7150d1cb4b69bcbe12b8bf5f62dc40802c8f2f9f070f371bd"
+  },
+  "synthetic-b1-ctx1024.json": {
+    "uncompressed_sha256": "67e9a99c71c21e992b4860b739c4369763f2a3a003074848da20d155b4b5dde9",
+    "gzip_sha256": "94a8c83c7cc12162d4c27e02d3f2846bce0c557b3c18cea2e2984cd1551cb097"
+  },
+  "synthetic-b2-ctx1024.json": {
+    "uncompressed_sha256": "758bc00cd3d8534a68d12ae867b90cea9f030f3f3f2b84676fba3722d75d6276",
+    "gzip_sha256": "e50b351c75b346fe51d6b4c16583262867cfd6b583bcd4d43ac55b965860ce4a"
+  }
+}

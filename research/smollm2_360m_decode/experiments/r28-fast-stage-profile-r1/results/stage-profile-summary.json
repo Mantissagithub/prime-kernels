@@ -11,7 +11,7 @@
   "interpretation": [
     "Cycle deltas are local to one CTA; no cross-CTA timestamps are subtracted.",
     "Per-CTA stage totals sum serial layer intervals on that CTA only; distributions do not sum across CTAs.",
-    "Same-CTA stage-cycle sum is checked against the full-kernel event by its implied clock64 rate; clocks.sm samples are taken outside the event and are not used for cycle conversion.",
+    "Same-CTA named-stage cycles divided by a separate full-kernel event are an effective diagnostic ratio with instrumentation, setup, and flush gaps omitted; it is not a calibrated clock rate.",
     "Work includes memory/local synchronization stalls; grid wait is arrival skew and wait at an existing grid barrier.",
     "Fractions are diagnostic shares of same-CTA cycle totals, not kernel wall-time or hardware-counter attribution.",
     "Event overhead compares instrumented and uninstrumented R28; it is not a speed result."
@@ -761,14 +761,14 @@
         "sm_clock_mhz_sample_before": 2250.0,
         "sm_clock_mhz_sample_after": 2250.0,
         "sample_drift_percent": 0.0,
-        "implied_clock64_mhz_from_max_same_cta_stage_sum": 2547.470596506206,
+        "max_same_cta_stage_sum_effective_million_cycles_per_event_ms": 2.5474705965062063,
         "same_cta_step_cycle_distribution": {
           "n": 24,
           "median": 7819789.0,
           "p90": 7830792,
           "max": 7831047
         },
-        "interpretation": "consistency diagnostic only: derives an implied clock64 rate from one CTA's own accumulated stage intervals and a separate full-kernel event; outside-kernel clocks.sm samples are not used to convert cycles"
+        "interpretation": "effective diagnostic ratio only: maximum named-stage cycle sum for one CTA divided by a separate full-kernel event; named intervals omit instrumentation, setup, and flush gaps, so this is not a calibrated clock64 rate; outside-kernel clocks.sm samples are not used to convert cycles"
       },
       "fraction_denominator": "same-CTA sum across layers for named active stages; capture and final norm excluded"
     },
@@ -1340,14 +1340,14 @@
         "sm_clock_mhz_sample_before": 2460.0,
         "sm_clock_mhz_sample_after": 2460.0,
         "sample_drift_percent": 0.0,
-        "implied_clock64_mhz_from_max_same_cta_stage_sum": 2545.2212481124475,
+        "max_same_cta_stage_sum_effective_million_cycles_per_event_ms": 2.5452212481124477,
         "same_cta_step_cycle_distribution": {
           "n": 24,
           "median": 7980133.5,
           "p90": 7984916,
           "max": 7985153
         },
-        "interpretation": "consistency diagnostic only: derives an implied clock64 rate from one CTA's own accumulated stage intervals and a separate full-kernel event; outside-kernel clocks.sm samples are not used to convert cycles"
+        "interpretation": "effective diagnostic ratio only: maximum named-stage cycle sum for one CTA divided by a separate full-kernel event; named intervals omit instrumentation, setup, and flush gaps, so this is not a calibrated clock64 rate; outside-kernel clocks.sm samples are not used to convert cycles"
       },
       "fraction_denominator": "same-CTA sum across layers for named active stages; capture and final norm excluded"
     },
@@ -1919,14 +1919,14 @@
         "sm_clock_mhz_sample_before": 2295.0,
         "sm_clock_mhz_sample_after": 2295.0,
         "sample_drift_percent": 0.0,
-        "implied_clock64_mhz_from_max_same_cta_stage_sum": 2553.4190396200925,
+        "max_same_cta_stage_sum_effective_million_cycles_per_event_ms": 2.5534190396200924,
         "same_cta_step_cycle_distribution": {
           "n": 24,
           "median": 8242303.5,
           "p90": 8248803,
           "max": 8248892
         },
-        "interpretation": "consistency diagnostic only: derives an implied clock64 rate from one CTA's own accumulated stage intervals and a separate full-kernel event; outside-kernel clocks.sm samples are not used to convert cycles"
+        "interpretation": "effective diagnostic ratio only: maximum named-stage cycle sum for one CTA divided by a separate full-kernel event; named intervals omit instrumentation, setup, and flush gaps, so this is not a calibrated clock64 rate; outside-kernel clocks.sm samples are not used to convert cycles"
       },
       "fraction_denominator": "same-CTA sum across layers for named active stages; capture and final norm excluded"
     },
@@ -2498,14 +2498,14 @@
         "sm_clock_mhz_sample_before": 2610.0,
         "sm_clock_mhz_sample_after": 2610.0,
         "sample_drift_percent": 0.0,
-        "implied_clock64_mhz_from_max_same_cta_stage_sum": 2547.24021371833,
+        "max_same_cta_stage_sum_effective_million_cycles_per_event_ms": 2.5472402137183296,
         "same_cta_step_cycle_distribution": {
           "n": 24,
           "median": 8470233.5,
           "p90": 8479555,
           "max": 8479824
         },
-        "interpretation": "consistency diagnostic only: derives an implied clock64 rate from one CTA's own accumulated stage intervals and a separate full-kernel event; outside-kernel clocks.sm samples are not used to convert cycles"
+        "interpretation": "effective diagnostic ratio only: maximum named-stage cycle sum for one CTA divided by a separate full-kernel event; named intervals omit instrumentation, setup, and flush gaps, so this is not a calibrated clock64 rate; outside-kernel clocks.sm samples are not used to convert cycles"
       },
       "fraction_denominator": "same-CTA sum across layers for named active stages; capture and final norm excluded"
     },
@@ -3077,14 +3077,14 @@
         "sm_clock_mhz_sample_before": 2520.0,
         "sm_clock_mhz_sample_after": 2520.0,
         "sample_drift_percent": 0.0,
-        "implied_clock64_mhz_from_max_same_cta_stage_sum": 2553.470308038802,
+        "max_same_cta_stage_sum_effective_million_cycles_per_event_ms": 2.5534703080388024,
         "same_cta_step_cycle_distribution": {
           "n": 24,
           "median": 8680040.5,
           "p90": 8688334,
           "max": 8688826
         },
-        "interpretation": "consistency diagnostic only: derives an implied clock64 rate from one CTA's own accumulated stage intervals and a separate full-kernel event; outside-kernel clocks.sm samples are not used to convert cycles"
+        "interpretation": "effective diagnostic ratio only: maximum named-stage cycle sum for one CTA divided by a separate full-kernel event; named intervals omit instrumentation, setup, and flush gaps, so this is not a calibrated clock64 rate; outside-kernel clocks.sm samples are not used to convert cycles"
       },
       "fraction_denominator": "same-CTA sum across layers for named active stages; capture and final norm excluded"
     },
@@ -3656,14 +3656,14 @@
         "sm_clock_mhz_sample_before": 2535.0,
         "sm_clock_mhz_sample_after": 2535.0,
         "sample_drift_percent": 0.0,
-        "implied_clock64_mhz_from_max_same_cta_stage_sum": 2561.279822018219,
+        "max_same_cta_stage_sum_effective_million_cycles_per_event_ms": 2.561279822018219,
         "same_cta_step_cycle_distribution": {
           "n": 24,
           "median": 9571997.0,
           "p90": 9580749,
           "max": 9580908
         },
-        "interpretation": "consistency diagnostic only: derives an implied clock64 rate from one CTA's own accumulated stage intervals and a separate full-kernel event; outside-kernel clocks.sm samples are not used to convert cycles"
+        "interpretation": "effective diagnostic ratio only: maximum named-stage cycle sum for one CTA divided by a separate full-kernel event; named intervals omit instrumentation, setup, and flush gaps, so this is not a calibrated clock64 rate; outside-kernel clocks.sm samples are not used to convert cycles"
       },
       "fraction_denominator": "same-CTA sum across layers for named active stages; capture and final norm excluded"
     }

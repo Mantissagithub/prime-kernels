@@ -89,9 +89,9 @@ def summarize_cycles(case: dict) -> dict:
     cycle_event_check = {
         "event_ms": event_ms, "sm_clock_mhz_sample_before": before,
         "sm_clock_mhz_sample_after": after, "sample_drift_percent": clock_drift_percent,
-        "implied_clock64_mhz_from_max_same_cta_stage_sum": max(step_totals_by_cta) / (event_ms * 1000.0),
+        "max_same_cta_stage_sum_effective_million_cycles_per_event_ms": max(step_totals_by_cta) / (event_ms * 1_000_000.0),
         "same_cta_step_cycle_distribution": distribution(step_totals_by_cta),
-        "interpretation": "consistency diagnostic only: derives an implied clock64 rate from one CTA's own accumulated stage intervals and a separate full-kernel event; outside-kernel clocks.sm samples are not used to convert cycles",
+        "interpretation": "effective diagnostic ratio only: maximum named-stage cycle sum for one CTA divided by a separate full-kernel event; named intervals omit instrumentation, setup, and flush gaps, so this is not a calibrated clock64 rate; outside-kernel clocks.sm samples are not used to convert cycles",
     }
     return {"case_id": case["case_id"], "batch": case["batch"], "context": case["context"],
             "phase_cycles": phase, "per_cta_phase_fractions": fractions, "per_cta_family_fractions": families,
@@ -149,7 +149,7 @@ def main() -> None:
         "interpretation": [
             "Cycle deltas are local to one CTA; no cross-CTA timestamps are subtracted.",
             "Per-CTA stage totals sum serial layer intervals on that CTA only; distributions do not sum across CTAs.",
-            "Same-CTA stage-cycle sum is checked against the full-kernel event by its implied clock64 rate; clocks.sm samples are taken outside the event and are not used for cycle conversion.",
+            "Same-CTA named-stage cycles divided by a separate full-kernel event are an effective diagnostic ratio with instrumentation, setup, and flush gaps omitted; it is not a calibrated clock rate.",
             "Work includes memory/local synchronization stalls; grid wait is arrival skew and wait at an existing grid barrier.",
             "Fractions are diagnostic shares of same-CTA cycle totals, not kernel wall-time or hardware-counter attribution.",
             "Event overhead compares instrumented and uninstrumented R28; it is not a speed result.",
