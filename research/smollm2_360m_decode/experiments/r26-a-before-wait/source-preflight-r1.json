@@ -1,0 +1,17 @@
+{
+  "abi_parameter_count": 28,
+  "candidates": {
+    "R25-pv64": {
+      "abi_definition_sha256": "48423f3f430d886e18aa3300a322ba74c9659c3efa9c5dd1f896c85f33f3150a",
+      "abi_status": "28 source declarations and ctypes types match",
+      "translation_unit_sha256": "cff9f0f0ac3d2dcdcd8fe9026346cf01313c1247588ba8f213d4005a33b15298"
+    },
+    "R26-pv64-a-before-wait": {
+      "abi_definition_sha256": "48423f3f430d886e18aa3300a322ba74c9659c3efa9c5dd1f896c85f33f3150a",
+      "abi_status": "28 source declarations and ctypes types match",
+      "translation_unit_sha256": "fb94a427319c8da1694c6457bebadb8949600e3a9d10fabc685bba2376931f68"
+    }
+  },
+  "mode": "CPU-only; no CUDA calls",
+  "source_only": true
+}

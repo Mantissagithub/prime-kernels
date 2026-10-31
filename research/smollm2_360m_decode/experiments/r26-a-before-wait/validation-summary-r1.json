@@ -1,0 +1,138 @@
+{
+  "candidate": {
+    "include_sha256": "48423f3f430d886e18aa3300a322ba74c9659c3efa9c5dd1f896c85f33f3150a",
+    "library_sha256": "4c5b9dbbf53870da2e8ef2c8827d963475660f2731f81c50e9cab1768e27e426",
+    "name": "R26-A-before-wait-on-R25-PV64",
+    "source_sha256": "fb94a427319c8da1694c6457bebadb8949600e3a9d10fabc685bba2376931f68"
+  },
+  "jobs": {
+    "heldout30": {
+      "case_count": 30,
+      "failed_cases": [],
+      "gate_values_total": 300,
+      "gate_values_true": 300,
+      "guard": {
+        "command": [
+          "/home/pradheep/.venv/bin/python",
+          "outputs/megakernel-20261025/block-360-heldout-r13/validate_full32.py",
+          "--library",
+          "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/build/libdecode360_r26_a_before_wait.so",
+          "--candidate-source",
+          "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/block360.cu",
+          "--candidate-include",
+          "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/block360_kernel.inc",
+          "--output-dir",
+          "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/results-r1/heldout30"
+        ],
+        "disk_free_before_bytes": 8769667072,
+        "elapsed_seconds": 9.252125691011315,
+        "minimum_available_bytes": 4935393280,
+        "minimum_disk_free_bytes": 8761229312,
+        "peak_cgroup_bytes": 1681289216,
+        "peak_gpu_mib": 1359,
+        "peak_swap_bytes": 0,
+        "returncode": 0,
+        "stop_reason": null
+      },
+      "guard_result_path": "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/results-r1/guard-heldout30-r1/guard/result.json",
+      "guard_result_sha256": "5feacafd7c39c9e3ea8d4c641d908601f27a773ec41361ab5de6dba505fdb956",
+      "passed_case_count": 30,
+      "progress_path": "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/results-r1/heldout30/progress.json",
+      "progress_sha256": "644daca0b1f057c726c804bb138c907ee619acae043f7fdf05bbb999348af018",
+      "progress_status": "passed",
+      "raw_comparison_path": "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/results-r1/heldout30/comparison.json",
+      "raw_comparison_sha256": "8c8089b748ccddd3093661218f61e118a2fdb940f8049e4034139fde606321b6",
+      "status": "passed"
+    },
+    "initial4": {
+      "case_count": 4,
+      "failed_cases": [],
+      "gate_values_total": 40,
+      "gate_values_true": 40,
+      "guard": {
+        "command": [
+          "/home/pradheep/.venv/bin/python",
+          "outputs/megakernel-20261025/decode-360-validation-r10/validate.py",
+          "--library",
+          "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/build/libdecode360_r26_a_before_wait.so",
+          "--candidate-source",
+          "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/block360.cu",
+          "--candidate-include",
+          "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/block360_kernel.inc",
+          "--output-dir",
+          "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/results-r1/initial4"
+        ],
+        "disk_free_before_bytes": 8760954880,
+        "elapsed_seconds": 5.8368473580048885,
+        "minimum_available_bytes": 4805353472,
+        "minimum_disk_free_bytes": 8745545728,
+        "peak_cgroup_bytes": 1769766912,
+        "peak_gpu_mib": 1333,
+        "peak_swap_bytes": 0,
+        "returncode": 0,
+        "stop_reason": null
+      },
+      "guard_result_path": "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/results-r1/guard-initial4-r1/guard/result.json",
+      "guard_result_sha256": "63c1c90dac8ea72c760590fc43f6ba0b4b961c5dfc8ac8f9b76cf80928eee1b8",
+      "passed_case_count": 4,
+      "progress_path": "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/results-r1/initial4/progress.json",
+      "progress_sha256": "48888bb6807301c7069a021c922911e7b656dc055030f1f6aef8998b6b868af0",
+      "progress_status": "passed",
+      "raw_comparison_path": "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/results-r1/initial4/comparison.json",
+      "raw_comparison_sha256": "2a3f4306c67be9c5e1270e9e7d8e7f2d24eaddcb1787b22e4a369e644d70bf8c",
+      "status": "passed"
+    },
+    "wide12": {
+      "case_count": 12,
+      "failed_cases": [],
+      "gate_values_total": 132,
+      "gate_values_true": 132,
+      "guard": {
+        "command": [
+          "/home/pradheep/.venv/bin/python",
+          "outputs/megakernel-20261025/decode-360-wide-validation-r2/validate_wide.py",
+          "--library",
+          "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/build/libdecode360_r26_a_before_wait.so",
+          "--candidate-source",
+          "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/block360.cu",
+          "--candidate-include",
+          "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/block360_kernel.inc",
+          "--case-group",
+          "all",
+          "--output-dir",
+          "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/results-r1/wide12"
+        ],
+        "disk_free_before_bytes": 8745455616,
+        "elapsed_seconds": 49.71781536200433,
+        "minimum_available_bytes": 4862197760,
+        "minimum_disk_free_bytes": 8654217216,
+        "peak_cgroup_bytes": 1511403520,
+        "peak_gpu_mib": 4323,
+        "peak_swap_bytes": 0,
+        "returncode": 0,
+        "stop_reason": null
+      },
+      "guard_result_path": "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/results-r1/guard-wide12-r1/guard/result.json",
+      "guard_result_sha256": "ae2970f86cd1be26fc54a90ad33813aa656b34abc898379212eac689a40a904f",
+      "passed_case_count": 12,
+      "progress_path": "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/results-r1/wide12/progress.json",
+      "progress_sha256": "e295ac01dfe063ce70521e57debec46bf254fb8fe7a40a520568437d1586a975",
+      "progress_status": "passed",
+      "raw_comparison_path": "outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/results-r1/wide12/comparison.json",
+      "raw_comparison_sha256": "73a75554bd85efb880790cda362a340000e15b9732e009410c478b523f1b7843",
+      "status": "passed"
+    }
+  },
+  "pass_set_vs_r25": {
+    "added_case_ids": [],
+    "r25_case_count": 46,
+    "r26_case_count": 46,
+    "removed_case_ids": [],
+    "same_case_ids": true
+  },
+  "status": "passed",
+  "total_case_count": 46,
+  "total_gate_values": 472,
+  "total_gate_values_true": 472,
+  "total_passed_case_count": 46
+}

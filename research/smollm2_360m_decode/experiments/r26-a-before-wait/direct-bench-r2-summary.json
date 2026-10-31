@@ -1,0 +1,99 @@
+{
+  "experiment": "R26 A-fragment preload before B wait",
+  "run": "R2",
+  "date": "2026-10-31",
+  "raw_file": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/results-r2/direct-bench-r2.json",
+  "raw_sha256": "d9e8f02792646b9868077a94c1ea1377942d9f1138cd3e9d3c80370246d357ed",
+  "harness_sha256": "423c1922320ae7d5ccd1353c6d218c2a1206443d3c72a6127df4c0e295d67381",
+  "r26_library_sha256": "4c5b9dbbf53870da2e8ef2c8827d963475660f2731f81c50e9cab1768e27e426",
+  "method": {
+    "blocks_per_fixture": 3,
+    "warmups_per_library_per_case": 3,
+    "event_samples_per_placement": 20,
+    "case_statistic": "median of six placement medians",
+    "operation": "one 32-layer decoder step ending at final hidden state",
+    "timing_excludes": [
+      "KV prefix restore",
+      "parity",
+      "prefill",
+      "model/reference work",
+      "telemetry queries"
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "seed17-b1-ctx32",
+      "r25_median_ms": 3.6449280977249146,
+      "r26_median_ms": 3.6433920860290527,
+      "change_percent": -0.042141069855961,
+      "strict_both_placements_beat_both_per_block": [
+        true,
+        false,
+        true
+      ],
+      "cross_candidate_hidden_kv": {
+        "values": 65,
+        "all_bitwise_equal": true,
+        "max_ulp": 0
+      }
+    },
+    {
+      "case_id": "seed17-b1-ctx128",
+      "r25_median_ms": 3.734544038772583,
+      "r26_median_ms": 3.735040068626404,
+      "change_percent": 0.013282206573839161,
+      "strict_both_placements_beat_both_per_block": [
+        false,
+        true,
+        false
+      ],
+      "cross_candidate_hidden_kv": {
+        "values": 65,
+        "all_bitwise_equal": true,
+        "max_ulp": 0
+      }
+    },
+    {
+      "case_id": "seed17-b2-ctx32",
+      "r25_median_ms": 7.902719974517822,
+      "r26_median_ms": 7.821712017059326,
+      "change_percent": -1.0250642528104814,
+      "strict_both_placements_beat_both_per_block": [
+        true,
+        true,
+        true
+      ],
+      "cross_candidate_hidden_kv": {
+        "values": 65,
+        "all_bitwise_equal": true,
+        "max_ulp": 0
+      }
+    },
+    {
+      "case_id": "seed17-b2-ctx128",
+      "r25_median_ms": 8.146431922912598,
+      "r26_median_ms": 8.066880226135254,
+      "change_percent": -0.9765219611496123,
+      "strict_both_placements_beat_both_per_block": [
+        true,
+        true,
+        true
+      ],
+      "cross_candidate_hidden_kv": {
+        "values": 65,
+        "all_bitwise_equal": true,
+        "max_ulp": 0
+      }
+    }
+  ],
+  "clock_telemetry": "In the first B2 ctx32 block telemetry changed from 2250/7001 to 2625/8001; later blocks remained at 2625/8001. Not clock-controlled.",
+  "guard": {
+    "result": "prime-rl/outputs/megakernel-20261025/decode-360-cuda-r26-a-before-wait/guard-r2/result.json",
+    "returncode": 0,
+    "stop_reason": null,
+    "elapsed_seconds": 11.064120196000204,
+    "minimum_available_bytes": 9187180544,
+    "peak_swap_bytes": 0,
+    "peak_gpu_mib": 1401
+  }
+}

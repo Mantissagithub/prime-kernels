@@ -1,0 +1,24 @@
+{
+  "abi_parameter_count": 28,
+  "candidates": {
+    "R25-pv64": {
+      "abi_definition_sha256": "48423f3f430d886e18aa3300a322ba74c9659c3efa9c5dd1f896c85f33f3150a",
+      "abi_status": "28 source declarations and ctypes types match",
+      "debug_bytes_exported": 3857920,
+      "library_sha256": "2c307e4a21eb080e1d1bd9999611e7f7eb32829d5375b0af2bf3dd9634c6efe6",
+      "translation_unit_sha256": "cff9f0f0ac3d2dcdcd8fe9026346cf01313c1247588ba8f213d4005a33b15298",
+      "workspace_bytes_exported": 536320
+    },
+    "R26-pv64-a-before-wait": {
+      "abi_definition_sha256": "48423f3f430d886e18aa3300a322ba74c9659c3efa9c5dd1f896c85f33f3150a",
+      "abi_status": "28 source declarations and ctypes types match",
+      "debug_bytes_exported": 3857920,
+      "library_sha256": "4c5b9dbbf53870da2e8ef2c8827d963475660f2731f81c50e9cab1768e27e426",
+      "translation_unit_sha256": "fb94a427319c8da1694c6457bebadb8949600e3a9d10fabc685bba2376931f68",
+      "workspace_bytes_exported": 536320
+    }
+  },
+  "debug_policy": "debug=null; decode360_debug_bytes() recorded but not allocated",
+  "mode": "CPU-only; no CUDA calls",
+  "workspace_policy": "allocate exact size queried from each library's decode360_workspace_bytes()"
+}
