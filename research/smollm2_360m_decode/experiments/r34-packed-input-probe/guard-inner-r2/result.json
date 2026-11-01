@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r34-packed-input-probe/harness.py",
+    "--skip-build"
+  ],
+  "returncode": 0,
+  "stop_reason": null,
+  "elapsed_seconds": 2.628696776999277,
+  "minimum_available_bytes": 9673613312,
+  "peak_cgroup_bytes": 548900864,
+  "peak_swap_bytes": 0,
+  "peak_gpu_mib": 791,
+  "disk_free_before_bytes": 52925022208,
+  "minimum_disk_free_bytes": 52924948480
+}

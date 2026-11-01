@@ -1,0 +1,70 @@
+r34-build-20261101-r1.service: Failed to add control inotify watch descriptor for control group /user.slice/user-1000.slice/user@1000.service/app.slice/r34-build-20261101-r1.service: No space left on device
+r34-build-20261101-r1.service: Failed to add memory inotify watch descriptor for control group /user.slice/user-1000.slice/user@1000.service/app.slice/r34-build-20261101-r1.service: No space left on device
+Started r34-build-20261101-r1.service - /home/pradheep/.local/bin/uv run --offline --no-project --python /home/pradheep/.venv/bin/python python /home/pradheep/tiny-prl/outputs/megakernel-20261025/r34-packed-input-probe/harness.py --build-only --ptxas-verbose.
+/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r34-packed-input-probe/projection_probe.cu(89): warning #20058-D: the #pragma unroll must precede a loop
+  #pragma unroll
+          ^
+          detected during instantiation of "int launch<K,B,NR>(__nv_bool, const bf16 *, const bf16 *, float *, int, cudaStream_t) [with K=960, B=1, NR=1]" at line 118
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z17projection_kernelILi2560ELi2ELi1ELb0EEvPK13__nv_bfloat16S2_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z17projection_kernelILi2560ELi2ELi1ELb0EEvPK13__nv_bfloat16S2_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 44 registers, used 1 barriers, 20480 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 42.862 ms
+ptxas info    : Compiling entry function '_Z17projection_kernelILi2560ELi2ELi1ELb1EEvPK13__nv_bfloat16S2_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z17projection_kernelILi2560ELi2ELi1ELb1EEvPK13__nv_bfloat16S2_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 46 registers, used 1 barriers, 10240 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 18.497 ms
+ptxas info    : Compiling entry function '_Z17projection_kernelILi2560ELi1ELi1ELb0EEvPK13__nv_bfloat16S2_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z17projection_kernelILi2560ELi1ELi1ELb0EEvPK13__nv_bfloat16S2_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 130 registers, used 1 barriers, 10240 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 12.077 ms
+ptxas info    : Compiling entry function '_Z17projection_kernelILi2560ELi1ELi1ELb1EEvPK13__nv_bfloat16S2_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z17projection_kernelILi2560ELi1ELi1ELb1EEvPK13__nv_bfloat16S2_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 78 registers, used 1 barriers, 5120 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 13.166 ms
+ptxas info    : Compiling entry function '_Z17projection_kernelILi960ELi2ELi2ELb0EEvPK13__nv_bfloat16S2_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z17projection_kernelILi960ELi2ELi2ELb0EEvPK13__nv_bfloat16S2_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 1 barriers, 7680 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 17.087 ms
+ptxas info    : Compiling entry function '_Z17projection_kernelILi960ELi2ELi2ELb1EEvPK13__nv_bfloat16S2_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z17projection_kernelILi960ELi2ELi2ELb1EEvPK13__nv_bfloat16S2_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers, 3840 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 17.943 ms
+ptxas info    : Compiling entry function '_Z17projection_kernelILi960ELi1ELi2ELb0EEvPK13__nv_bfloat16S2_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z17projection_kernelILi960ELi1ELi2ELb0EEvPK13__nv_bfloat16S2_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 52 registers, used 1 barriers, 3840 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 12.503 ms
+ptxas info    : Compiling entry function '_Z17projection_kernelILi960ELi1ELi2ELb1EEvPK13__nv_bfloat16S2_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z17projection_kernelILi960ELi1ELi2ELb1EEvPK13__nv_bfloat16S2_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 46 registers, used 1 barriers, 1920 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 13.798 ms
+ptxas info    : Compiling entry function '_Z17projection_kernelILi960ELi2ELi1ELb0EEvPK13__nv_bfloat16S2_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z17projection_kernelILi960ELi2ELi1ELb0EEvPK13__nv_bfloat16S2_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 46 registers, used 1 barriers, 7680 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 12.370 ms
+ptxas info    : Compiling entry function '_Z17projection_kernelILi960ELi2ELi1ELb1EEvPK13__nv_bfloat16S2_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z17projection_kernelILi960ELi2ELi1ELb1EEvPK13__nv_bfloat16S2_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 46 registers, used 1 barriers, 3840 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 14.362 ms
+ptxas info    : Compiling entry function '_Z17projection_kernelILi960ELi1ELi1ELb0EEvPK13__nv_bfloat16S2_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z17projection_kernelILi960ELi1ELi1ELb0EEvPK13__nv_bfloat16S2_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 42 registers, used 1 barriers, 3840 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 9.331 ms
+ptxas info    : Compiling entry function '_Z17projection_kernelILi960ELi1ELi1ELb1EEvPK13__nv_bfloat16S2_Pfi' for 'sm_89'
+ptxas info    : Function properties for _Z17projection_kernelILi960ELi1ELi1ELb1EEvPK13__nv_bfloat16S2_Pfi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 46 registers, used 1 barriers, 1920 bytes smem, 380 bytes cmem[0]
+ptxas info    : Compile time = 12.062 ms
+r34-build-20261101-r1.service: Consumed 3.130s CPU time, 2.2M memory peak, 0B memory swap peak.
