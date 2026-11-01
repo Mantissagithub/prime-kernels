@@ -1,0 +1,26 @@
+{
+  "results-r1.json": {
+    "original_bytes": 3758,
+    "original_sha256": "f6235c76e4f06f459fd60f8e72c66bc08586e4a96faf1ab79adf8de18b0e8e95",
+    "gzip_bytes": 1509,
+    "gzip_sha256": "bf5df6a5e8336c57d473c614d73879b14a11e68bfd308a3beb1bbc8544d6cbcf"
+  },
+  "guard-inner-r1/result.json": {
+    "original_bytes": 604,
+    "original_sha256": "3555fc293d38d97891db4b12fc0fe96a2fb1c9296afb81eefe1913c665d04402",
+    "gzip_bytes": 325,
+    "gzip_sha256": "7e0e46f7af32b0ccb97fa692e6d30bc0261201d9bef15a32a803bfc79f8f4105"
+  },
+  "guard-outer-r1/result.json": {
+    "original_bytes": 842,
+    "original_sha256": "776dfe73e2c0c1e50a2e0f5532f2ed31e6c64ab730e31131c649c231f6b4d4cc",
+    "gzip_bytes": 364,
+    "gzip_sha256": "f39523ff07a4d80dbc79e9ecbe3e0b84defa124d08394bedd3c01fdd4c2a17e1"
+  },
+  "build/sass.txt": {
+    "original_bytes": 779279,
+    "original_sha256": "1b8a2e5a6df7aad24558b0b2e2cc3c2dcb39dcafdfdf6f6223da30643a7908a0",
+    "gzip_bytes": 51765,
+    "gzip_sha256": "fb7174e64020eaab40a6b1f5c6bc0890628dff6d23ac953773ef198f010590af"
+  }
+}
