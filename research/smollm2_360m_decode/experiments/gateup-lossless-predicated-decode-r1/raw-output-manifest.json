@@ -1,0 +1,56 @@
+{
+  "results-r1.json": {
+    "original_bytes": 4013,
+    "original_sha256": "fa7557a0962b8b5d5cac71901528aae7031e6024374b56e9f2da620f14814950",
+    "gzip_bytes": 1562,
+    "gzip_sha256": "db9a804ceb92c5423c2627c2d3b6570858e4c2f083d964d645921d5d935802e7"
+  },
+  "results-r3.json": {
+    "original_bytes": 6188,
+    "original_sha256": "f8f2e63221ce6d46f959729cc2e015161b11dd4bed570b01c3b909b7d6205b4f",
+    "gzip_bytes": 1998,
+    "gzip_sha256": "0e744a2f4520e2b95feef54d1eda53f9c2c2b429207b92b6f37f68c3a9d4c728"
+  },
+  "guard-inner-r1/result.json": {
+    "original_bytes": 628,
+    "original_sha256": "91dc7cc7a4a54f081cad4094c65ea2eb3d75cf665b7e3ceb7537a339f97fd9cd",
+    "gzip_bytes": 331,
+    "gzip_sha256": "f255dd6616fe0374501f5479bdbe73bcd4f9cd268eba4b2223f3eaa9fb7fd329"
+  },
+  "guard-outer-r1/result.json": {
+    "original_bytes": 877,
+    "original_sha256": "922ac42af095c378bbaed12baddb44f18f1b2ec9cf41186583921012e0109f2d",
+    "gzip_bytes": 372,
+    "gzip_sha256": "647cc1a3c5c1d8910d5702ef1922200760962bc347b4b813b76f411645de6c44"
+  },
+  "guard-outer-r2/result.json": {
+    "original_bytes": 767,
+    "original_sha256": "f0fabcb14f146114aa9325258050ae00238f861a0ecb31edd968a5a3efef4ed4",
+    "gzip_bytes": 356,
+    "gzip_sha256": "a8ad6c7c182afacc49fe1cc5af4d74cc929a18eabfb3d5a61979780bd769c35d"
+  },
+  "guard-outer-r2/launch.log": {
+    "original_bytes": 540,
+    "original_sha256": "b8f4fbf5ba930db282e6574e17060b1c1d3d2a648f563008a5a7df8c1e76b0da",
+    "gzip_bytes": 331,
+    "gzip_sha256": "01e306123c21a15cd862df0bd7bbf8faa89ad4e423def191264ef1ffed749ebb"
+  },
+  "guard-inner-r3/result.json": {
+    "original_bytes": 633,
+    "original_sha256": "31fa31fbe7ffa9aedbad775a76b7e2efe9ee78363e97bc802070d89746a3441c",
+    "gzip_bytes": 335,
+    "gzip_sha256": "a4623a98b47204c0973a7d331265130c11247146b0ee308fea0f03d45989e3fc"
+  },
+  "guard-outer-r3/result.json": {
+    "original_bytes": 891,
+    "original_sha256": "4e834821b0874df685c06231c61beb3895b55dc181d197427f859fcd7292f067",
+    "gzip_bytes": 385,
+    "gzip_sha256": "409810053f2467e86787b895a79e29312c6adefa56f937b70a9fa65e43170fed"
+  },
+  "build/sass.txt": {
+    "original_bytes": 1491945,
+    "original_sha256": "cef1bc0742d4aea2bcc8338faaa608e91246dedeeb780109b1deee2f8d4ac269",
+    "gzip_bytes": 101261,
+    "gzip_sha256": "9cb880de8056c7f452363fc40647602fa568ce70efcab5fab982c5651624e212"
+  }
+}
