@@ -1,0 +1,9 @@
+{
+  "baseline_source_sha256": "0b56cdc994d445ddcb52f9ffb91565e80cf4de1d9b89723c58a5daa12f8c80f9",
+  "candidate_source_sha256": "f37f817c302895e7027054eeaaa0d848d4a59b669fe46a038a4821ab7cfbb623",
+  "baseline_source_is_exact_candidate_prefix": true,
+  "candidate_kernel_is_control_clone_with_one_prefetch_range_change": true,
+  "candidate_export_uses_same_seven_argument_pointer_abi": true,
+  "decode_helper_and_projection_arithmetic_unchanged": true,
+  "mismatches": 0
+}

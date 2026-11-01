@@ -1,0 +1,20 @@
+{
+  "results-r1.json": {
+    "original_bytes": 4117,
+    "original_sha256": "f2f389fdddd2c49be132eedd1087e78c278bc4de90e3cbe6626a93eef4093e1c",
+    "gzip_bytes": 1516,
+    "gzip_sha256": "b5107ec76e7a46c83b8ddd9a705ed80f05a0e30623461366d2b1d560c757b351"
+  },
+  "guard-inner-r1/result.json": {
+    "original_bytes": 620,
+    "original_sha256": "c668a3031619474ee035a0531d247cd1b6ebc2d2b5b91cfa8719a22a51cd3d14",
+    "gzip_bytes": 329,
+    "gzip_sha256": "c3c302ab96e2908f9d813599ff242270b6319355fcd38b11405d8a5bd281b7b0"
+  },
+  "guard-outer-r1/result.json": {
+    "original_bytes": 874,
+    "original_sha256": "09750b3d0dc94fe346631cd6a711133c6822e31eee9f4465ebb01723739ceee8",
+    "gzip_bytes": 380,
+    "gzip_sha256": "e20836494de79d35b341625599765ca043e4e4340451bd6bd65993702c9ff76c"
+  }
+}

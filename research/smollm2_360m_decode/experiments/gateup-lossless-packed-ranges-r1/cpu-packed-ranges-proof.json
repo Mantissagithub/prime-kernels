@@ -1,0 +1,41 @@
+{
+  "rows_checked": 6,
+  "invalid_ranges_rejected": 3,
+  "fixed_row_chunk_bound": 120,
+  "first_ordinal_limit_exclusive": 16777216,
+  "packed_word_limit_exclusive": 4294967296,
+  "same_raw_prefetch_begin_and_byte_count": true,
+  "cases": [
+    {
+      "first": 0,
+      "count": 0,
+      "packed_hex": "0x0"
+    },
+    {
+      "first": 0,
+      "count": 120,
+      "packed_hex": "0x78000000"
+    },
+    {
+      "first": 1,
+      "count": 1,
+      "packed_hex": "0x1000001"
+    },
+    {
+      "first": 16777096,
+      "count": 120,
+      "packed_hex": "0x78ffff88"
+    },
+    {
+      "first": 16777215,
+      "count": 1,
+      "packed_hex": "0x1ffffff"
+    },
+    {
+      "first": 16777215,
+      "count": 0,
+      "packed_hex": "0xffffff"
+    }
+  ],
+  "mismatches": 0
+}
