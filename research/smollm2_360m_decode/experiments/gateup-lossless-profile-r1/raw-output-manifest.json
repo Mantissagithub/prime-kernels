@@ -1,0 +1,26 @@
+{
+  "results-r1.json": {
+    "original_bytes": 23876,
+    "original_sha256": "d7ceda527f8f0af2fe82260fac1fee62f02389bc56a18be39667827a2006fa64",
+    "gzip_bytes": 5830,
+    "gzip_sha256": "ba4269e22f4e672b799480a324fdd16006fd65b73c73f13d07bd8f70617240bb"
+  },
+  "guard-inner-r1/result.json": {
+    "original_bytes": 608,
+    "original_sha256": "e20f008ec882ce142a9a44ad45d9c3090585325e40a4b986e5dd3b26b436aa98",
+    "gzip_bytes": 325,
+    "gzip_sha256": "58d69cfeff73856610d73c63c5469996e87a70b344cddb31956dd3745b1ad479"
+  },
+  "guard-outer-r1/result.json": {
+    "original_bytes": 847,
+    "original_sha256": "9762555cd6b72689c92acfa5e68378596480f6e351cf6dd8685457b4fb96cb74",
+    "gzip_bytes": 363,
+    "gzip_sha256": "0fcb3bffbab9bdf8c5c674a679683a11f6f1cceea65c4f5acb5189ebc4092ca1"
+  },
+  "build-failed-r1.log": {
+    "original_bytes": 2897,
+    "original_sha256": "150b8122a7cf88533d2be0ee26d09e4e34f64dc0e1a725c5c62dcc5c7e8d7f6b",
+    "gzip_bytes": 738,
+    "gzip_sha256": "c8f5d1152f5930469163cd3b5a47ee2654974af9e2c61bbfe2c31028e207add2"
+  }
+}
