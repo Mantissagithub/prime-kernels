@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/gateup-cpasync-probe-r1/harness.py",
+    "--skip-build"
+  ],
+  "returncode": 0,
+  "stop_reason": null,
+  "elapsed_seconds": 2.028127654994023,
+  "minimum_available_bytes": 11133288448,
+  "peak_cgroup_bytes": 463962112,
+  "peak_swap_bytes": 0,
+  "peak_gpu_mib": 471,
+  "disk_free_before_bytes": 45668995072,
+  "minimum_disk_free_bytes": 45668978688
+}

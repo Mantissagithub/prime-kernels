@@ -1,0 +1,26 @@
+{
+  "results/r30-b2-r1.json": {
+    "original_bytes": 1264460,
+    "original_sha256": "5721e47dc330e0d6b17fb7bda6e8afcd72eb8a969490afde8d906cfd6da7f2a6",
+    "gzip_bytes": 88696,
+    "gzip_sha256": "0de905e5ee72869d00d777f10368d899b4088d1fb294d193fc124abec17775fc"
+  },
+  "results/r35-b2-r1.json": {
+    "original_bytes": 1264358,
+    "original_sha256": "10439d5144d9171b60383f997fc118b80fd8f0dbbcd3d974d2ef7c860c3d2bc9",
+    "gzip_bytes": 89230,
+    "gzip_sha256": "569f2e1c8e3cd599ab84599458c26bcb53fd176d941f7be5b07be81bfd840410"
+  },
+  "results/r30-b2-summary-r1.json": {
+    "original_bytes": 31166,
+    "original_sha256": "da5c64956331d37d9d5e8689adef7e4da536a4a5a955af89ac16f66dd0efbda6",
+    "gzip_bytes": 3749,
+    "gzip_sha256": "315afe817994b0fd5407033db11bb03bbfd591c0ab9daa2feb399bd1b624983f"
+  },
+  "results/r35-b2-summary-r1.json": {
+    "original_bytes": 31161,
+    "original_sha256": "9b340eba055fe10ab76a4948d19a072aa88d825138831122b235f98d66a9ab4f",
+    "gzip_bytes": 3747,
+    "gzip_sha256": "ffebd09fd6793baa739a6ea3dfd6110c670c0fef181c6740891d51f2b596cd81"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r28-fast-stage-profile-r1/guard_3gib.py",
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r36-gateup-cta-map/bench_r30_r36.py",
+    "--output",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r36-gateup-cta-map/results/all-six-r1.json"
+  ],
+  "returncode": 1,
+  "stop_reason": null,
+  "elapsed_seconds": 0.2658412269956898,
+  "minimum_available_bytes": 11879735296,
+  "peak_cgroup_bytes": 20631552,
+  "peak_swap_bytes": 0,
+  "peak_gpu_mib": 0,
+  "disk_free_before_bytes": 45750050816,
+  "minimum_disk_free_bytes": 45750050816
+}

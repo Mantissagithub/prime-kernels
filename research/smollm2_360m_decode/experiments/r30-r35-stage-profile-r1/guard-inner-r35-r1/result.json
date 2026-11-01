@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r30-r35-stage-profile-r1/profile_bench.py",
+    "--pair",
+    "r35",
+    "--cases",
+    "seed17-b2-ctx32,seed17-b2-ctx128",
+    "--output",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r30-r35-stage-profile-r1/results/r35-b2-r1.json"
+  ],
+  "returncode": 0,
+  "stop_reason": null,
+  "elapsed_seconds": 6.0409812219877494,
+  "minimum_available_bytes": 10620510208,
+  "peak_cgroup_bytes": 1514217472,
+  "peak_swap_bytes": 0,
+  "peak_gpu_mib": 1387,
+  "disk_free_before_bytes": 45758754816,
+  "minimum_disk_free_bytes": 45757468672
+}

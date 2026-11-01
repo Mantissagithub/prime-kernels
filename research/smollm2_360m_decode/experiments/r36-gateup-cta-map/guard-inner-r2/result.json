@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r36-gateup-cta-map/bench_r30_r36.py",
+    "--output",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r36-gateup-cta-map/results/all-six-r2.json"
+  ],
+  "returncode": 0,
+  "stop_reason": null,
+  "elapsed_seconds": 13.473598490993027,
+  "minimum_available_bytes": 10400120832,
+  "peak_cgroup_bytes": 1505488896,
+  "peak_swap_bytes": 0,
+  "peak_gpu_mib": 1955,
+  "disk_free_before_bytes": 45749653504,
+  "minimum_disk_free_bytes": 45749202944
+}

@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r28-fast-stage-profile-r1/guard_3gib.py",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r30-gateup-phase-split-r1/guard-inner-r1",
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r30-gateup-phase-split-r1/profile_bench.py",
+    "--output",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r30-gateup-phase-split-r1/results/b2-r1.json"
+  ],
+  "returncode": 0,
+  "stop_reason": null,
+  "elapsed_seconds": 6.043774083998869,
+  "minimum_available_bytes": 9624838144,
+  "peak_cgroup_bytes": 1592762368,
+  "peak_swap_bytes": 0,
+  "peak_gpu_mib": 1399,
+  "disk_free_before_bytes": 44218630144,
+  "minimum_disk_free_bytes": 44217118720
+}

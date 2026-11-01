@@ -1,0 +1,30 @@
+{
+  "status": "source-only-preflight-passed",
+  "compile_or_gpu_run": false,
+  "baseline": "accepted R30 r30-phase-prefetch/candidate",
+  "hypothesis": "B2 CTA-contiguous gate/up rows may improve DRAM locality or warp arrival distribution; tail balance may worsen",
+  "change": "gate_gw = blockIdx.x * kWarps + warp for B2; gw for B1",
+  "cu_identical_to_r30": true,
+  "inc_only_gate_up_initial_row_changed": true,
+  "all_other_projection_loops_phases_prefetch_barriers_math_fma_order_outputs_and_abi_unchanged": true,
+  "sha256": {
+    "r30_cu": "5e853d1e6b207f199c0cfd27a4d34394f7fa81ab4748ea0e51d3240dd7286638",
+    "r36_cu": "5e853d1e6b207f199c0cfd27a4d34394f7fa81ab4748ea0e51d3240dd7286638",
+    "r30_inc": "60b234e7ab6bbd49ff5a7444fb0ff171a97ee37fe31234a72b8f045b3b495e83",
+    "r36_inc": "8a8cb7e0949d179ec89ef2a36b60ba994cbdb0dbdfa582f07ed237b24b9a4f62"
+  },
+  "inc_diff": [
+    "--- R30",
+    "+++ R36",
+    "@@ -387,7 +387,8 @@",
+    " ",
+    "   // R27 FAST gate/up: warp task r reads gate row r and up row kI + r together, so SwiGLU is",
+    "   // formed in-warp and no gate scratch is staged. Tasks are r = gw + k * kGlobalWarps for r < kI.",
+    "-  for (int r = gw; r < kI; r += kGlobalWarps) {",
+    "+  const int gate_gw = B == 2 ? blockIdx.x * kWarps + warp : gw;",
+    "+  for (int r = gate_gw; r < kI; r += kGlobalWarps) {",
+    "     const bf16* rows[2] = {L.gate_up + static_cast<size_t>(r) * kH,",
+    "                            L.gate_up + static_cast<size_t>(kI + r) * kH};",
+    "     float res[2][B];"
+  ]
+}

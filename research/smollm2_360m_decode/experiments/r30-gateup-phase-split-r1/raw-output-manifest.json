@@ -1,0 +1,14 @@
+{
+  "results/b2-r1.json": {
+    "original_bytes": 1468492,
+    "original_sha256": "b514f7f21d742f4509705e5230d0fd14185e625e9d18399221d88f22caaf63cf",
+    "gzip_bytes": 97548,
+    "gzip_sha256": "15f887ebdf7c0a562faf920c8428a26f0324ec6a01ba24023eebacbab7ef3220"
+  },
+  "results/summary-r1.json": {
+    "original_bytes": 34100,
+    "original_sha256": "b12cb93d7913d6ea9e1d14eb3cb844de10f927f70d0c32bb0a785dcb45324649",
+    "gzip_bytes": 3985,
+    "gzip_sha256": "3f3f83727870d6f629edaa6b9c929f714e14815b3ec8cc23c9a7dfa4fa382871"
+  }
+}

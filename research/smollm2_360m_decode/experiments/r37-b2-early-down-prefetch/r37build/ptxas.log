@@ -1,0 +1,11 @@
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z9mk_kernelILi2EEv6Params' for 'sm_89'
+ptxas info    : Function properties for _Z9mk_kernelILi2EEv6Params
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 243 registers, used 1 barriers, 43056 bytes smem, 536 bytes cmem[0]
+ptxas info    : Compile time = 400.343 ms
+ptxas info    : Compiling entry function '_Z9mk_kernelILi1EEv6Params' for 'sm_89'
+ptxas info    : Function properties for _Z9mk_kernelILi1EEv6Params
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 241 registers, used 1 barriers, 36644 bytes smem, 536 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 328.468 ms

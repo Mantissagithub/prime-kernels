@@ -1,0 +1,8 @@
+{
+  "results/all-six-r1.json": {
+    "original_bytes": 382054,
+    "original_sha256": "8f5f424db8b5e7b62a0969d8abe4622332355eb0b8ec059b41f78c943c423708",
+    "gzip_bytes": 18295,
+    "gzip_sha256": "cca935ba5d0edd464f32188d4ffba0437d0dca86e5a509b550bca8a27720c6ff"
+  }
+}

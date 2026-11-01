@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r30-gateup-phase-split-r1/profile_bench.py",
+    "--output",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r30-gateup-phase-split-r1/results/b2-r1.json"
+  ],
+  "returncode": 0,
+  "stop_reason": null,
+  "elapsed_seconds": 5.894002189001185,
+  "minimum_available_bytes": 9624838144,
+  "peak_cgroup_bytes": 1585848320,
+  "peak_swap_bytes": 0,
+  "peak_gpu_mib": 1387,
+  "disk_free_before_bytes": 44218617856,
+  "minimum_disk_free_bytes": 44217118720
+}

@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r28-fast-stage-profile-r1/guard_3gib.py",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/gateup-cpasync-crossrow-r1/guard-inner-r1",
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/gateup-cpasync-crossrow-r1/harness.py",
+    "--skip-build"
+  ],
+  "returncode": 0,
+  "stop_reason": null,
+  "elapsed_seconds": 2.0734809800051153,
+  "minimum_available_bytes": 10729132032,
+  "peak_cgroup_bytes": 462446592,
+  "peak_swap_bytes": 0,
+  "peak_gpu_mib": 471,
+  "disk_free_before_bytes": 44226244608,
+  "minimum_disk_free_bytes": 44226215936
+}

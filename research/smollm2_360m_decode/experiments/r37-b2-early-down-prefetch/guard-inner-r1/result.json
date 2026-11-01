@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r37-b2-early-down-prefetch/bench_r30_r37.py",
+    "--output",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r37-b2-early-down-prefetch/results/all-six-r1.json"
+  ],
+  "returncode": 0,
+  "stop_reason": null,
+  "elapsed_seconds": 13.87854523200076,
+  "minimum_available_bytes": 9756233728,
+  "peak_cgroup_bytes": 1646555136,
+  "peak_swap_bytes": 0,
+  "peak_gpu_mib": 1955,
+  "disk_free_before_bytes": 44232622080,
+  "minimum_disk_free_bytes": 44231639040
+}

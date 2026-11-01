@@ -1,0 +1,25 @@
+{
+  "pair": "r35",
+  "status": "semantically-anchored-source-only-preflight-passed",
+  "baseline_source": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r35-selective-packed/candidate/block360.cu",
+  "baseline_include": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r35-selective-packed/candidate/block360_kernel.inc",
+  "profile_source": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-r35-stage-profile-r1/r35-profile/block360.cu",
+  "profile_include": "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/r30-r35-stage-profile-r1/r35-profile/block360_kernel.inc",
+  "baseline_sha256": {
+    "block360.cu": "844431b41692356d1c5936b45b5cf9104a0efa958feb501b1a827d13c7884b0f",
+    "block360_kernel.inc": "e4f9ef22300d6bedd71e5a3ffdfc879e5a2b39251fd4cc8605b661a95b992264"
+  },
+  "profile_sha256": {
+    "block360.cu": "c511d6c159a2c5228152ea87fabcb2eac62f6e60057c24f4aede00e825185502",
+    "block360_kernel.inc": "76ddadaa28b3deb2d16e0caadbca8a282ad6185752fa9519bfa31d2d6ae1b910"
+  },
+  "strip_instrumentation_roundtrip": "byte-identical via exact profile declaration removal and strict reverse diff",
+  "semantic_checks": [
+    "all profile insertions anchored to exact unique phase context",
+    "norm1 clock starts before norm and stops outside debug block",
+    "QKV packed/float if-else remains adjacent and unmodified",
+    "R35 BF16/FP32 norm if-else remains adjacent and unmodified",
+    "phase ends ordered norm1, QKV, rope/cache, split-KV, merge, O/residual, norm2, gate/up, down, layer capture",
+    "decoder ABI validated by canonical source validator"
+  ]
+}
