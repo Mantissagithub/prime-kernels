@@ -1,0 +1,14 @@
+{
+  "results/all-six-r2.json": {
+    "original_bytes": 381975,
+    "original_sha256": "80e65693fbca85b545e009ac25e7d0596cdcb650d7d50a0f92d00aed60d3fb4d",
+    "gzip_bytes": 18367,
+    "gzip_sha256": "166995fb4e4b422ab3a105a97318fe335e0ebb378ac852e16b42f974c375c1c6"
+  },
+  "results/all-six-r3.json": {
+    "original_bytes": 382027,
+    "original_sha256": "acfe220e7051cfce00a859b444cab9b3ec83c65594e7c3d550b97564d39deb16",
+    "gzip_bytes": 17953,
+    "gzip_sha256": "867021ca7c118ecf54bcdbdeb1d9d7213034f7f7ac9d977a6f4b5396322c72fc"
+  }
+}
