@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r28-fast-stage-profile-r1/guard_3gib.py",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r34-packed-full/guard-inner-r1",
+    "/home/pradheep/.venv/bin/python",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r34-packed-full/bench_r30_r34.py",
+    "--output",
+    "/home/pradheep/tiny-prl/outputs/megakernel-20261025/r34-packed-full/results/all-six-r1.json"
+  ],
+  "returncode": 0,
+  "stop_reason": null,
+  "elapsed_seconds": 15.482819453005504,
+  "minimum_available_bytes": 8617541632,
+  "peak_cgroup_bytes": 1915715584,
+  "peak_swap_bytes": 0,
+  "peak_gpu_mib": 1955,
+  "disk_free_before_bytes": 52919087104,
+  "minimum_disk_free_bytes": 52918575104
+}
