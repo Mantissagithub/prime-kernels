@@ -1,0 +1,13 @@
+{
+  "byte_pair_patterns_checked": 65536,
+  "delta_base_cases_checked": 16075,
+  "sign_mantissa_corner_cases_checked": 64300,
+  "prmt_selector_cases_checked": 4,
+  "prmt_plane_words": [
+    "0xd3c2b1a0",
+    "0x78695a4b"
+  ],
+  "exponent_255_cases_included": true,
+  "mismatches": 0,
+  "escape_header_behavior": "SIMD helper returns the original raw uint4 unchanged when base is 255"
+}

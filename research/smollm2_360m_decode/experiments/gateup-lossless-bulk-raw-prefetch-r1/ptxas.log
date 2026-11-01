@@ -1,0 +1,38 @@
+Started gu-lossless-bulk-build-20261102-r1.service - /home/pradheep/.local/bin/uv run --offline --no-project --python /home/pradheep/.venv/bin/python /usr/local/cuda-13.0/bin/nvcc -Xptxas=-v -std=c++17 -O3 -arch=sm_89 -Xcompiler=-fPIC --shared /home/pradheep/tiny-prl/outputs/megakernel-20261025/gateup-lossless-bulk-raw-prefetch-r1/projection_probe.cu -o /home/pradheep/tiny-prl/outputs/megakernel-20261025/gateup-lossless-bulk-raw-prefetch-r1/build/libprojection_probe.so.
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z26decode_weights_simd_kernelPKhPKjPKtPt' for 'sm_89'
+ptxas info    : Function properties for _Z26decode_weights_simd_kernelPKhPKjPKtPt
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 21 registers, used 0 barriers, 384 bytes cmem[0]
+ptxas info    : Compile time = 21.799 ms
+ptxas info    : Compiling entry function '_Z13gateup_kernelILb1EEvPK13__nv_bfloat16S2_Pf' for 'sm_89'
+ptxas info    : Function properties for _Z13gateup_kernelILb1EEvPK13__nv_bfloat16S2_Pf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 62 registers, used 1 barriers, 24064 bytes smem, 376 bytes cmem[0]
+ptxas info    : Compile time = 23.977 ms
+ptxas info    : Compiling entry function '_Z13gateup_kernelILb0EEvPK13__nv_bfloat16S2_Pf' for 'sm_89'
+ptxas info    : Function properties for _Z13gateup_kernelILb0EEvPK13__nv_bfloat16S2_Pf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers, 7680 bytes smem, 376 bytes cmem[0]
+ptxas info    : Compile time = 20.634 ms
+ptxas info    : Compiling entry function '_Z31gateup_lossless_bulk_raw_kernelPKhPKjPKtS2_PK13__nv_bfloat16Pfm' for 'sm_89'
+ptxas info    : Function properties for _Z31gateup_lossless_bulk_raw_kernelPKhPKjPKtS2_PK13__nv_bfloat16Pfm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 7680 bytes smem, 408 bytes cmem[0]
+ptxas info    : Compile time = 33.365 ms
+ptxas info    : Compiling entry function '_Z22gateup_lossless_kernelPKhPKjPKtS2_PK13__nv_bfloat16Pf' for 'sm_89'
+ptxas info    : Function properties for _Z22gateup_lossless_kernelPKhPKjPKtS2_PK13__nv_bfloat16Pf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 56 registers, used 1 barriers, 7680 bytes smem, 400 bytes cmem[0]
+ptxas info    : Compile time = 37.022 ms
+ptxas info    : Compiling entry function '_Z27gateup_lossless_simd_kernelPKhPKjPKtS2_PK13__nv_bfloat16Pf' for 'sm_89'
+ptxas info    : Function properties for _Z27gateup_lossless_simd_kernelPKhPKjPKtS2_PK13__nv_bfloat16Pf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 7680 bytes smem, 400 bytes cmem[0]
+ptxas info    : Compile time = 33.122 ms
+ptxas info    : Compiling entry function '_Z21decode_weights_kernelPKhPKjPKtPt' for 'sm_89'
+ptxas info    : Function properties for _Z21decode_weights_kernelPKhPKjPKtPt
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 26 registers, used 0 barriers, 384 bytes cmem[0]
+ptxas info    : Compile time = 2.558 ms
+gu-lossless-bulk-build-20261102-r1.service: Consumed 1.528s CPU time, 1.7M memory peak, 0B memory swap peak.
