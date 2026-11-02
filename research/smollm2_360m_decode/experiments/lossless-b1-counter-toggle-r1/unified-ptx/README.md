@@ -1,0 +1,3 @@
+# Unified chunk reconstruction PTX
+
+One private helper rewrite merges predicated raw loading, compressed BF16 reconstruction and raw selection in a single inline PTX block. It shares the escape predicate; base/delta arithmetic, PRMT selectors and masks are unchanged. The plane remains loaded unconditionally alongside the header. Raw addressing still clamps non-escape indices to zero, and raw loads remain predicated. Results are moved to output operands only after all inputs are consumed, so output/input register aliasing cannot clobber live inputs. No profiling globals or timestamps. Validate the extracted exact helper, then full hidden/KV and captured fallback/refresh under the usual guards. No production change before measurement.

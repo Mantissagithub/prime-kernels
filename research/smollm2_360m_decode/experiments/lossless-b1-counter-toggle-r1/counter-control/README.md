@@ -1,0 +1,3 @@
+# Counter toggle premise test
+
+Both arms call the same function pointer from one guarded-profile CUDA library. A null device profile pointer skips clock reads and writes. Per placement, the host poisons the profile buffer, publishes null or its pointer and synchronizes before recording any timing event. After timing, disabled mode must leave every poison value untouched; enabled mode must write every cell positively. The setter is never called inside the timed decode invocation or graph capture. Both modes retain exact hidden/KV and captured fallback/refresh checks. This isolates counter execution within this binary, not the compiler change relative to the uninstrumented production kernel. No production edit or adoption.
