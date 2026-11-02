@@ -1,0 +1,26 @@
+
+Fatbin elf code:
+================
+arch = sm_89
+code version = [1,8]
+host = linux
+compile_size = 64bit
+identifier = /home/pradheep/tiny-prl/prime-kernels/prime_kernels/decode_megakernel_360m_lossless/csrc/block360.cu
+
+Resource usage:
+ Common:
+  GLOBAL:0
+ Function _Z9mk_kernelILi2EEv6Params:
+  REG:246 STACK:0 SHARED:44848 LOCAL:0 CONSTANT[0]:544 TEXTURE:0 SURFACE:0 SAMPLER:0
+ Function _Z9mk_kernelILi1EEv6Params:
+  REG:241 STACK:0 SHARED:36644 LOCAL:0 CONSTANT[2]:8 CONSTANT[0]:544 TEXTURE:0 SURFACE:0 SAMPLER:0
+
+Fatbin ptx code:
+================
+arch = sm_89
+code version = [9,0]
+host = linux
+compile_size = 64bit
+compressed
+identifier = /home/pradheep/tiny-prl/prime-kernels/prime_kernels/decode_megakernel_360m_lossless/csrc/block360.cu
+ptxasOptions = -v  --generate-line-info 

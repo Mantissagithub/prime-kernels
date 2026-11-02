@@ -1,0 +1,17 @@
+attempt	hypothesis	b2_change_percent_ctx32_128_1024	strict_b2_gate	exact	peak_gpu_mib
+candidate-r1	all-row phase-ahead hints	24.9264,24.2653,21.2850	False	True	2251
+early-staged-r1	metadata and first row staged early	7.3506,7.0973,6.0849	False	True	2411
+row-local-r1	adjacent rows per CTA	10.0229,9.6570,8.4109	False	True	2311
+register-epilogue-r1	SiLU intermediate stays in registers	5.2423,4.8804,4.4686	False	True	2251
+early-register-r1	early staging plus register epilogue	2.9335,2.8259,2.6649	False	True	2331
+decode-schedule-r1	remove compiler memory clobbers	2.8694,2.8687,2.6691	False	True	2251
+depth-two-r1	two-row lookahead	4.1101,4.0032,3.9547	False	True	2411
+bulk-cooperative-r1	cooperative whole-buffer hints	30.5715,29.4807,25.8245	False	True	2281
+l1-prefetch-r1	L1 hint target	2.8834,2.9018,2.7580	False	True	2251
+paired-loads-r1	pair gate and up loads before reconstruction	2.8960,2.8383,2.7389	False	True	2311
+sign-prmt-r1	sign-extending PRMT reconstruction	2.5234,2.3639,2.1636	False	True	2251
+shared-gemv-r1	shared B2 projection body with dense fallback	2.0157,1.9913,1.8875	False	True	2411
+parallel-plane-r1	overlap plane and header loads	-1.2602,-1.1324,-0.9364	True	True	2411
+parallel-plane-r2	fresh-process repeat	-1.2277,-1.1304,-0.9273	True	True	2251
+packaged-r1	actual packaged extension and poisoned fallback	-1.2498,-1.1802,-0.9329	True	True	2251
+old-new-r1	frozen old lossless versus fixed package	-10.7178,-10.3392,-9.1775	True	True	2251

@@ -44,34 +44,34 @@ __device__ __forceinline__ uint4 decode_chunk_predicated(const uint8_t* plane,
                                                           const uint32_t* headers,
                                                           const uint16_t* raw,
                                                           int chunk) {
+  const uint2 p = __ldg(reinterpret_cast<const uint2*>(plane) + chunk);
   const uint32_t h = __ldg(headers + chunk);
   const uint32_t base = h >> 24;
-  uint32_t plane0 = 0, plane1 = 0;
   uint32_t raw0 = 0, raw1 = 0, raw2 = 0, raw3 = 0;
-  const uint8_t* plane_address = plane + chunk * 8;
   asm volatile(
-      "{ .reg .pred p; .reg .b32 raw_index; .reg .b64 raw_address;\n\t"
-      "setp.eq.u32 p, %6, 255;\n\t"
-      "selp.b32 raw_index, %7, 0, p;\n\t"
-      "mad.wide.u32 raw_address, raw_index, 16, %8;\n\t"
-      "@!p ld.global.nc.v2.u32 {%0, %1}, [%9];\n\t"
-      "@p ld.global.nc.v4.u32 {%2, %3, %4, %5}, [raw_address];\n\t"
+      "{ .reg .pred escape; .reg .b32 raw_index; .reg .b64 raw_address;\n\t"
+      "setp.eq.u32 escape, %4, 255;\n\t"
+      "selp.b32 raw_index, %5, 0, escape;\n\t"
+      "mad.wide.u32 raw_address, raw_index, 16, %6;\n\t"
+      "@escape ld.global.nc.v4.u32 {%0, %1, %2, %3}, [raw_address];\n\t"
       "}\n\t"
-      : "+r"(plane0), "+r"(plane1), "+r"(raw0), "+r"(raw1), "+r"(raw2), "+r"(raw3)
-      : "r"(base), "r"(h & 0xFFFFFFu), "l"(raw), "l"(plane_address)
+      : "+r"(raw0), "+r"(raw1), "+r"(raw2), "+r"(raw3)
+      : "r"(base), "r"(h & 0xFFFFFFu), "l"(raw)
       : "memory");
 
-  const uint2 p = make_uint2(plane0, plane1);
   const uint32_t base_packed = base * 0x00010001u;
   uint32_t words[4];
 #pragma unroll
   for (int j = 0; j < 4; ++j) {
     const uint32_t d = (h >> (6 * j)) & 63u;
     const uint32_t delta_packed = (d * 0x2001u) & 0x00070007u;
-    const uint32_t bytes = __byte_perm(j < 2 ? p.x : p.y, 0,
-                                       j % 2 ? 0x4342 : 0x4140);
-    const uint32_t sign_mant = (bytes & 0x007f007fu) |
-                               ((bytes & 0x00800080u) << 8);
+    uint32_t expanded;
+    const uint32_t packed = j < 2 ? p.x : p.y;
+    if (j % 2)
+      asm("prmt.b32 %0, %1, 0, 0xb3a2;" : "=r"(expanded) : "r"(packed));
+    else
+      asm("prmt.b32 %0, %1, 0, 0x9180;" : "=r"(expanded) : "r"(packed));
+    const uint32_t sign_mant = expanded & 0x807f807fu;
     words[j] = sign_mant | ((base_packed + delta_packed) << 7);
   }
   asm volatile(
@@ -432,7 +432,36 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
   }
   const EncodedGULayer* encoded_layer = (B == 2 && p.encoded_gu) ? p.encoded_gu + layer_index : nullptr;
   const bool encoded_active = encoded_layer && __ldg(encoded_layer->enabled) != 0;
-  if (!encoded_active) {
+    __shared__ __align__(8) uint2 csr_ranges[kWarps][14][2];
+  if (encoded_active) {
+    const uint8_t* plane = encoded_layer->plane;
+    const uint32_t* headers = encoded_layer->headers;
+    const uint16_t* raw = encoded_layer->raw;
+    const uint32_t* raw_offsets = encoded_layer->row_offsets;
+    const int warp = t >> 5;
+    if (lane < 14) {
+      const int metadata_r = gw + lane * kGlobalWarps;
+      if (metadata_r < kI) {
+        for (int matrix = 0; matrix < 2; ++matrix) {
+          const int row = matrix * kI + metadata_r;
+          const uint32_t first = __ldg(raw_offsets + row);
+          const uint32_t last = __ldg(raw_offsets + row + 1);
+          csr_ranges[warp][lane][matrix] = make_uint2(first, last - first);
+        }
+      }
+    }
+    __syncwarp();
+    const int r0 = gw;
+    if (r0 < kI) {
+      for (int matrix = 0; matrix < 2; ++matrix) {
+        const int row = matrix * kI + r0;
+        prefetch_range_l2(plane + size_t(row) * kH, kH);
+        prefetch_range_l2(headers + size_t(row) * (kH / 8), (kH / 8) * sizeof(uint32_t));
+        const uint2 range = csr_ranges[warp][0][matrix];
+        if (range.y > 0) prefetch_range_l2(raw + size_t(range.x) * 8, size_t(range.y) * 16);
+      }
+    }
+  } else {
     for (int k = 0; k < (kI + kGlobalWarps - 1) / kGlobalWarps; ++k) {
       const int r = gw + k * kGlobalWarps;
       if (r < kI) {
@@ -452,38 +481,13 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
 
   // B2 uses the staged-CSR lossless decoder only when the published layer flag is enabled.
   // B1 and disabled layers retain the original dense R30 projection and rounding path.
-  if (encoded_active) {
-    __shared__ __align__(8) uint2 csr_ranges[kWarps][14][2];
-    const uint8_t* plane = encoded_layer->plane;
-    const uint32_t* headers = encoded_layer->headers;
-    const uint16_t* raw = encoded_layer->raw;
-    const uint32_t* raw_offsets = encoded_layer->row_offsets;
-    const int warp = t >> 5;
-    if (lane < 14) {
-      const int metadata_r = gw + lane * kGlobalWarps;
-      if (metadata_r < kI) {
-        for (int matrix = 0; matrix < 2; ++matrix) {
-          const int row = matrix * kI + metadata_r;
-          const uint32_t first = __ldg(raw_offsets + row);
-          const uint32_t last = __ldg(raw_offsets + row + 1);
-          csr_ranges[warp][lane][matrix] = make_uint2(first, last - first);
-        }
-      }
-    }
-    __syncthreads();
-    const int r0 = gw;
-    if (r0 < kI) {
-      for (int matrix = 0; matrix < 2; ++matrix) {
-        const int row = matrix * kI + r0;
-        prefetch_range_l2(plane + size_t(row) * kH, kH);
-        prefetch_range_l2(headers + size_t(row) * (kH / 8), (kH / 8) * sizeof(uint32_t));
-        const uint2 range = csr_ranges[warp][0][matrix];
-        if (range.y > 0) prefetch_range_l2(raw + size_t(range.x) * 8, size_t(range.y) * 16);
-      }
-    }
+  if constexpr (B == 2) {
+    const uint8_t* plane = encoded_layer ? encoded_layer->plane : nullptr;
+    const uint32_t* headers = encoded_layer ? encoded_layer->headers : nullptr;
+    const uint16_t* raw = encoded_layer ? encoded_layer->raw : nullptr;
     for (int r = gw; r < kI; r += kGlobalWarps) {
       const int future_r = r + kGlobalWarps;
-      if (future_r < kI) {
+      if (encoded_active && future_r < kI) {
         const int future_slot = (r - gw) / kGlobalWarps + 1;
         for (int matrix = 0; matrix < 2; ++matrix) {
           const int row = matrix * kI + future_r;
@@ -498,10 +502,16 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
       for (int it = 0; it < (kH / 8 + 31) / 32; ++it) {
         const int c = lane + 32 * it;
         if (c < kH / 8) {
-          const uint4 wg = decode_chunk_predicated(plane + size_t(r) * kH,
+          uint4 wg, wu;
+          if (encoded_active) {
+            wg = decode_chunk_predicated(plane + size_t(r) * kH,
                                                     headers + size_t(r) * (kH / 8), raw, c);
-          const uint4 wu = decode_chunk_predicated(plane + size_t(kI + r) * kH,
+            wu = decode_chunk_predicated(plane + size_t(kI + r) * kH,
                                                     headers + size_t(kI + r) * (kH / 8), raw, c);
+          } else {
+            wg = __ldg(reinterpret_cast<const uint4*>(L.gate_up + size_t(r) * kH) + c);
+            wu = __ldg(reinterpret_cast<const uint4*>(L.gate_up + size_t(kI + r) * kH) + c);
+          }
           const uint32_t ug[4] = {wg.x, wg.y, wg.z, wg.w};
           const uint32_t uu[4] = {wu.x, wu.y, wu.z, wu.w};
 #pragma unroll
@@ -519,6 +529,7 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
           }
         }
       }
+      float res[2][B];
 #pragma unroll
       for (int i = 0; i < 2; ++i)
 #pragma unroll
@@ -526,26 +537,21 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
           float sum = (acc[i][b][0] + acc[i][b][1]) + (acc[i][b][2] + acc[i][b][3]);
 #pragma unroll
           for (int off = 16; off > 0; off >>= 1) sum += __shfl_xor_sync(0xffffffffu, sum, off);
-          if (lane == 0) {
-            const float rounded = rnd(sum);
-            if (i == 0) {
-              const float silu = rnd(rounded / (1.f + expf(-rounded)));
-              if (p.debug) {
-                debug_layer[kDbgGate + b * kI + r] = __float2bfloat16_rn(rounded);
-                debug_layer[kDbgSilu + b * kI + r] = __float2bfloat16_rn(silu);
-              }
-              // Save gate temporarily; up is reduced in the next matrix iteration below.
-              ws[kOffAct + b * kI + r] = __float2bfloat16_rn(silu);
-            } else {
-              const float gate = bf2f(ws[kOffAct + b * kI + r]);
-              const float up = rounded;
-              const float silu = gate;
-              if (p.debug) debug_layer[kDbgUp + b * kI + r] = __float2bfloat16_rn(up);
-              ws[kOffAct + b * kI + r] = __float2bfloat16_rn(mul_rn(silu, up));
-              if (p.debug) debug_layer[kDbgAct + b * kI + r] = ws[kOffAct + b * kI + r];
-            }
-          }
+          res[i][b] = sum;
         }
+      if (lane == 0) {
+        for (int b = 0; b < B; ++b) {
+          const float g = rnd(res[0][b]), u = rnd(res[1][b]);
+          const float silu = rnd(g / (1.f + expf(-g)));
+          if (p.debug) {
+            debug_layer[kDbgGate + b * kI + r] = __float2bfloat16_rn(g);
+            debug_layer[kDbgUp + b * kI + r] = __float2bfloat16_rn(u);
+            debug_layer[kDbgSilu + b * kI + r] = __float2bfloat16_rn(silu);
+          }
+          ws[kOffAct + b * kI + r] = __float2bfloat16_rn(mul_rn(silu, u));
+          if (p.debug) debug_layer[kDbgAct + b * kI + r] = ws[kOffAct + b * kI + r];
+        }
+      }
     }
   } else {
     for (int r = gw; r < kI; r += kGlobalWarps) {
