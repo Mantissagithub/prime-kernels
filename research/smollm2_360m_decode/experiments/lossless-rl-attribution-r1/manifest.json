@@ -1,0 +1,37 @@
+{
+  "lossless-rl-attribution-r1/audit_runs.py": {
+    "source": "/home/pradheep/tiny-prl/outputs/megakernel-20261025/lossless-rl-attribution-r1/audit_runs.py",
+    "original_sha256": "65f67a9afd9a3e508a7fb76381a4a7c9da3312c6755aaa9232d21d07e4dacf27",
+    "archive_sha256": "65f67a9afd9a3e508a7fb76381a4a7c9da3312c6755aaa9232d21d07e4dacf27"
+  },
+  "lossless-rl-attribution-r1/audit.json.gz": {
+    "source": "/home/pradheep/tiny-prl/outputs/megakernel-20261025/lossless-rl-attribution-r1/audit.json",
+    "original_sha256": "abaf148b3558d733ad301a095cd70a70c50799630e5f9866e75f520b01866119",
+    "archive_sha256": "40810b249b9da668410353efc996a959f119f47c73bd2ee70ac89d906cecd358"
+  },
+  "lossless-rl-attribution-r1/report.md": {
+    "source": "/home/pradheep/tiny-prl/outputs/megakernel-20261025/lossless-rl-attribution-r1/report.md",
+    "original_sha256": "2fab52058c50bd029c7b28abde605cd74ab90589f3254dd8d208c40cd54512f6",
+    "archive_sha256": "2fab52058c50bd029c7b28abde605cd74ab90589f3254dd8d208c40cd54512f6"
+  },
+  "lossless-refresh-profile-r1/refresh_profile.py": {
+    "source": "/home/pradheep/tiny-prl/outputs/megakernel-20261025/lossless-refresh-profile-r1/refresh_profile.py",
+    "original_sha256": "8f6a453ac3a7adf8cb22f49fda4c6d4a76a1ddd9e1dd5b5d8f5e9854646bf940",
+    "archive_sha256": "8f6a453ac3a7adf8cb22f49fda4c6d4a76a1ddd9e1dd5b5d8f5e9854646bf940"
+  },
+  "lossless-refresh-profile-r1/results-r1.json.gz": {
+    "source": "/home/pradheep/tiny-prl/outputs/megakernel-20261025/lossless-refresh-profile-r1/results-r1.json",
+    "original_sha256": "b93e71ccc9bd49844271b8320f376a8ee2ba319eda986813fbd3ab21a5b3a2f2",
+    "archive_sha256": "237b2918071dccd14ad31702d6a5b691cbebd2e1598399ec5f336f401c68a401"
+  },
+  "lossless-refresh-profile-r1/guard-inner-r1/result.json.gz": {
+    "source": "/home/pradheep/tiny-prl/outputs/megakernel-20261025/lossless-refresh-profile-r1/guard-inner-r1/result.json",
+    "original_sha256": "7680a54a7a56f373bd2d40915bc93b8bb83646098bc3681676050eb39fefea89",
+    "archive_sha256": "0b58d2f159e993376b91fdf5c57916797b7ed684365e1783d5a602dafe6958ee"
+  },
+  "lossless-refresh-profile-r1/guard-outer-r1/result.json.gz": {
+    "source": "/home/pradheep/tiny-prl/outputs/megakernel-20261025/lossless-refresh-profile-r1/guard-outer-r1/result.json",
+    "original_sha256": "6270641125d89b9c3102dab1ebb7ab798d9e75528f95a3e440f731eeccc8b3d1",
+    "archive_sha256": "bc3aa72db5a8e8b4ef04ab0661add0a0591853c29066eac736bbb7e68f5d34d1"
+  }
+}
