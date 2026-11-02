@@ -1,0 +1,74 @@
+{
+  "baseline_config": {
+    "path": "prime-rl/outputs/megakernel-20261025/r30-full-forkserver-r1/runs/live-lossless-baseline-20261102-r1-on/r30-full-forkserver-on-2update/configs/attempt_1/rl.toml",
+    "sha256": "a5055875160261357dd7de762f229821942c84948f756a66a54fc0173b24b618"
+  },
+  "baseline_kernel_dso": {
+    "path": "prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/build/libdecode360_r30_phase_prefetch.so",
+    "sha256": "625f39f978e76a3e0ff01ed469bcd0de0cf65e51929a9597668af9cdff6c4db2"
+  },
+  "baseline_kernel_include": {
+    "path": "prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/candidate/block360_kernel.inc",
+    "sha256": "60b234e7ab6bbd49ff5a7444fb0ff171a97ee37fe31234a72b8f045b3b495e83"
+  },
+  "baseline_kernel_source": {
+    "path": "prime-rl/outputs/megakernel-20261025/r30-phase-prefetch/candidate/block360.cu",
+    "sha256": "5e853d1e6b207f199c0cfd27a4d34394f7fa81ab4748ea0e51d3240dd7286638"
+  },
+  "baseline_metrics": {
+    "path": "prime-rl/outputs/megakernel-20261025/r30-full-forkserver-r1/runs/live-lossless-baseline-20261102-r1-on/r30-full-forkserver-on-2update/monitors/file/metrics.jsonl",
+    "sha256": "22fe772474c910068cc465f96b0b7437b39d3ad3c21cff0cd33f49a5350abee3"
+  },
+  "candidate_config": {
+    "path": "prime-rl/outputs/megakernel-20261025/lossless-full-kernel-integration-r1/configs/forkserver-lossless.toml",
+    "sha256": "ff1bbbe46cc7d4afb3753038a9babef7b3f222ac0a72ff31c5ece60932ab338d"
+  },
+  "candidate_kernel_dso": {
+    "path": "prime-rl/outputs/megakernel-20261025/lossless-full-kernel-integration-r1/build/prime_decode_megakernel_360m_lossless.so",
+    "sha256": "d83cf72551ba65574eb756048242387b0c0ef5c1d16e1b5086f2932e0fa6bd30"
+  },
+  "candidate_kernel_include": {
+    "path": "prime-kernels/prime_kernels/decode_megakernel_360m_lossless/csrc/block360_kernel.inc",
+    "sha256": "c1381ade0c9368fe7dbc4a768964dd8982222e0006e9b1fb3d478355555117e9"
+  },
+  "candidate_kernel_source": {
+    "path": "prime-kernels/prime_kernels/decode_megakernel_360m_lossless/csrc/block360.cu",
+    "sha256": "fe430f5b84e7d5d829db05ac2b890902d9e31728b9d4a4eb2861a5e5480fd6a8"
+  },
+  "candidate_metrics": {
+    "path": "prime-rl/outputs/megakernel-20261025/lossless-full-kernel-integration-r1/runs/lossless-20261102-r2-candidate/lossless-full-forkserver-on-2update/monitors/file/metrics.jsonl",
+    "sha256": "438fd2449c465713fa5d9cdc8cba3a05231077f4ae5cacceeefdef390bd15c94"
+  },
+  "candidate_runtime_backend": {
+    "path": "prime-rl/src/prime_rl/inference/vllm/decode_backend.py",
+    "sha256": "19f9fb002be29af5953943cd9e9279c88070c10beaf7db6e8088ada9a6710e98"
+  },
+  "codec_cache": {
+    "path": "prime-kernels/prime_kernels/lossless_bf16/__init__.py",
+    "sha256": "77a40011f7294c0b849d0576da02f35081a3ed2d5f9eafe2535b36250e0b81a3"
+  },
+  "codec_package": {
+    "path": "prime-kernels/prime_kernels/decode_megakernel_360m_lossless/__init__.py",
+    "sha256": "41493143128206f7a4c7583795e849f20602a4c1e5b5ebdb789773e60745fbb3"
+  },
+  "full_decoder_timing_report": {
+    "path": "prime-rl/outputs/megakernel-20261025/lossless-full-kernel-integration-r1/timing-r1.json",
+    "sha256": "cf97634d768a536365c2b805761b1bc491a36684652b804cb8ba2b0ce0251107"
+  },
+  "full_decoder_timing_script": {
+    "path": "prime-rl/outputs/megakernel-20261025/lossless-full-kernel-integration-r1/validate_r30_parity.py",
+    "sha256": "7755a73352da62a97aa55cf6197e905df1beb5ef2578e15afee4cf77fa36f0cb"
+  },
+  "staged_csr_harness": {
+    "path": "prime-rl/outputs/megakernel-20261025/gateup-lossless-staged-csr-r1/harness_selected.py",
+    "sha256": "bd7762895892ec95c2ed8c6c0cedb824dbdbf0e3bd58f93f26e9779f03924c64"
+  },
+  "staged_csr_kernel_source": {
+    "path": "prime-rl/outputs/megakernel-20261025/gateup-lossless-staged-csr-r1/projection_probe.cu",
+    "sha256": "aa730f41fdcef3db8a14566a13cf52dacb9b3ac2a640b4ba8eeebe464e6cad26"
+  },
+  "staged_csr_source": {
+    "path": "prime-rl/outputs/megakernel-20261025/gateup-lossless-staged-csr-r1/projection_probe.cu",
+    "sha256": "aa730f41fdcef3db8a14566a13cf52dacb9b3ac2a640b4ba8eeebe464e6cad26"
+  }
+}

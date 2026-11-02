@@ -1,0 +1,3 @@
+First integration attempt stopped during checkpoint weight reload:
+RuntimeError: Inplace update to inference tensor outside InferenceMode is not allowed.
+The refresh decorator was added before the passing r2 retry.
