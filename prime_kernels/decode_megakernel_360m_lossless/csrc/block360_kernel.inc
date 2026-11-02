@@ -430,9 +430,9 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
       }
     }
   }
-  const EncodedGULayer* encoded_layer = (B == 2 && p.encoded_gu) ? p.encoded_gu + layer_index : nullptr;
+  const EncodedGULayer* encoded_layer = p.encoded_gu ? p.encoded_gu + layer_index : nullptr;
   const bool encoded_active = encoded_layer && __ldg(encoded_layer->enabled) != 0;
-    __shared__ __align__(8) uint2 csr_ranges[kWarps][14][2];
+  __shared__ __align__(8) uint2 csr_ranges[kWarps][14][2];
   if (encoded_active) {
     const uint8_t* plane = encoded_layer->plane;
     const uint32_t* headers = encoded_layer->headers;
@@ -479,9 +479,8 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
       debug_layer[kDbgNorm2 + i] = __float2bfloat16_rn(vec_s[i]);
   }
 
-  // B2 uses the staged-CSR lossless decoder only when the published layer flag is enabled.
-  // B1 and disabled layers retain the original dense R30 projection and rounding path.
-  if constexpr (B == 2) {
+  // Enabled layers use staged-CSR decoding; disabled layers retain dense loads.
+  {
     const uint8_t* plane = encoded_layer ? encoded_layer->plane : nullptr;
     const uint32_t* headers = encoded_layer ? encoded_layer->headers : nullptr;
     const uint16_t* raw = encoded_layer ? encoded_layer->raw : nullptr;
@@ -539,26 +538,6 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
           for (int off = 16; off > 0; off >>= 1) sum += __shfl_xor_sync(0xffffffffu, sum, off);
           res[i][b] = sum;
         }
-      if (lane == 0) {
-        for (int b = 0; b < B; ++b) {
-          const float g = rnd(res[0][b]), u = rnd(res[1][b]);
-          const float silu = rnd(g / (1.f + expf(-g)));
-          if (p.debug) {
-            debug_layer[kDbgGate + b * kI + r] = __float2bfloat16_rn(g);
-            debug_layer[kDbgUp + b * kI + r] = __float2bfloat16_rn(u);
-            debug_layer[kDbgSilu + b * kI + r] = __float2bfloat16_rn(silu);
-          }
-          ws[kOffAct + b * kI + r] = __float2bfloat16_rn(mul_rn(silu, u));
-          if (p.debug) debug_layer[kDbgAct + b * kI + r] = ws[kOffAct + b * kI + r];
-        }
-      }
-    }
-  } else {
-    for (int r = gw; r < kI; r += kGlobalWarps) {
-      const bf16* rows[2] = {L.gate_up + static_cast<size_t>(r) * kH,
-                             L.gate_up + static_cast<size_t>(kI + r) * kH};
-      float res[2][B];
-      warp_gemv_rows<kH, B, 2>(rows, vec_s, lane, res);
       if (lane == 0) {
         for (int b = 0; b < B; ++b) {
           const float g = rnd(res[0][b]), u = rnd(res[1][b]);

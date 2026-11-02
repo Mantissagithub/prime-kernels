@@ -1,0 +1,15 @@
+# Experiment 227: enable lossless GU for B1
+
+Root implemented and ran this work directly. The package enables the same staged-CSR GU reconstruction for B1 and removes the now-unreachable separate dense B1 body. Disabled layers retain dense loads. No weights, math order, rounding, training dtype or default route change.
+
+Five matched processes against the frozen previous actual package give B1 median paired changes of −0.903%, −0.677%, −0.732% at contexts 32/128/1024. Strict blocks pass 14/15,15/15,15/15; the failed context 32 block shows clock/timing drift and is retained. Each process has three alternating blocks and 120 events/arm/case. B2 is neutral; its 9,048 instructions match the old package exactly. The final integrated B1/B2 instruction sequences match the tested private variant, 8,616/9,048 instructions. B1 resource usage 253 registers / 38,440 shared bytes / zero spills; B2 unchanged 246 / 44,848/zero spills.
+
+All six cases pass integer-view exact final hidden and per-layer KV comparisons against R30, and then against the actual old package. Captured poisoned fallback and GU-only refresh pass for both B1/B2 at context 32. Native HF diagnostics retain their previous scope and do not establish general native parity.
+
+Five fresh fixed-work serving processes per arm, five repeats/case, show B1 median changes −0.77/−0.59/−0.46%. Only context 1024 has nonoverlapping process ranges. All tokens and sampled-token logprobs match. B2 ranges overlap; no B2 gain claimed. Both arms use the same package wrapper/cache and fixed prompts, 64 greedy tokens, 256 KV blocks, FULL_DECODE_ONLY graphs. The measured serving harness was derived from Experiment226 and retains unused R30 constants; its active baseline is the prior packaged lossless library, explicitly pinned in worker proof, not R30. The comparator is Experiment226 compare.py, used unchanged.
+
+All 34 inner/outer micro/serving guard records pass, zero job swap. The first CPU package build fails because hidden CUDA devices leave the unchanged codec without an inferred architecture; explicit TORCH_CUDA_ARCH_LIST=8.9+PTX resolves it. Both logs are preserved. No dependency or venv edit.
+
+The actual integrated kernel completes two full-parameter RL updates and three cache refreshes, all 32 layers enabled, finite loss/gradient/KL. 392 sampled rollouts, 196 tasks, 43,257 tokens; 85.794821 s wrapper interval. Guard passes, zero job swap, sampled GPU 7,222 MiB and minimum host 3.71 GB. FP32 optimization/reduction unchanged. This is functional validation; no matched RL speedup or verified RL curve point.
+
+Report source/library hashes distinguish private, frozen old package and final package. Frozen baseline sources and hashes are included; DSOs and weights are excluded. Source scripts retain workspace paths and depend on the same frozen validators/model snapshot as Experiment225. Artifacts are deterministic gzip with original/archive hashes in manifest.json. Exact measured source snapshots are retained even where historical descriptions refer to R30; report arm identities define each comparison.
