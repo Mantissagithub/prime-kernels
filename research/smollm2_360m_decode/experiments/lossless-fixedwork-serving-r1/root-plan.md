@@ -1,0 +1,7 @@
+# Fixed-work serving claim and decision gate
+
+Expected claim to test: the fixed lossless 360M package lowers synchronous vLLM generation time for the same prompt token IDs and 64 greedy generated tokens at batch two, relative to frozen private R30. This includes prefill, LM head, scheduler and output handling; it excludes engine startup and RL training/orchestration. It is a serving component comparison, never a verified RL wall-time point.
+
+The measured decoder-only headroom is 0.93–1.25%, so a large serving win would require investigating measurement errors or changed work. Startup, warmup, untimed logprob parity and timed generation must remain separate. Fixed prompts, exact output token IDs, per-request input/output counts, route/library identity and guard results are required. Both arms use the same KV capacity and scheduler settings. At least five separate process observations per arm, interleaved, are needed to claim a repeatable close win; pilot processes can only establish execution and correctness. Preserve failed runs and label timing variation explicitly.
+
+Root runs serially through runtime/run_micro.sh. No full RL launch while its 8 GiB available-host precondition fails. No changes to model/training dtypes, rewards or zero-advantage pruning. No production adoption unless end-to-end evidence supports it. If generation gain is below process variation, record no measurable serving improvement and profile next instead of reporting the micro gain as a full-RL gain.
