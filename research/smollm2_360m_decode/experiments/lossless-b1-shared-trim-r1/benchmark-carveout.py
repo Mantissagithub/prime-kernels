@@ -1,0 +1,40 @@
+"""Screen B1-only shared scratch sizing with the published exact-parity harness."""
+import os
+import importlib.util
+from pathlib import Path
+
+ROOT = Path("/home/pradheep/tiny-prl")
+HERE = Path(__file__).resolve().parent
+os.environ["TORCH_EXTENSIONS_DIR"] = str(Path("/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/lossless-b2-vadd2-r1/codec-build"))
+PATH = ROOT / "prime-kernels/research/smollm2_360m_decode/experiments/lossless-b1-r1/packaged_benchmark.py"
+spec = importlib.util.spec_from_file_location("vadd2_exact_benchmark", PATH)
+bench = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bench)
+bench.ARMS[bench.A] = {"source": HERE / "frozen-package/block360.cu",
+                       "include": HERE / "frozen-package/block360_kernel.inc",
+                       "library": HERE / "frozen-package/baseline.so"}
+bench.ARMS[bench.B] = {"source": HERE / "block360.cu", "include": HERE / "block360_kernel.inc",
+                       "library": HERE / "candidate.so"}
+original_configure=bench.configure_lossless
+
+def configure(path, ctypes, validator):
+    result=original_configure(path,ctypes,validator)
+    if Path(path).resolve()==(HERE/'candidate.so').resolve():
+        setter=result[0].decode360_set_b1_carveout
+        setter.argtypes=[ctypes.c_int];setter.restype=ctypes.c_int
+        assert setter(25)==0
+    return result
+
+bench.configure_lossless=configure
+original_run = bench.run
+
+def run(args):
+    result = original_run(args)
+    result["mode"] = "accepted package versus B1 trimmed shared scratch plus preferred shared carveout 25 percent"
+    for case in result["cases"]:
+        case["parity_outside_timing"]["A_vs_B"]["target"] = "current B1+B2 lossless package"
+    return result
+
+bench.run = run
+if __name__ == "__main__":
+    bench.main()

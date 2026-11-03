@@ -1,0 +1,5 @@
+ts	phase	decision	why	evidence	result
+2026-11-03	harness	Increase the accepted profile to10updates, change only startup mode acrossarms	Measure amortization with actual checkpoints and comparable training work	run_case.py	ready
+2026-11-03	safety	Use existing broadcast retention	WeightSender already keeps current and previous snapshots, bounding disk use	src/prime_rl/transports/weights/base.py	no production change
+2026-11-03	pilot	Stop ten-update timing repeats	Training diverges atstep5 and generatedtokens differ8.8percent; speed comparison not valid	pilot-summary.json	inconclusive
+2026-11-03	profile	Instrument actual V2 execute and sample phases in separate2update run	Native trainerwait dominates and guard GPU utilization during wait averages70.7percent; identify serving cost	rollout-profile/python/sitecustomize.py	diagnostic only, excluded from comparisons

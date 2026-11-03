@@ -1,0 +1,5 @@
+ts	phase	decision	why	evidence	result
+2026-11-03	hypothesis	Size only B1 shared scratch to actual template batch	Pure-decode runner spans dominate measured serving; unused B2-sized arrays waste B1 shared memory without helping math	block360_kernel.inc;../rl-10step-startup-r1/rollout-profile/profile-summary.json	private screen only
+2026-11-03	screen	Reject shared-only sizing for speed	B1 changes -0.036,+0.272,+0.018percent with strict0/3allcontexts despite lower shared use	summary-r1.json	rejected
+2026-11-03	hypothesis	Request25percent shared carveout once before timing	Test whether explicit L1 preference exposes value from lower shared requirements; no math or per-token host change	benchmark-carveout.py	private second screen
+2026-11-03	screen	Reject explicit25percent shared carveout control	B1 timing changes-0.012,+0.243,-0.013percent; strict1/3,0/3,1/3; no reproducible gain	summary-carveout-r1.json	rejected; no serving or RL sweep
