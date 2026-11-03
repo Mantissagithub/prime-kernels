@@ -1,0 +1,5 @@
+# Overlay on the named smollm2-360m preset. Sampling still needs explicit seeds.
+# Stabilizes native serving operations across batch shapes; full RL also depends on
+# policy versions, request scheduling and trainer behavior.
+[inference.env_vars]
+VLLM_BATCH_INVARIANT = "1"

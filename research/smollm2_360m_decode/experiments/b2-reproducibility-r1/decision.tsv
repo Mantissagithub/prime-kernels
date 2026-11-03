@@ -1,0 +1,12 @@
+ts	phase	decision	why	evidence	result
+2026-11-03	harness	Test fixed weights and seeded requests before further RL	Separate serving schedule from policy updates	probe.py;historical-initial-policy.json	running
+2026-11-03	diagnostic	Retain BF16-head probes as exploratory only	Actual RL uses an FP32 head; direct LLM construction missed that override	probe-bf16-head.py;lossless-r1.json;stock-r1.json	superseded by FP32 probes
+2026-11-03	diagnostic	Reject per-row FP32 LM head as the fix	All16 logprob streams and3 token streams still differ by batch	lossless-fp32-r1.json;lossless-rowhead-r1.json	rejected
+2026-11-03	trace	Locate first divergent operation in prefill	First QKV and O rows match but gate/up output differs in2028of5120BF16values with identical input	lossless-trace-r1.json	native shape-dependent gate/up projection confirmed
+2026-11-03	fix	Test existing VLLM_BATCH_INVARIANT in both RL arms	Corrected source search finds real linear and attention implementations; static80requests now match tokens and logprobs	lossless-invariant-r1.json	static gate passes; full RL pending
+2026-11-03	full-rl	Stop invariant-only confirmation at e2	Requests159vs174 and finalized148vs166 break the frozen work gate	rl-invariant/summary.json	inconclusive; no speedup
+2026-11-03	mixed-route	Reproduce mixed prefill/decode fallthrough	Two of four ongoing streams change tokens when a prefill joins	lossless-invariant-stagger-r1-stagger.json	confirmed
+2026-11-03	fix	Recompute mixed decode rows only under the invariant overlay	Private and integrated probes restore exact singleton tokens and logprobs for all8requests	integrated-r1-stagger.json;integrated-r1-backend-stats.json	kept opt-in; full RL confirming
+2026-11-03	confirmation	Require exact finalized work and trainer metrics after the code repair	Common174requests now match exactly; one45token shutdown request is extra	rl-repaired/confirm.py;rl-repaired/pilot-summary.json	confirmation gate frozen before four additional runs per arm
+2026-11-03	confirmation	Keep opt-in repaired serving and startup command	All10runs pass exact finalized work/trainer metrics and bounded tail gate; every early run beats every control	final-report.json	62.548471to55.202267seconds;11.7448percent lower
+2026-11-03	audit	Limit reproducibility claim to tested tokens and accepted training metrics	Some all-zero-reward groups still have raw stored logprob variation	finalized-trace-proof.json;trace-numerics.json	documented; no universal logprob claim

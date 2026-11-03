@@ -1,0 +1,110 @@
+# @ /home/pradheep/tiny-prl/prime-rl/examples/tiny/smollm2-360m-full-stream64.toml
+max_steps = 2
+seq_len = 512
+output_dir = "outputs"
+
+[run]
+name = "smollm2-360m-full-stream64"
+
+[model]
+name = "HuggingFaceTB/SmolLM2-360M-Instruct"
+
+[trainer.model]
+compile = "None"
+seq_len = 512
+optimization_dtype = "float32"
+reduce_dtype = "float32"
+offload = "optimizer_chunked"
+ac = { mode = "full", freq = 1 }
+ac_offloading = "None"
+fused_lm_head_token_chunk_size = 128
+fused_lm_head_kernel = "torch"
+
+[trainer.optim]
+lr = 1e-5
+gpu_state_budget_bytes = 2147483648
+
+[trainer.loss]
+type = "ipo"
+
+[monitors.file]
+
+[weight_broadcast]
+type = "filesystem"
+max_shard_size_bytes = 64000000
+stream_gather_to_disk = true
+
+[deployment]
+type = "single_node"
+gpus_per_node = 1
+num_train_gpus = 1
+num_infer_gpus = 1
+share_train_infer_gpu = true
+
+[orchestrator]
+batch_size = 4
+
+[orchestrator.train]
+group_size = 2
+
+[orchestrator.train.sampling]
+max_completion_tokens = 64
+
+[[orchestrator.train.source]]
+name = "alphabet-sort"
+serve.pool.type = "elastic"
+serve.pool.max_workers = 1
+env.taskset.id = "alphabet-sort"
+env.taskset.min_turns = 1
+env.taskset.max_turns = 1
+env.taskset.min_names_per_turn = 2
+env.taskset.max_names_per_turn = 2
+env.taskset.task.power_per_turn = false
+env.agent.harness.id = "null"
+
+[orchestrator.train.source.env.agent.runtime]
+type = "subprocess"
+fork_server = true
+
+[orchestrator.concurrency]
+max_inflight = 4
+
+[inference]
+router = "None"
+
+[inference.vllm]
+gpu_memory_utilization = 0.15
+max_model_len = 512
+max_num_seqs = 2
+max_num_batched_tokens = 512
+enforce_eager = false
+
+[inference.vllm.compilation_config]
+mode = "NONE"
+cudagraph_mode = "FULL_DECODE_ONLY"
+cudagraph_capture_sizes = [1, 2]
+
+[inference.vllm.kernel_config]
+enable_jit_warmup = false
+
+[orchestrator.renderer]
+name = "default"
+
+# @ /home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/b2-reproducibility-r1/rl-repaired/runs/c3/benchmark.toml
+[inference]
+decode_megakernel = true
+[inference.vllm]
+max_num_seqs = 2
+[inference.env_vars]
+VLLM_BATCH_INVARIANT = "1"
+PRIME_DECODE_MEGAKERNEL_360M_LOSSLESS = "1"
+TINY_MATCH_LIBRARY = "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/lossless-b2-vadd2-r1/frozen-package/baseline.so"
+TINY_MATCH_TRACE = "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/b2-reproducibility-r1/rl-repaired/runs/c3/trace"
+PYTHONPATH = "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/b2-reproducibility-r1/rl-repaired/python:/home/pradheep/tiny-prl/prime-rl/src:/home/pradheep/tiny-prl/prime-rl/packages/prime-rl-configs/src:/home/pradheep/tiny-prl/prime-kernels"
+TORCH_EXTENSIONS_DIR = "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/lossless-b2-vadd2-r1/codec-build"
+
+# @ /home/pradheep/tiny-prl/prime-rl/examples/tiny/laptop.toml
+# Shared settings for the laptop command's named presets.
+[ckpt]
+single_file_per_rank = false
+keep_last = 1
