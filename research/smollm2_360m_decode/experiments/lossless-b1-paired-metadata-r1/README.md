@@ -1,0 +1,3 @@
+# Private B1 paired gate/up metadata
+
+B1 preloads both uint2 sign/mantissa planes and both uint32 headers before either chunk reconstruction. The preloaded decoder body is copied exactly from the accepted decoder after its two metadata loads. Full outer unrolling, raw-load/select PTX, arithmetic and reductions remain unchanged. B2 keeps the original pointer decoder calls. Tests whether breaking the source-level metadata dependency across memory-clobber asm helps B1 without extra profiling code. Inspect generated resource usage and B2 byte identity, then exact hidden/KV, captured fallback/refresh and interleaved timing. No production edit or speed claim before measurement.

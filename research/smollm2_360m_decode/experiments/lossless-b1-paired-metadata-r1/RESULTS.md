@@ -1,0 +1,9 @@
+# Experiment 231: B1 paired metadata trial rejected
+
+The first private variant preloads both sign/mantissa planes and both headers before either reconstruction, using flattened chunk indices. The decoder body after its metadata loads is copied unchanged; full unrolling, raw/select PTX, arithmetic and reductions are retained. Exact hidden/KV and captured poisoned fallback/refresh pass in all six fixtures. B1 latency changes are +1.157%, +1.403%, +0.966% at contexts32/128/1024; strict blocks1/3,0/3,0/3. One process, not adopted. B2 machine code is byte-identical; its small timing shifts are not gains.
+
+The flattened-index variant adds16B1instructions, with unchanged253registers and no spills. The control keeps the same source-level load pairing but restores the original row-pointer address expressions. Both B1/B2 instruction words, including control bits, then match the package exactly (8616/9048instructions), so no GPU rerun is needed. Source-level load grouping alone has no final machine-code effect in that control. This does not prove a particular memory-stall cause.
+
+The current SASS load/reconstruction window is included as representative evidence for the next dependency inspection. Follow-up should target the ordering of conditional raw requests rather than another equivalent metadata expression, and must check actual emitted instructions before timing.
+
+Both guards pass, zero job swap; GPU peak2231MiB and minimum host8.23GB. Production kernel remains996d8d4; no adoption or full-RL rerun. Root implemented and ran the work directly. Thin benchmark wrappers use the published Experiment227 exact-parity harness and unchanged frozen model/validators. Paths remain workspace-specific. Sources and deterministic compressed evidence are included; compiled libraries and weights are excluded. Manifest hashes cover originals and archived payloads.

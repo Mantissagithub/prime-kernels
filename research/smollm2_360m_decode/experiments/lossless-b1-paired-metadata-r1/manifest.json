@@ -1,0 +1,112 @@
+{
+  "sass.txt.gz": {
+    "original_sha256": "cb476952d86b974727d53f35ab8dc2c040ee759248c9c18173e5ed417e66bad6",
+    "archive_sha256": "e38f895c5f37619d148b18d4f6388f23b2bf3808594766fede77868ae979e901",
+    "original_bytes": 4314836
+  },
+  "benchmark.py": {
+    "original_sha256": "c1966195935d170911854442f7c4a31e92fedad189d798546c7884cc801d4460",
+    "archive_sha256": "c1966195935d170911854442f7c4a31e92fedad189d798546c7884cc801d4460",
+    "original_bytes": 1248
+  },
+  "sass-comparison.json.gz": {
+    "original_sha256": "41ff5baf95996b4a053eab0ec2dfe938b085190006401fb0e8d1c5121a0b623d",
+    "archive_sha256": "ae12ae48fa9775a14043c0a798a4ce2562c007091fca69943895050dc6fbaabc",
+    "original_bytes": 228
+  },
+  "build.log.gz": {
+    "original_sha256": "0fbbb1561aefab03393f6f325e3c8b7df0f439f38fba1842e14298e0931287e8",
+    "archive_sha256": "65d0e79e4eba65932cc4a8af144c6670bd63766136a6bb46269d8917981ec2f3",
+    "original_bytes": 740
+  },
+  "block360.cu": {
+    "original_sha256": "eb723d50542489045443f9a5047756f71e0bf6ff5e0280113d3c94a2cce3aeb4",
+    "archive_sha256": "eb723d50542489045443f9a5047756f71e0bf6ff5e0280113d3c94a2cce3aeb4",
+    "original_bytes": 10155
+  },
+  "representative-current-load-window.txt.gz": {
+    "original_sha256": "5f38381ca8ed693e0614c8c99221f2b2cdaa6f8526dc89a3ccbf16bffb6406d3",
+    "archive_sha256": "b792d919fe004b3c31fabb6eaf42717b01b6947473f418a43beb12d10a0364bd",
+    "original_bytes": 25620
+  },
+  "summary-r1.json.gz": {
+    "original_sha256": "bfe18fd740601a8135ae4e0a7f106ceb67c093fa9018bd746dfe9050e495e8b9",
+    "archive_sha256": "17d9b3e8ce1aa3fa5afc014aae5e3105d929fb7231d127639f10522edd497871",
+    "original_bytes": 6183
+  },
+  "source-identities.json.gz": {
+    "original_sha256": "cd0fefc8cf29c94cca708daf117daf2f6c297872ff7ee5316542ae5b7d1224e5",
+    "archive_sha256": "bc92fa1de16bac547bf25b76de3e6e3b59db277220c1c801fb062276ba92591c",
+    "original_bytes": 181
+  },
+  "results-r1.json.gz": {
+    "original_sha256": "b1f8d45a784647ae06bc2b54da3c70060a7696d243d72823fc58e10dffea498b",
+    "archive_sha256": "92dbe7f5c8dfd25c25b317d1a4721e1bf6aa2847fcbb78fcc8d068f225517656",
+    "original_bytes": 383461
+  },
+  "opcode-delta.json.gz": {
+    "original_sha256": "44a6b1a5ff098a5ea17f76a8b572798d5e67a4ed8b947db764697a4c9cf38a39",
+    "archive_sha256": "e3fd25cc57413988f7eb1319f09cfe1b60bba5cc94cf92a838312b260e852014",
+    "original_bytes": 204
+  },
+  "README.md": {
+    "original_sha256": "f381db922277be0de321203ddfcc8fb4902066cb0ad621d812577c23cf882f68",
+    "archive_sha256": "f381db922277be0de321203ddfcc8fb4902066cb0ad621d812577c23cf882f68",
+    "original_bytes": 681
+  },
+  "RESULTS.md": {
+    "original_sha256": "e26d54186d3e6f668421184bc2844225da97a6a658247d5a17811db149d0c646",
+    "archive_sha256": "e26d54186d3e6f668421184bc2844225da97a6a658247d5a17811db149d0c646",
+    "original_bytes": 1871
+  },
+  "block360_kernel.inc": {
+    "original_sha256": "c62ff25cd216ccc3a24fa5c33c45f1eb1680094677084403336b436fa27d7949",
+    "archive_sha256": "c62ff25cd216ccc3a24fa5c33c45f1eb1680094677084403336b436fa27d7949",
+    "original_bytes": 34936
+  },
+  "row-address/sass.txt.gz": {
+    "original_sha256": "358c64dca4421ed879e451e62fa25112c1492237b7e45b384c24d6796a8fa9cd",
+    "archive_sha256": "39e501567caa63d931dfa379b45098ecb566219e2af71130e45d88a4ecf52ffa",
+    "original_bytes": 4310968
+  },
+  "row-address/benchmark.py": {
+    "original_sha256": "c1966195935d170911854442f7c4a31e92fedad189d798546c7884cc801d4460",
+    "archive_sha256": "c1966195935d170911854442f7c4a31e92fedad189d798546c7884cc801d4460",
+    "original_bytes": 1248
+  },
+  "row-address/sass-comparison.json.gz": {
+    "original_sha256": "221d461309f5feabcbcb0e47a4c42a47e30e0e9b7a77e488bedb759f6e30e2b9",
+    "archive_sha256": "6f9312e5d176f20b128595bbde8c9fbeffc5799b6ba5bce6bdc76e1df75b1e98",
+    "original_bytes": 227
+  },
+  "row-address/build.log.gz": {
+    "original_sha256": "d3bab480c77c0ab3028020e7602aac5628c0d3fb38119eb3c88ef96e5efbaf91",
+    "archive_sha256": "0d96d99cf9425d62b93ef284a4e0338246f6df08f970ee2b15663d812f8a5c11",
+    "original_bytes": 740
+  },
+  "row-address/block360.cu": {
+    "original_sha256": "eb723d50542489045443f9a5047756f71e0bf6ff5e0280113d3c94a2cce3aeb4",
+    "archive_sha256": "eb723d50542489045443f9a5047756f71e0bf6ff5e0280113d3c94a2cce3aeb4",
+    "original_bytes": 10155
+  },
+  "row-address/README.md": {
+    "original_sha256": "0da1059e4d2a15fbfef22099d5ffaa8f37165daf7118ca9adc816fa4b636a109",
+    "archive_sha256": "0da1059e4d2a15fbfef22099d5ffaa8f37165daf7118ca9adc816fa4b636a109",
+    "original_bytes": 294
+  },
+  "row-address/block360_kernel.inc": {
+    "original_sha256": "b39fa7bf0d7ba304a9956ba488eca64e6fa5bdb97a9377f00f0306f6da74bf23",
+    "archive_sha256": "b39fa7bf0d7ba304a9956ba488eca64e6fa5bdb97a9377f00f0306f6da74bf23",
+    "original_bytes": 34901
+  },
+  "guard-inner-r1/result.json.gz": {
+    "original_sha256": "68c293e52bcc8496131456fefae7333f8ebe9fc67bfe4a9dc6edd4b13f3c1784",
+    "archive_sha256": "c04fcb441bc1f6828400cd24157d199c8857e508b1d4417871e52c62fe48548b",
+    "original_bytes": 528
+  },
+  "guard-outer-r1/result.json.gz": {
+    "original_sha256": "64fbd1585f256346ca472e5580ee208ff29f99f35512cff63d0c6a4269ca9547",
+    "archive_sha256": "b047c5e46e6bbbcf5537f5688f83c53733062676581e85893c9afe0c1d96bfeb",
+    "original_bytes": 756
+  }
+}
