@@ -1,0 +1,16 @@
+[deployment]
+early_trainer_start = true
+[inference]
+decode_megakernel = true
+[inference.vllm]
+max_num_seqs = 1
+[inference.env_vars]
+PRIME_DECODE_MEGAKERNEL_360M_LOSSLESS = "1"
+TINY_MATCH_LIBRARY = "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/lossless-b2-vadd2-r1/frozen-package/baseline.so"
+TINY_MATCH_TRACE = "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/lossless-b1-rl-matched-r1/runs/e1/trace"
+PYTHONPATH = "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/lossless-b1-rl-matched-r1/python:/home/pradheep/tiny-prl/prime-rl/src:/home/pradheep/tiny-prl/prime-rl/packages/prime-rl-configs/src:/home/pradheep/tiny-prl/prime-kernels"
+TORCH_EXTENSIONS_DIR = "/home/pradheep/tiny-prl/prime-rl/outputs/megakernel-20261025/lossless-b2-vadd2-r1/codec-build"
+[orchestrator.concurrency]
+min_inflight = 2
+max_inflight = 2
+initial_inflight = 2
