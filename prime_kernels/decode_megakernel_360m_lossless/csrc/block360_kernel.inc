@@ -40,6 +40,7 @@ __device__ __forceinline__ void unpack8(const uint4 v, float (&f)[8]) {
   f[6] = lo_bf16(v.w); f[7] = hi_bf16(v.w);
 }
 
+template <int B>
 __device__ __forceinline__ uint4 decode_chunk_predicated(const uint8_t* plane,
                                                           const uint32_t* headers,
                                                           const uint16_t* raw,
@@ -72,7 +73,10 @@ __device__ __forceinline__ uint4 decode_chunk_predicated(const uint8_t* plane,
     else
       asm("prmt.b32 %0, %1, 0, 0x9180;" : "=r"(expanded) : "r"(packed));
     const uint32_t sign_mant = expanded & 0x807f807fu;
-    words[j] = sign_mant | ((base_packed + delta_packed) << 7);
+    // Each halfword sums to at most 262, so neither addition can carry across lanes.
+    const uint32_t exponents = B == 1 ? __vadd2(base_packed, delta_packed)
+                                      : base_packed + delta_packed;
+    words[j] = sign_mant | (exponents << 7);
   }
   asm volatile(
       "{ .reg .pred p; .reg .b32 selected0, selected1, selected2, selected3;\n\t"
@@ -503,9 +507,9 @@ __global__ void __launch_bounds__(kThreads, 1) mk_kernel(const Params p) {
         if (c < kH / 8) {
           uint4 wg, wu;
           if (encoded_active) {
-            wg = decode_chunk_predicated(plane + size_t(r) * kH,
+            wg = decode_chunk_predicated<B>(plane + size_t(r) * kH,
                                                     headers + size_t(r) * (kH / 8), raw, c);
-            wu = decode_chunk_predicated(plane + size_t(kI + r) * kH,
+            wu = decode_chunk_predicated<B>(plane + size_t(kI + r) * kH,
                                                     headers + size_t(kI + r) * (kH / 8), raw, c);
           } else {
             wg = __ldg(reinterpret_cast<const uint4*>(L.gate_up + size_t(r) * kH) + c);
