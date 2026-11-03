@@ -94,7 +94,11 @@ setuptools.setup(
     # Listed explicitly: the kernel folders carry C++/CUDA sources next to their Python, and
     # only the Python surface plus the compiled extension belongs in the wheel.
     packages=["prime_kernels", *(f"prime_kernels.{name}" for name in kernels)],
-    package_data={"prime_kernels": ["kernels.toml"]},
+    package_data={
+        "prime_kernels": ["kernels.toml"],
+        "prime_kernels.decode_megakernel_360m_lossless": ["csrc/*.cu", "csrc/*.inc"],
+        "prime_kernels.lossless_bf16": ["csrc/*.cu", "csrc/*.h"],
+    },
     ext_modules=extensions,
     cmdclass={"build_ext": BuildExtension},
 )

@@ -22,15 +22,11 @@ def _load_library():
     if _library is None:
         if os.environ.get("PYTORCH_NVML_BASED_CUDA_CHECK") is None:
             os.environ["PYTORCH_NVML_BASED_CUDA_CHECK"] = "1"
-        repo_root = Path(__file__).resolve().parents[3]
-        build_dir = repo_root / "outputs" / "megakernel-20261025" / "lossless-codec-integration-r1" / "build"
-        build_dir.mkdir(parents=True, exist_ok=True)
         library = cpp_extension.load(
             name="prime_lossless_bf16",
             sources=[str(SOURCE)],
             extra_include_paths=[str(INCLUDE.parent)],
             extra_cuda_cflags=["-O3", "-std=c++17"],
-            build_directory=str(build_dir),
             is_python_module=False,
             verbose=False,
         )

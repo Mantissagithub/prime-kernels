@@ -11,8 +11,6 @@ import torch
 from torch.utils import cpp_extension
 
 SOURCE = Path(__file__).resolve().parent / "csrc" / "block360.cu"
-REPO_ROOT = Path(__file__).resolve().parents[3]
-CACHE_ROOT = REPO_ROOT / "outputs" / "megakernel-20261025" / "lossless-full-kernel-integration-r1" / "build"
 NVCC_FLAGS = ["-O3", "-arch=sm_89", "-std=c++17", "-lineinfo", "-Xptxas=-v"]
 
 MAX_BATCH = 2
@@ -47,13 +45,10 @@ class _Runtime:
 def _library():
     global _lib
     if _lib is None:
-        build_dir = CACHE_ROOT
-        build_dir.mkdir(parents=True, exist_ok=True)
         library = cpp_extension.load(
             name="prime_decode_megakernel_360m_lossless",
             sources=[str(SOURCE)],
             extra_cuda_cflags=NVCC_FLAGS,
-            build_directory=str(build_dir),
             is_python_module=False,
             verbose=False,
         )
